@@ -1,9 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SW 상품조회</title>
+
+  <!-- 바코드 인식 라이브러리 -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
     * {
@@ -68,6 +72,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     #loginButton {
       width: 100%;
     }
@@ -96,6 +105,49 @@
       white-space: nowrap;
     }
 
+    /* 모바일 카메라 버튼 - 기본 PC 숨김 */
+    #scanButton {
+      display: none;
+      flex-shrink: 0;
+      background: #16a34a;
+      white-space: nowrap;
+    }
+
+    /* 바코드 스캐너 */
+    #scannerArea {
+      display: none;
+      margin-bottom: 18px;
+      padding: 12px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    #reader {
+      width: 100%;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    #reader video {
+      width: 100% !important;
+      object-fit: cover;
+    }
+
+    .scanner-guide {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin: 10px 0;
+    }
+
+    #stopScanButton {
+      width: 100%;
+      background: #dc2626;
+      margin-top: 5px;
+    }
+
+    /* 정보 */
     .info-area {
       display: flex;
       justify-content: space-between;
@@ -157,7 +209,7 @@
       border-bottom: none;
     }
 
-    /* 모바일 카드 기본 */
+    /* 모바일 카드 */
     #mobileResults {
       display: none;
       width: 100%;
@@ -266,16 +318,23 @@
       }
 
       .search-area {
-        gap: 6px;
+        gap: 5px;
       }
 
       #searchInput {
-        padding: 12px;
-        font-size: 15px;
+        padding: 12px 9px;
+        font-size: 14px;
       }
 
       #searchButton {
-        padding: 12px 14px;
+        padding: 12px 11px;
+        font-size: 14px;
+      }
+
+      /* 모바일에서만 카메라 버튼 표시 */
+      #scanButton {
+        display: block;
+        padding: 12px 11px;
         font-size: 14px;
       }
 
@@ -330,9 +389,12 @@
 
     <!-- 상품 조회 -->
     <div id="mainArea" style="display:none;">
+
       <h1>SW 상품조회</h1>
 
+      <!-- 검색창 -->
       <div class="search-area">
+
         <input
           type="text"
           id="searchInput"
@@ -340,6 +402,25 @@
         >
 
         <button id="searchButton">검색</button>
+
+        <!-- 모바일 전용 카메라 버튼 -->
+        <button id="scanButton">스캔</button>
+
+      </div>
+
+      <!-- 바코드 카메라 영역 -->
+      <div id="scannerArea">
+
+        <div id="reader"></div>
+
+        <p class="scanner-guide">
+          상품 바코드를 카메라 화면에 비춰주세요.
+        </p>
+
+        <button id="stopScanButton">
+          스캔 종료
+        </button>
+
       </div>
 
       <div class="info-area">
@@ -373,6 +454,7 @@
       <div id="mobileResults"></div>
 
       <div id="statusMessage"></div>
+
     </div>
   </div>
 
@@ -389,6 +471,10 @@
 
     let refreshTimer = null;
     let isLoading = false;
+
+    // 바코드 스캐너 변수
+    let barcodeScanner = null;
+    let hasScanned = false;
 
     // 로그인
     document.getElementById("loginButton")
@@ -412,6 +498,7 @@
         loadProducts();
 
         refreshTimer = setInterval(loadProducts, 60000);
+
       } else {
         document.getElementById("loginMessage").textContent =
           "비밀번호가 올바르지 않습니다.";
@@ -594,6 +681,142 @@
       renderProducts();
     }
 
+    // ==============================
+    // 모바일 바코드 스캔 기능
+    // ==============================
+
+    // 카메라 시작
+    document.getElementById("scanButton")
+      .addEventListener("click", startBarcodeScanner);
+
+    async function startBarcodeScanner() {
+
+      if (barcodeScanner) return;
+
+      if (!window.Html5Qrcode) {
+        alert("바코드 인식 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.");
+        return;
+      }
+
+      if (!window.isSecureContext) {
+        alert("카메라 사용은 HTTPS 환경에서만 가능합니다.");
+        return;
+      }
+
+      hasScanned = false;
+
+      const scannerArea =
+        document.getElementById("scannerArea");
+
+      scannerArea.style.display = "block";
+
+      document.getElementById("scanButton").disabled = true;
+
+      document.getElementById("statusMessage").textContent =
+        "카메라를 실행하는 중입니다...";
+
+      barcodeScanner = new Html5Qrcode("reader", {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.ITF,
+          Html5QrcodeSupportedFormats.CODABAR
+        ],
+        verbose: false
+      });
+
+      try {
+
+        await barcodeScanner.start(
+          { facingMode: "environment" },
+
+          {
+            fps: 10,
+            aspectRatio: 1.7777778
+          },
+
+          function(decodedText) {
+
+            // 한 번 인식하면 중복 실행 방지
+            if (hasScanned) return;
+
+            hasScanned = true;
+
+            // 검색창에 바코드 입력
+            document.getElementById("searchInput").value =
+              decodedText;
+
+            document.getElementById("statusMessage").textContent =
+              "바코드 인식 완료: " + decodedText;
+
+            // 카메라 종료 후 자동 검색
+            stopBarcodeScanner().then(function() {
+              searchProducts();
+            });
+
+          },
+
+          function(errorMessage) {
+            // 인식 중 발생하는 일반적인 오류는 무시
+          }
+        );
+
+        document.getElementById("statusMessage").textContent =
+          "바코드를 카메라에 비춰주세요.";
+
+      } catch (error) {
+
+        await stopBarcodeScanner();
+
+        document.getElementById("statusMessage").textContent =
+          "카메라를 실행할 수 없습니다. 카메라 권한을 허용해주세요.";
+
+        alert(
+          "카메라 실행에 실패했습니다.\n\n" +
+          "브라우저의 카메라 권한을 확인해주세요."
+        );
+      }
+    }
+
+    // 카메라 종료
+    document.getElementById("stopScanButton")
+      .addEventListener("click", stopBarcodeScanner);
+
+    async function stopBarcodeScanner() {
+
+      if (barcodeScanner) {
+
+        const scanner = barcodeScanner;
+
+        barcodeScanner = null;
+
+        try {
+          await scanner.stop();
+        } catch (error) {
+          // 이미 종료된 경우 무시
+        }
+
+        try {
+          scanner.clear();
+        } catch (error) {
+          // 정리 오류 무시
+        }
+      }
+
+      document.getElementById("scannerArea").style.display =
+        "none";
+
+      document.getElementById("scanButton").disabled = false;
+    }
+
+    // ==============================
+    // 기존 결과 표시 기능
+    // ==============================
+
     // HTML 문자 처리
     function escapeHTML(value) {
       return String(value || "")
@@ -621,6 +844,7 @@
 
     // 결과 렌더링
     function renderProducts() {
+
       const tableBody =
         document.getElementById("tableBody");
 
@@ -634,6 +858,7 @@
         filteredProducts.length.toLocaleString("ko-KR");
 
       if (filteredProducts.length === 0) {
+
         tableBody.innerHTML =
           '<tr><td colspan="5">검색 결과가 없습니다.</td></tr>';
 
@@ -700,6 +925,7 @@
         `;
 
         mobileResults.appendChild(card);
+
       });
     }
   </script>
