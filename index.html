@@ -6,10 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SW 상품조회</title>
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -138,9 +138,17 @@ td:nth-child(3) {
 }
 
 @media(max-width:600px) {
-  .panel { padding: 17px; }
-  .search-area { flex-direction: column; }
-  .search-area button { width: 100%; }
+  .panel {
+    padding: 17px;
+  }
+
+  .search-area {
+    flex-direction: column;
+  }
+
+  .search-area button {
+    width: 100%;
+  }
 }
 </style>
 </head>
@@ -151,7 +159,9 @@ td:nth-child(3) {
 
 <h1>SW 상품조회</h1>
 
+<!-- 로그인 -->
 <div id="loginSection" class="panel login-box">
+
   <h3>비밀번호 입력</h3>
 
   <input
@@ -160,26 +170,41 @@ td:nth-child(3) {
     placeholder="비밀번호를 입력하세요"
   >
 
-  <button class="login-btn" id="loginButton">로그인</button>
+  <button class="login-btn" id="loginButton">
+    로그인
+  </button>
 
   <div id="loginStatus" class="status"></div>
+
 </div>
 
+
+<!-- 상품 조회 -->
 <div id="mainSection" class="hidden">
 
   <div class="panel">
 
     <div class="top-area">
+
       <strong>상품 검색</strong>
-      <button class="logout-btn" id="logoutButton">로그아웃</button>
+
+      <button class="logout-btn" id="logoutButton">
+        로그아웃
+      </button>
+
     </div>
 
     <div class="search-area">
+
       <input
         id="searchInput"
         placeholder="상품명 또는 바코드를 입력하세요"
       >
-      <button id="searchButton">검색</button>
+
+      <button id="searchButton">
+        검색
+      </button>
+
     </div>
 
     <div id="status" class="status">
@@ -189,7 +214,9 @@ td:nth-child(3) {
     <div id="resultCount" class="result-count"></div>
 
     <div class="table-wrap">
+
       <table>
+
         <thead>
           <tr>
             <th>상품분류</th>
@@ -201,42 +228,60 @@ td:nth-child(3) {
         </thead>
 
         <tbody id="productList">
+
           <tr>
-            <td colspan="5" class="empty">불러오는 중입니다.</td>
+            <td colspan="5" class="empty">
+              불러오는 중입니다.
+            </td>
           </tr>
+
         </tbody>
+
       </table>
+
     </div>
 
   </div>
+
 </div>
 
 </div>
+
 
 <script>
 
-// ==================================
-// 구글시트 게시용 CSV 주소
-// ==================================
+// ======================================
+// 기본 설정
+// ======================================
 
+// 구글시트 게시 ID
 const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vSF33djCdRyww39H6auYsPKz4dcxCynxA1ET0VfZVwAhjFcOJVx2MnyFVXEOXkfiOmXQVOdesLosz91/pub?gid=0&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vSF33djCdRyww39H6auYsPKz4dcxCynxA1ET0VfZVwAhjFcOJVx2MnyFVXEOXkfiOmXQVOdesLosz91/gviz/tq?tqx=out:json&gid=0";
 
 // 로그인 비밀번호
 const PASSWORD = "2221";
 
+// 상품 데이터
 let products = [];
+
+// 자동 갱신 타이머
 let refreshTimer = null;
+
+// 중복 요청 방지
 let isLoading = false;
 
+// 요청 시간 제한 타이머
+let requestTimer = null;
 
-// ==================================
+
+// ======================================
 // 로그인
-// ==================================
+// ======================================
 
 function login() {
 
-  const password = document.getElementById("password").value;
+  const password =
+    document.getElementById("password").value;
 
   if (password !== PASSWORD) {
 
@@ -254,25 +299,28 @@ function login() {
   document.getElementById("password").value = "";
 
   showMain();
+
   loadProducts();
 }
 
 
-// ==================================
+// ======================================
 // 화면 표시
-// ==================================
+// ======================================
 
 function showMain() {
 
-  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("loginSection")
+    .classList.add("hidden");
 
-  document.getElementById("mainSection").classList.remove("hidden");
+  document.getElementById("mainSection")
+    .classList.remove("hidden");
 }
 
 
-// ==================================
+// ======================================
 // 로그아웃
-// ==================================
+// ======================================
 
 function logout() {
 
@@ -283,189 +331,370 @@ function logout() {
     refreshTimer = null;
   }
 
+  if (requestTimer) {
+    clearTimeout(requestTimer);
+    requestTimer = null;
+  }
+
   products = [];
 
-  document.getElementById("mainSection").classList.add("hidden");
+  document.getElementById("mainSection")
+    .classList.add("hidden");
 
-  document.getElementById("loginSection").classList.remove("hidden");
+  document.getElementById("loginSection")
+    .classList.remove("hidden");
 
   document.getElementById("productList").innerHTML = "";
 
   document.getElementById("resultCount").textContent = "";
 
   document.getElementById("status").textContent = "";
+
+  document.getElementById("loginStatus").textContent = "";
 }
 
 
-// ==================================
-// 상품 데이터 가져오기
-// ==================================
+// ======================================
+// 구글시트 데이터 불러오기
+// JSONP 방식
+// ======================================
 
-async function loadProducts() {
+function loadProducts() {
 
   if (isLoading) return;
 
   isLoading = true;
 
-  const status = document.getElementById("status");
+  const status =
+    document.getElementById("status");
 
-  status.textContent = "상품 데이터를 불러오는 중입니다.";
+  status.textContent =
+    "상품 데이터를 불러오는 중입니다.";
 
   status.className = "status";
 
-  try {
+  // 이전 요청 스크립트 제거
+  const oldScript =
+    document.getElementById("sheetScript");
 
-    if (typeof Papa === "undefined") {
-      throw new Error("CSV 처리 프로그램을 불러오지 못했습니다. 페이지를 새로고침해 주세요.");
+  if (oldScript) {
+    oldScript.remove();
+  }
+
+  if (requestTimer) {
+    clearTimeout(requestTimer);
+    requestTimer = null;
+  }
+
+  // 구글시트 응답 처리 함수
+  window.google = window.google || {};
+
+  window.google.visualization =
+    window.google.visualization || {};
+
+  window.google.visualization.Query = {
+
+    setResponse: function(response) {
+
+      if (!isLoading) return;
+
+      try {
+
+        if (!response || response.status !== "ok") {
+
+          throw new Error(
+            "구글시트에서 정상적인 응답을 받지 못했습니다."
+          );
+
+        }
+
+        const table = response.table;
+
+        if (!table || !table.cols || !table.rows) {
+
+          throw new Error(
+            "구글시트 데이터 구조를 확인할 수 없습니다."
+          );
+
+        }
+
+        // 열 제목 가져오기
+        let headers = table.cols.map(col =>
+          String(col.label || "").trim()
+        );
+
+        const required = [
+          "상품분류",
+          "바코드",
+          "상품명",
+          "규격",
+          "소매가"
+        ];
+
+        let startIndex = 0;
+
+        // 열 제목이 첫 행에 들어 있는 경우 처리
+        if (!required.every(name => headers.includes(name))) {
+
+          const firstRow = table.rows[0];
+
+          if (!firstRow || !firstRow.c) {
+
+            throw new Error(
+              "구글시트 열 제목을 확인해 주세요."
+            );
+
+          }
+
+          const firstHeaders = firstRow.c.map(cell =>
+            String(cell?.v ?? "").trim()
+          );
+
+          if (!required.every(name => firstHeaders.includes(name))) {
+
+            throw new Error(
+              "필요한 열 제목을 찾지 못했습니다.\n" +
+              "필요한 열: " + required.join(", ")
+            );
+
+          }
+
+          headers = firstHeaders;
+
+          startIndex = 1;
+
+        }
+
+        // 각 열의 위치
+        const indexes = {
+
+          category: headers.indexOf("상품분류"),
+
+          barcode: headers.indexOf("바코드"),
+
+          name: headers.indexOf("상품명"),
+
+          size: headers.indexOf("규격"),
+
+          price: headers.indexOf("소매가")
+
+        };
+
+
+        // 셀 값 가져오기
+        function getValue(row, index) {
+
+          const cell = row.c[index];
+
+          if (
+            !cell ||
+            cell.v === null ||
+            cell.v === undefined
+          ) {
+            return "";
+          }
+
+          // 구글시트에서 표시하는 값 우선 사용
+          return String(
+            cell.f !== null && cell.f !== undefined
+              ? cell.f
+              : cell.v
+          ).trim();
+
+        }
+
+
+        // 상품 데이터 정리
+        products = table.rows
+          .slice(startIndex)
+          .map(row => {
+
+            const cells = row.c || [];
+
+            return {
+
+              category: getValue(
+                { c: cells },
+                indexes.category
+              ),
+
+              barcode: getValue(
+                { c: cells },
+                indexes.barcode
+              ),
+
+              name: getValue(
+                { c: cells },
+                indexes.name
+              ),
+
+              // 규격이 비어 있으면 빈칸으로 유지
+              size: getValue(
+                { c: cells },
+                indexes.size
+              ),
+
+              // 12,000과 같은 금액 쉼표 유지
+              price: getValue(
+                { c: cells },
+                indexes.price
+              )
+
+            };
+
+          })
+          .filter(item =>
+            item.name !== "" || item.barcode !== ""
+          );
+
+
+        // 조회 완료
+        status.textContent =
+          "상품 " +
+          products.length.toLocaleString() +
+          "개 불러오기 완료";
+
+        status.className = "status";
+
+        searchProducts();
+
+
+        // 60초마다 자동 갱신
+        if (!refreshTimer) {
+
+          refreshTimer = setInterval(
+            loadProducts,
+            60000
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+          "상품 데이터를 불러오지 못했습니다.\n" +
+          error.message;
+
+        status.className = "status error";
+
+      } finally {
+
+        isLoading = false;
+
+        if (requestTimer) {
+          clearTimeout(requestTimer);
+          requestTimer = null;
+        }
+
+      }
+
     }
 
-    const url = SHEET_URL + "&cache=" + Date.now();
+  };
 
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store"
-    });
 
-    if (!response.ok) {
-      throw new Error("구글시트 응답 오류: " + response.status);
-    }
+  // 구글시트 요청 스크립트 생성
+  const script = document.createElement("script");
 
-    const csv = await response.text();
+  script.id = "sheetScript";
 
-    if (!csv || !csv.trim()) {
-      throw new Error("구글시트에서 데이터가 비어 있습니다.");
-    }
+  script.src =
+    SHEET_URL + "&cache=" + Date.now();
 
-    // CSV 분석
-    const parsed = Papa.parse(csv, {
-      header: true,
-      skipEmptyLines: true,
-      transformHeader: header => header.replace(/^\uFEFF/, "").trim(),
-      transform: value => String(value ?? "").trim()
-    });
+  script.onerror = function() {
 
-    if (parsed.errors.length > 0) {
-      console.warn("CSV 확인:", parsed.errors);
-    }
-
-    const rows = parsed.data;
-
-    if (!rows.length) {
-      throw new Error("상품 데이터가 없습니다.");
-    }
-
-    // 열 제목 확인
-    const headers = Object.keys(rows[0]);
-
-    const required = [
-      "상품분류",
-      "바코드",
-      "상품명",
-      "규격",
-      "소매가"
-    ];
-
-    const missing = required.filter(name => !headers.includes(name));
-
-    if (missing.length > 0) {
-      throw new Error(
-        "구글시트 열 제목을 확인해 주세요.\n찾을 수 없는 열: " +
-        missing.join(", ") +
-        "\n현재 확인된 열: " + headers.join(", ")
-      );
-    }
-
-    // 상품 데이터 정리
-    products = rows.map(row => ({
-
-      category: row["상품분류"] || "",
-
-      barcode: row["바코드"] || "",
-
-      name: row["상품명"] || "",
-
-      // 규격이 비어 있어도 상품은 정상적으로 가져옴
-      size: row["규격"] || "",
-
-      // 12,000처럼 쉼표가 포함된 금액도 그대로 유지
-      price: row["소매가"] || ""
-
-    })).filter(item =>
-      item.name.trim() !== "" || item.barcode.trim() !== ""
-    );
+    if (!isLoading) return;
 
     status.textContent =
-      "상품 " + products.length.toLocaleString() + "개 불러오기 완료";
-
-    status.className = "status";
-
-    searchProducts();
-
-    // 60초마다 자동 갱신
-    if (!refreshTimer) {
-      refreshTimer = setInterval(loadProducts, 60000);
-    }
-
-  } catch (error) {
-
-    console.error("상품 데이터 오류:", error);
-
-    status.textContent =
-      "상품 데이터를 불러오지 못했습니다.\n" +
-      error.message +
-      "\n\n인터넷 연결 및 구글시트 게시 설정을 확인해 주세요.";
+      "구글시트 연결에 실패했습니다.\n" +
+      "게시 설정 또는 구글시트 주소를 확인해 주세요.";
 
     status.className = "status error";
 
-  } finally {
+    isLoading = false;
+
+    if (requestTimer) {
+      clearTimeout(requestTimer);
+      requestTimer = null;
+    }
+
+  };
+
+
+  // 15초 응답 대기
+  requestTimer = setTimeout(function() {
+
+    if (!isLoading) return;
+
+    status.textContent =
+      "구글시트 응답 시간이 초과되었습니다.\n" +
+      "게시 주소와 시트 공개 설정을 확인해 주세요.";
+
+    status.className = "status error";
 
     isLoading = false;
 
-  }
+    script.remove();
+
+    requestTimer = null;
+
+  }, 15000);
+
+
+  document.body.appendChild(script);
+
 }
 
 
-// ==================================
+// ======================================
 // 바코드 앞자리 0 제거
-// ==================================
+// ======================================
 
 function normalizeBarcode(value) {
 
   return String(value || "")
     .trim()
     .replace(/^0+/, "");
+
 }
 
 
-// ==================================
+// ======================================
 // 상품 검색
-// ==================================
+// ======================================
 
 function searchProducts() {
 
   const keyword =
-    document.getElementById("searchInput").value.trim();
+    document.getElementById("searchInput")
+      .value.trim();
 
-  const tbody = document.getElementById("productList");
+  const tbody =
+    document.getElementById("productList");
 
-  const count = document.getElementById("resultCount");
+  const count =
+    document.getElementById("resultCount");
 
   let filtered = products;
 
+
   if (keyword) {
 
-    const barcodeKeyword = normalizeBarcode(keyword);
+    const barcodeKeyword =
+      normalizeBarcode(keyword);
 
     filtered = products.filter(item => {
 
-      // 상품명은 부분 일치
+      // 상품명 부분 일치
       const nameMatch =
         String(item.name)
           .toLowerCase()
           .includes(keyword.toLowerCase());
 
-      // 바코드는 전체 일치
-      // 앞자리 0은 무시
+      // 바코드 전체 일치
+      // 앞자리 0 무시
       const barcodeMatch =
         barcodeKeyword !== "" &&
         normalizeBarcode(item.barcode) === barcodeKeyword;
@@ -476,16 +705,24 @@ function searchProducts() {
 
   }
 
+
   count.textContent =
-    "검색 결과 : " + filtered.length.toLocaleString() + "개";
+    "검색 결과 : " +
+    filtered.length.toLocaleString() +
+    "개";
+
 
   if (!filtered.length) {
 
     tbody.innerHTML =
-      '<tr><td colspan="5" class="empty">검색 결과가 없습니다.</td></tr>';
+      '<tr><td colspan="5" class="empty">' +
+      '검색 결과가 없습니다.' +
+      '</td></tr>';
 
     return;
+
   }
+
 
   tbody.innerHTML = filtered.map(item => `
 
@@ -502,9 +739,9 @@ function searchProducts() {
 }
 
 
-// ==================================
+// ======================================
 // HTML 특수문자 처리
-// ==================================
+// ======================================
 
 function escapeHTML(value) {
 
@@ -518,9 +755,9 @@ function escapeHTML(value) {
 }
 
 
-// ==================================
+// ======================================
 // 버튼 연결
-// ==================================
+// ======================================
 
 document.getElementById("loginButton").onclick = login;
 
@@ -529,25 +766,31 @@ document.getElementById("logoutButton").onclick = logout;
 document.getElementById("searchButton").onclick = searchProducts;
 
 
-// 엔터키 로그인
-document.getElementById("password").addEventListener("keydown", e => {
+// 비밀번호 입력 후 엔터
+document.getElementById("password")
+  .addEventListener("keydown", function(e) {
 
-  if (e.key === "Enter") login();
+    if (e.key === "Enter") {
+      login();
+    }
 
-});
-
-
-// 엔터키 검색
-document.getElementById("searchInput").addEventListener("keydown", e => {
-
-  if (e.key === "Enter") searchProducts();
-
-});
+  });
 
 
-// ==================================
+// 검색창에서 엔터
+document.getElementById("searchInput")
+  .addEventListener("keydown", function(e) {
+
+    if (e.key === "Enter") {
+      searchProducts();
+    }
+
+  });
+
+
+// ======================================
 // 페이지 시작
-// ==================================
+// ======================================
 
 window.onload = function() {
 
