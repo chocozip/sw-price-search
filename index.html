@@ -2,807 +2,497 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SW 상품조회</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SW 상품조회</title>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-  margin: 0;
-  padding: 25px 15px;
-  font-family: Arial, "Malgun Gothic", sans-serif;
-  background: #f5f6f8;
-  color: #222;
-}
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      background: #f4f6f9;
+      color: #222;
+    }
 
-.container {
-  max-width: 1000px;
-  margin: auto;
-}
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+    }
 
-h1 {
-  text-align: center;
-  margin-bottom: 25px;
-}
+    h1 {
+      text-align: center;
+      margin: 0 0 25px;
+      font-size: 28px;
+    }
 
-.panel {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.06);
-  margin-bottom: 20px;
-}
+    .login-box {
+      max-width: 360px;
+      margin: 80px auto;
+      text-align: center;
+    }
 
-.login-box {
-  max-width: 400px;
-  margin: 70px auto;
-}
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
 
-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #ddd;
-  border-radius: 7px;
-  font-size: 16px;
-}
+    button {
+      padding: 13px 20px;
+      border: none;
+      border-radius: 7px;
+      background: #2457c5;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-button {
-  border: none;
-  border-radius: 7px;
-  padding: 13px 20px;
-  font-size: 15px;
-  cursor: pointer;
-  background: #3478f6;
-  color: white;
-}
+    button:hover {
+      background: #19449e;
+    }
 
-.login-btn {
-  width: 100%;
-  margin-top: 12px;
-}
+    .login-box button {
+      width: 100%;
+    }
 
-.top-area {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
+    .search-area {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
 
-.logout-btn {
-  background: #777;
-}
+    .search-area input {
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
 
-.search-area {
-  display: flex;
-  gap: 10px;
-}
+    .status {
+      margin: 12px 0;
+      font-size: 14px;
+      color: #666;
+    }
 
-.search-area input {
-  flex: 1;
-  min-width: 0;
-}
+    .status.error {
+      color: #d93025;
+    }
 
-.status {
-  margin-top: 15px;
-  font-size: 14px;
-  color: #666;
-  white-space: pre-wrap;
-}
+    .status.success {
+      color: #188038;
+    }
 
-.error {
-  color: #d93025;
-}
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 18px;
+    }
 
-.result-count {
-  margin: 20px 0 12px;
-  font-weight: bold;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
 
-.table-wrap {
-  overflow-x: auto;
-}
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 14px;
+    }
 
-table {
-  width: 100%;
-  min-width: 600px;
-  border-collapse: collapse;
-}
+    th {
+      background: #eef2f8;
+      font-weight: bold;
+    }
 
-th, td {
-  padding: 13px 10px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-  font-size: 14px;
-}
+    td:nth-child(3) {
+      text-align: left;
+    }
 
-th {
-  background: #f0f3f8;
-}
+    .count {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #2457c5;
+    }
 
-td:nth-child(3) {
-  text-align: left;
-}
+    .hidden {
+      display: none;
+    }
 
-.empty {
-  padding: 40px 10px;
-  text-align: center;
-  color: #888;
-}
+    .help {
+      color: #777;
+      font-size: 13px;
+      margin-top: 8px;
+    }
 
-.hidden {
-  display: none;
-}
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
 
-@media(max-width:600px) {
-  .panel {
-    padding: 17px;
-  }
+      .container {
+        padding: 18px 12px;
+        margin: 10px auto;
+      }
 
-  .search-area {
-    flex-direction: column;
-  }
+      h1 {
+        font-size: 23px;
+      }
 
-  .search-area button {
-    width: 100%;
-  }
-}
-</style>
+      .search-area {
+        flex-direction: column;
+      }
+
+      .search-area button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-<h1>SW 상품조회</h1>
-
-<!-- 로그인 -->
-<div id="loginSection" class="panel login-box">
-
-  <h3>비밀번호 입력</h3>
-
-  <input
-    type="password"
-    id="password"
-    placeholder="비밀번호를 입력하세요"
-  >
-
-  <button class="login-btn" id="loginButton">
-    로그인
-  </button>
-
-  <div id="loginStatus" class="status"></div>
-
-</div>
-
-
-<!-- 상품 조회 -->
-<div id="mainSection" class="hidden">
-
-  <div class="panel">
-
-    <div class="top-area">
-
-      <strong>상품 검색</strong>
-
-      <button class="logout-btn" id="logoutButton">
-        로그아웃
-      </button>
-
-    </div>
-
-    <div class="search-area">
+    <!-- 로그인 화면 -->
+    <div id="loginScreen" class="login-box">
+      <h1>SW 상품조회</h1>
 
       <input
-        id="searchInput"
-        placeholder="상품명 또는 바코드를 입력하세요"
+        type="password"
+        id="password"
+        placeholder="비밀번호를 입력하세요"
+        onkeydown="if(event.key === 'Enter') login()"
       >
 
-      <button id="searchButton">
-        검색
-      </button>
+      <button onclick="login()">로그인</button>
 
+      <p id="loginMessage" class="status error"></p>
     </div>
 
-    <div id="status" class="status">
-      상품 데이터를 불러오는 중입니다.
+    <!-- 상품 조회 화면 -->
+    <div id="mainScreen" class="hidden">
+
+      <h1>SW 상품조회</h1>
+
+      <div class="search-area">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="상품명 또는 바코드를 입력하세요"
+          onkeydown="if(event.key === 'Enter') searchProducts()"
+        >
+
+        <button onclick="searchProducts()">검색</button>
+        <button onclick="resetSearch()" style="background:#777;">초기화</button>
+      </div>
+
+      <p class="help">
+        상품명은 일부 검색 가능하며, 바코드는 전체 번호가 일치해야 조회됩니다.
+      </p>
+
+      <div id="status" class="status">상품 데이터를 불러오는 중입니다.</div>
+
+      <div class="count" id="count"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>상품분류</th>
+              <th>바코드</th>
+              <th>상품명</th>
+              <th>규격</th>
+              <th>소매가</th>
+            </tr>
+          </thead>
+
+          <tbody id="resultBody">
+            <tr>
+              <td colspan="5">데이터를 불러오는 중입니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
-
-    <div id="resultCount" class="result-count"></div>
-
-    <div class="table-wrap">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>상품분류</th>
-            <th>바코드</th>
-            <th>상품명</th>
-            <th>규격</th>
-            <th>소매가</th>
-          </tr>
-        </thead>
-
-        <tbody id="productList">
-
-          <tr>
-            <td colspan="5" class="empty">
-              불러오는 중입니다.
-            </td>
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
   </div>
 
-</div>
-
-</div>
-
-
 <script>
+  // 기본 설정
+  const PASSWORD = "2221";
 
-// ======================================
-// 기본 설정
-// ======================================
+  const SPREADSHEET_ID =
+    "12vYM5rzLo_bCiKipLJfX-io3c9ycI9cW18ST07_d6GY";
 
-// 구글시트 게시 ID
-const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vSF33djCdRyww39H6auYsPKz4dcxCynxA1ET0VfZVwAhjFcOJVx2MnyFVXEOXkfiOmXQVOdesLosz91/gviz/tq?tqx=out:json&gid=0";
+  const GID = "0";
 
-// 로그인 비밀번호
-const PASSWORD = "2221";
+  const REFRESH_INTERVAL = 60000;
 
-// 상품 데이터
-let products = [];
+  let products = [];
 
-// 자동 갱신 타이머
-let refreshTimer = null;
-
-// 중복 요청 방지
-let isLoading = false;
-
-// 요청 시간 제한 타이머
-let requestTimer = null;
-
-
-// ======================================
-// 로그인
-// ======================================
-
-function login() {
-
-  const password =
-    document.getElementById("password").value;
-
-  if (password !== PASSWORD) {
-
-    document.getElementById("loginStatus").textContent =
-      "비밀번호가 올바르지 않습니다.";
-
-    document.getElementById("loginStatus").className =
-      "status error";
-
-    return;
+  // HTML 문자 처리
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+      return {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char];
+    });
   }
 
-  sessionStorage.setItem("sw_login", "true");
+  // 로그인
+  function login() {
+    const password = document.getElementById("password").value;
 
-  document.getElementById("password").value = "";
+    if (password !== PASSWORD) {
+      document.getElementById("loginMessage").textContent =
+        "비밀번호가 올바르지 않습니다.";
+      return;
+    }
 
-  showMain();
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("mainScreen").classList.remove("hidden");
 
-  loadProducts();
-}
-
-
-// ======================================
-// 화면 표시
-// ======================================
-
-function showMain() {
-
-  document.getElementById("loginSection")
-    .classList.add("hidden");
-
-  document.getElementById("mainSection")
-    .classList.remove("hidden");
-}
-
-
-// ======================================
-// 로그아웃
-// ======================================
-
-function logout() {
-
-  sessionStorage.removeItem("sw_login");
-
-  if (refreshTimer) {
-    clearInterval(refreshTimer);
-    refreshTimer = null;
+    loadProducts();
   }
 
-  if (requestTimer) {
-    clearTimeout(requestTimer);
-    requestTimer = null;
+  // 바코드 앞자리 0 제거
+  function normalizeBarcode(value) {
+    return String(value ?? "")
+      .trim()
+      .replace(/^0+/, "");
   }
 
-  products = [];
+  // Google Visualization 데이터 가져오기
+  async function loadProducts() {
+    const status = document.getElementById("status");
 
-  document.getElementById("mainSection")
-    .classList.add("hidden");
+    status.textContent = "상품 데이터를 불러오는 중입니다.";
+    status.className = "status";
 
-  document.getElementById("loginSection")
-    .classList.remove("hidden");
+    const url =
+      "https://docs.google.com/spreadsheets/d/" +
+      SPREADSHEET_ID +
+      "/gviz/tq?tqx=out:json&gid=" +
+      GID +
+      "&headers=1";
 
-  document.getElementById("productList").innerHTML = "";
+    try {
+      const response = await fetch(url, {
+        cache: "no-store"
+      });
 
-  document.getElementById("resultCount").textContent = "";
+      if (!response.ok) {
+        throw new Error("Google Sheets 응답 오류: " + response.status);
+      }
 
-  document.getElementById("status").textContent = "";
+      const responseText = await response.text();
 
-  document.getElementById("loginStatus").textContent = "";
-}
+      // JSONP 형태의 응답에서 JSON 부분 추출
+      const start = responseText.indexOf("{");
+      const end = responseText.lastIndexOf("}");
 
+      if (start === -1 || end === -1) {
+        throw new Error("데이터 응답 형식이 올바르지 않습니다.");
+      }
 
-// ======================================
-// 구글시트 데이터 불러오기
-// JSONP 방식
-// ======================================
+      const json = JSON.parse(
+        responseText.substring(start, end + 1)
+      );
 
-function loadProducts() {
+      if (json.status !== "ok") {
+        const message =
+          json.errors?.[0]?.detailed_message ||
+          json.errors?.[0]?.message ||
+          "Google Sheets 접근 오류";
 
-  if (isLoading) return;
+        throw new Error(message);
+      }
 
-  isLoading = true;
+      const table = json.table;
 
-  const status =
-    document.getElementById("status");
+      if (!table || !table.cols) {
+        throw new Error("시트 데이터를 확인할 수 없습니다.");
+      }
 
-  status.textContent =
-    "상품 데이터를 불러오는 중입니다.";
+      const headers = table.cols.map((col, index) => {
+        return String(col.label || col.id || "").trim();
+      });
 
-  status.className = "status";
+      const headerIndex = {};
 
-  // 이전 요청 스크립트 제거
-  const oldScript =
-    document.getElementById("sheetScript");
+      headers.forEach((header, index) => {
+        headerIndex[header] = index;
+      });
 
-  if (oldScript) {
-    oldScript.remove();
-  }
+      const requiredHeaders = [
+        "상품분류",
+        "바코드",
+        "상품명",
+        "규격",
+        "소매가"
+      ];
 
-  if (requestTimer) {
-    clearTimeout(requestTimer);
-    requestTimer = null;
-  }
+      const missingHeaders = requiredHeaders.filter(
+        header => headerIndex[header] === undefined
+      );
 
-  // 구글시트 응답 처리 함수
-  window.google = window.google || {};
-
-  window.google.visualization =
-    window.google.visualization || {};
-
-  window.google.visualization.Query = {
-
-    setResponse: function(response) {
-
-      if (!isLoading) return;
-
-      try {
-
-        if (!response || response.status !== "ok") {
-
-          throw new Error(
-            "구글시트에서 정상적인 응답을 받지 못했습니다."
-          );
-
-        }
-
-        const table = response.table;
-
-        if (!table || !table.cols || !table.rows) {
-
-          throw new Error(
-            "구글시트 데이터 구조를 확인할 수 없습니다."
-          );
-
-        }
-
-        // 열 제목 가져오기
-        let headers = table.cols.map(col =>
-          String(col.label || "").trim()
+      if (missingHeaders.length > 0) {
+        throw new Error(
+          "시트 열 이름을 확인해 주세요: " +
+          missingHeaders.join(", ")
         );
+      }
 
-        const required = [
-          "상품분류",
-          "바코드",
-          "상품명",
-          "규격",
-          "소매가"
-        ];
+      products = table.rows.map(row => {
+        const cells = row.c || [];
 
-        let startIndex = 0;
+        function getValue(header) {
+          const index = headerIndex[header];
+          const cell = cells[index];
 
-        // 열 제목이 첫 행에 들어 있는 경우 처리
-        if (!required.every(name => headers.includes(name))) {
-
-          const firstRow = table.rows[0];
-
-          if (!firstRow || !firstRow.c) {
-
-            throw new Error(
-              "구글시트 열 제목을 확인해 주세요."
-            );
-
-          }
-
-          const firstHeaders = firstRow.c.map(cell =>
-            String(cell?.v ?? "").trim()
-          );
-
-          if (!required.every(name => firstHeaders.includes(name))) {
-
-            throw new Error(
-              "필요한 열 제목을 찾지 못했습니다.\n" +
-              "필요한 열: " + required.join(", ")
-            );
-
-          }
-
-          headers = firstHeaders;
-
-          startIndex = 1;
-
-        }
-
-        // 각 열의 위치
-        const indexes = {
-
-          category: headers.indexOf("상품분류"),
-
-          barcode: headers.indexOf("바코드"),
-
-          name: headers.indexOf("상품명"),
-
-          size: headers.indexOf("규격"),
-
-          price: headers.indexOf("소매가")
-
-        };
-
-
-        // 셀 값 가져오기
-        function getValue(row, index) {
-
-          const cell = row.c[index];
-
-          if (
-            !cell ||
-            cell.v === null ||
-            cell.v === undefined
-          ) {
+          if (!cell || cell.v === null || cell.v === undefined) {
             return "";
           }
 
-          // 구글시트에서 표시하는 값 우선 사용
+          // 표시 형식이 있으면 우선 사용
           return String(
-            cell.f !== null && cell.f !== undefined
-              ? cell.f
-              : cell.v
+            cell.f !== undefined ? cell.f : cell.v
           ).trim();
-
         }
 
+        return {
+          category: getValue("상품분류"),
+          barcode: getValue("바코드"),
+          name: getValue("상품명"),
+          size: getValue("규격"),
+          price: getValue("소매가")
+        };
+      }).filter(item => {
+        return item.category ||
+               item.barcode ||
+               item.name ||
+               item.size ||
+               item.price;
+      });
 
-        // 상품 데이터 정리
-        products = table.rows
-          .slice(startIndex)
-          .map(row => {
+      status.textContent =
+        "상품 데이터 " + products.length.toLocaleString() +
+        "개를 불러왔습니다.";
 
-            const cells = row.c || [];
+      status.className = "status success";
 
-            return {
+      document.getElementById("count").textContent =
+        "전체 상품 수: " + products.length.toLocaleString() + "개";
 
-              category: getValue(
-                { c: cells },
-                indexes.category
-              ),
+      // 검색어가 있으면 갱신된 데이터로 다시 검색
+      const keyword = document.getElementById("searchInput").value.trim();
 
-              barcode: getValue(
-                { c: cells },
-                indexes.barcode
-              ),
-
-              name: getValue(
-                { c: cells },
-                indexes.name
-              ),
-
-              // 규격이 비어 있으면 빈칸으로 유지
-              size: getValue(
-                { c: cells },
-                indexes.size
-              ),
-
-              // 12,000과 같은 금액 쉼표 유지
-              price: getValue(
-                { c: cells },
-                indexes.price
-              )
-
-            };
-
-          })
-          .filter(item =>
-            item.name !== "" || item.barcode !== ""
-          );
-
-
-        // 조회 완료
-        status.textContent =
-          "상품 " +
-          products.length.toLocaleString() +
-          "개 불러오기 완료";
-
-        status.className = "status";
-
+      if (keyword) {
         searchProducts();
-
-
-        // 60초마다 자동 갱신
-        if (!refreshTimer) {
-
-          refreshTimer = setInterval(
-            loadProducts,
-            60000
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        status.textContent =
-          "상품 데이터를 불러오지 못했습니다.\n" +
-          error.message;
-
-        status.className = "status error";
-
-      } finally {
-
-        isLoading = false;
-
-        if (requestTimer) {
-          clearTimeout(requestTimer);
-          requestTimer = null;
-        }
-
+      } else {
+        document.getElementById("resultBody").innerHTML =
+          '<tr><td colspan="5">상품명 또는 바코드를 검색해 주세요.</td></tr>';
       }
 
+    } catch (error) {
+      console.error("상품 데이터 조회 오류:", error);
+
+      status.textContent =
+        "데이터를 불러오지 못했습니다: " + error.message;
+
+      status.className = "status error";
+
+      document.getElementById("resultBody").innerHTML =
+        '<tr><td colspan="5">데이터 조회에 실패했습니다.</td></tr>';
     }
-
-  };
-
-
-  // 구글시트 요청 스크립트 생성
-  const script = document.createElement("script");
-
-  script.id = "sheetScript";
-
-  script.src =
-    SHEET_URL + "&cache=" + Date.now();
-
-  script.onerror = function() {
-
-    if (!isLoading) return;
-
-    status.textContent =
-      "구글시트 연결에 실패했습니다.\n" +
-      "게시 설정 또는 구글시트 주소를 확인해 주세요.";
-
-    status.className = "status error";
-
-    isLoading = false;
-
-    if (requestTimer) {
-      clearTimeout(requestTimer);
-      requestTimer = null;
-    }
-
-  };
-
-
-  // 15초 응답 대기
-  requestTimer = setTimeout(function() {
-
-    if (!isLoading) return;
-
-    status.textContent =
-      "구글시트 응답 시간이 초과되었습니다.\n" +
-      "게시 주소와 시트 공개 설정을 확인해 주세요.";
-
-    status.className = "status error";
-
-    isLoading = false;
-
-    script.remove();
-
-    requestTimer = null;
-
-  }, 15000);
-
-
-  document.body.appendChild(script);
-
-}
-
-
-// ======================================
-// 바코드 앞자리 0 제거
-// ======================================
-
-function normalizeBarcode(value) {
-
-  return String(value || "")
-    .trim()
-    .replace(/^0+/, "");
-
-}
-
-
-// ======================================
-// 상품 검색
-// ======================================
-
-function searchProducts() {
-
-  const keyword =
-    document.getElementById("searchInput")
-      .value.trim();
-
-  const tbody =
-    document.getElementById("productList");
-
-  const count =
-    document.getElementById("resultCount");
-
-  let filtered = products;
-
-
-  if (keyword) {
-
-    const barcodeKeyword =
-      normalizeBarcode(keyword);
-
-    filtered = products.filter(item => {
-
-      // 상품명 부분 일치
-      const nameMatch =
-        String(item.name)
-          .toLowerCase()
-          .includes(keyword.toLowerCase());
-
-      // 바코드 전체 일치
-      // 앞자리 0 무시
-      const barcodeMatch =
-        barcodeKeyword !== "" &&
-        normalizeBarcode(item.barcode) === barcodeKeyword;
-
-      return nameMatch || barcodeMatch;
-
-    });
-
   }
 
+  // 상품 검색
+  function searchProducts() {
+    const keyword = document.getElementById("searchInput").value.trim();
 
-  count.textContent =
-    "검색 결과 : " +
-    filtered.length.toLocaleString() +
-    "개";
+    const resultBody = document.getElementById("resultBody");
+    const count = document.getElementById("count");
 
-
-  if (!filtered.length) {
-
-    tbody.innerHTML =
-      '<tr><td colspan="5" class="empty">' +
-      '검색 결과가 없습니다.' +
-      '</td></tr>';
-
-    return;
-
-  }
-
-
-  tbody.innerHTML = filtered.map(item => `
-
-    <tr>
-      <td>${escapeHTML(item.category)}</td>
-      <td>${escapeHTML(item.barcode)}</td>
-      <td>${escapeHTML(item.name)}</td>
-      <td>${escapeHTML(item.size)}</td>
-      <td>${escapeHTML(item.price)}</td>
-    </tr>
-
-  `).join("");
-
-}
-
-
-// ======================================
-// HTML 특수문자 처리
-// ======================================
-
-function escapeHTML(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-}
-
-
-// ======================================
-// 버튼 연결
-// ======================================
-
-document.getElementById("loginButton").onclick = login;
-
-document.getElementById("logoutButton").onclick = logout;
-
-document.getElementById("searchButton").onclick = searchProducts;
-
-
-// 비밀번호 입력 후 엔터
-document.getElementById("password")
-  .addEventListener("keydown", function(e) {
-
-    if (e.key === "Enter") {
-      login();
+    if (!keyword) {
+      resultBody.innerHTML =
+        '<tr><td colspan="5">검색어를 입력해 주세요.</td></tr>';
+      return;
     }
 
-  });
+    const normalizedKeyword = normalizeBarcode(keyword);
 
+    const isBarcodeSearch = /^[0-9]+$/.test(keyword);
 
-// 검색창에서 엔터
-document.getElementById("searchInput")
-  .addEventListener("keydown", function(e) {
+    let results;
 
-    if (e.key === "Enter") {
-      searchProducts();
+    if (isBarcodeSearch) {
+      results = products.filter(item => {
+        return normalizeBarcode(item.barcode) === normalizedKeyword;
+      });
+    } else {
+      results = products.filter(item => {
+        return item.name.toLowerCase().includes(
+          keyword.toLowerCase()
+        );
+      });
     }
 
-  });
+    count.textContent =
+      "검색 결과: " + results.length.toLocaleString() + "개";
 
+    if (results.length === 0) {
+      resultBody.innerHTML =
+        '<tr><td colspan="5">검색 결과가 없습니다.</td></tr>';
+      return;
+    }
 
-// ======================================
-// 페이지 시작
-// ======================================
-
-window.onload = function() {
-
-  if (sessionStorage.getItem("sw_login") === "true") {
-
-    showMain();
-
-    loadProducts();
-
+    resultBody.innerHTML = results.map(item => {
+      return `
+        <tr>
+          <td>${escapeHTML(item.category)}</td>
+          <td>${escapeHTML(item.barcode)}</td>
+          <td>${escapeHTML(item.name)}</td>
+          <td>${escapeHTML(item.size)}</td>
+          <td>${escapeHTML(item.price)}</td>
+        </tr>
+      `;
+    }).join("");
   }
 
-};
+  // 검색 초기화
+  function resetSearch() {
+    document.getElementById("searchInput").value = "";
+
+    document.getElementById("resultBody").innerHTML =
+      '<tr><td colspan="5">상품명 또는 바코드를 검색해 주세요.</td></tr>';
+
+    document.getElementById("count").textContent =
+      "전체 상품 수: " + products.length.toLocaleString() + "개";
+  }
+
+  // 60초마다 자동 갱신
+  setInterval(function() {
+    if (!document.getElementById("mainScreen").classList.contains("hidden")) {
+      loadProducts();
+    }
+  }, REFRESH_INTERVAL);
 
 </script>
 
