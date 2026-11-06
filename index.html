@@ -22,10 +22,10 @@
     .container {
       max-width: 1000px;
       margin: 30px auto;
-      background: white;
+      background: #fff;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+      box-shadow: 0 3px 15px rgba(0,0,0,0.07);
     }
 
     h1 {
@@ -34,9 +34,9 @@
       font-size: 28px;
     }
 
-    .login-box {
+    .login-area {
       max-width: 360px;
-      margin: 80px auto;
+      margin: 60px auto;
       text-align: center;
     }
 
@@ -46,25 +46,30 @@
       border: 1px solid #ccc;
       border-radius: 7px;
       font-size: 16px;
-      margin-bottom: 12px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2563eb;
     }
 
     button {
-      padding: 13px 20px;
+      padding: 12px 18px;
       border: none;
       border-radius: 7px;
-      background: #2457c5;
+      background: #2563eb;
       color: white;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #19449e;
+      background: #1d4ed8;
     }
 
-    .login-box button {
+    .login-area button {
       width: 100%;
+      margin-top: 12px;
     }
 
     .search-area {
@@ -74,66 +79,80 @@
     }
 
     .search-area input {
-      margin: 0;
       flex: 1;
       min-width: 0;
     }
 
-    .status {
-      margin: 12px 0;
+    .search-area button {
+      white-space: nowrap;
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
       font-size: 14px;
       color: #666;
     }
 
-    .status.error {
-      color: #d93025;
-    }
-
-    .status.success {
-      color: #188038;
-    }
-
     .table-wrap {
       overflow-x: auto;
-      margin-top: 18px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
     }
 
     table {
       width: 100%;
+      min-width: 600px;
       border-collapse: collapse;
-      min-width: 650px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px 10px;
-      text-align: center;
       font-size: 14px;
     }
 
     th {
-      background: #eef2f8;
+      background: #f1f5f9;
       font-weight: bold;
+      padding: 13px 10px;
+      border-bottom: 1px solid #ddd;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
     }
 
     td:nth-child(3) {
       text-align: left;
+      min-width: 220px;
     }
 
-    .count {
-      margin-top: 15px;
-      font-weight: bold;
-      color: #2457c5;
+    .message {
+      padding: 25px 10px;
+      text-align: center;
+      color: #777;
+    }
+
+    .error {
+      color: #dc2626;
+      margin-top: 12px;
+      font-size: 14px;
     }
 
     .hidden {
       display: none;
     }
 
-    .help {
-      color: #777;
-      font-size: 13px;
-      margin-top: 8px;
+    .refresh-info {
+      font-size: 12px;
+      color: #999;
+      text-align: right;
+      margin-top: 12px;
     }
 
     @media (max-width: 600px) {
@@ -151,11 +170,16 @@
       }
 
       .search-area {
-        flex-direction: column;
+        flex-wrap: wrap;
+      }
+
+      .search-area input {
+        width: 100%;
+        flex-basis: 100%;
       }
 
       .search-area button {
-        width: 100%;
+        flex: 1;
       }
     }
   </style>
@@ -165,26 +189,22 @@
 
   <div class="container">
 
-    <!-- 로그인 화면 -->
-    <div id="loginScreen" class="login-box">
-      <h1>SW 상품조회</h1>
+    <h1>SW 상품조회</h1>
 
+    <!-- 로그인 -->
+    <div id="loginArea" class="login-area">
       <input
         type="password"
         id="password"
         placeholder="비밀번호를 입력하세요"
         onkeydown="if(event.key === 'Enter') login()"
       >
-
       <button onclick="login()">로그인</button>
-
-      <p id="loginMessage" class="status error"></p>
+      <div id="loginError" class="error"></div>
     </div>
 
-    <!-- 상품 조회 화면 -->
-    <div id="mainScreen" class="hidden">
-
-      <h1>SW 상품조회</h1>
+    <!-- 상품 조회 -->
+    <div id="mainArea" class="hidden">
 
       <div class="search-area">
         <input
@@ -193,18 +213,14 @@
           placeholder="상품명 또는 바코드를 입력하세요"
           onkeydown="if(event.key === 'Enter') searchProducts()"
         >
-
         <button onclick="searchProducts()">검색</button>
-        <button onclick="resetSearch()" style="background:#777;">초기화</button>
+        <button onclick="resetSearch()" style="background:#64748b;">초기화</button>
       </div>
 
-      <p class="help">
-        상품명은 일부 검색 가능하며, 바코드는 전체 번호가 일치해야 조회됩니다.
-      </p>
-
-      <div id="status" class="status">상품 데이터를 불러오는 중입니다.</div>
-
-      <div class="count" id="count"></div>
+      <div class="info">
+        <span id="resultCount">상품 데이터를 불러오는 중입니다.</span>
+        <span id="loadingStatus"></span>
+      </div>
 
       <div class="table-wrap">
         <table>
@@ -217,13 +233,18 @@
               <th>소매가</th>
             </tr>
           </thead>
-
-          <tbody id="resultBody">
+          <tbody id="productTable">
             <tr>
-              <td colspan="5">데이터를 불러오는 중입니다.</td>
+              <td colspan="5" class="message">
+                상품 데이터를 불러오는 중입니다.
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="refresh-info">
+        상품 정보는 60초마다 자동으로 갱신됩니다.
       </div>
 
     </div>
@@ -241,258 +262,274 @@
   const REFRESH_INTERVAL = 60000;
 
   let products = [];
-
-  // HTML 문자 처리
-  function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, function(char) {
-      return {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      }[char];
-    });
-  }
+  let refreshTimer = null;
+  let isLoading = false;
 
   // 로그인
   function login() {
     const password = document.getElementById("password").value;
 
-    if (password !== PASSWORD) {
-      document.getElementById("loginMessage").textContent =
+    if (password === PASSWORD) {
+      document.getElementById("loginArea").classList.add("hidden");
+      document.getElementById("mainArea").classList.remove("hidden");
+
+      loadProducts();
+
+      if (!refreshTimer) {
+        refreshTimer = setInterval(loadProducts, REFRESH_INTERVAL);
+      }
+    } else {
+      document.getElementById("loginError").textContent =
         "비밀번호가 올바르지 않습니다.";
-      return;
+    }
+  }
+
+  // 셀 값 가져오기
+  function getCellValue(cell) {
+    if (!cell) return "";
+
+    if (cell.f !== undefined && cell.f !== null) {
+      return String(cell.f).trim();
     }
 
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("mainScreen").classList.remove("hidden");
+    if (cell.v !== undefined && cell.v !== null) {
+      return String(cell.v).trim();
+    }
 
-    loadProducts();
+    return "";
   }
 
-  // 바코드 앞자리 0 제거
-  function normalizeBarcode(value) {
-    return String(value ?? "")
-      .trim()
-      .replace(/^0+/, "");
-  }
+  // 구글시트 JSONP 데이터 불러오기
+  function loadProducts() {
+    if (isLoading) return;
 
-  // Google Visualization 데이터 가져오기
-  async function loadProducts() {
-    const status = document.getElementById("status");
+    isLoading = true;
 
-    status.textContent = "상품 데이터를 불러오는 중입니다.";
-    status.className = "status";
+    document.getElementById("loadingStatus").textContent =
+      "데이터 갱신 중...";
+
+    const oldCallback = window.google &&
+      window.google.visualization &&
+      window.google.visualization.Query &&
+      window.google.visualization.Query.setResponse;
+
+    let finished = false;
+    let script = null;
+    let timeout = null;
+
+    function finish() {
+      if (finished) return;
+
+      finished = true;
+      isLoading = false;
+
+      if (script) {
+        script.remove();
+      }
+
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      if (oldCallback) {
+        window.google.visualization.Query.setResponse = oldCallback;
+      } else if (
+        window.google &&
+        window.google.visualization &&
+        window.google.visualization.Query
+      ) {
+        delete window.google.visualization.Query.setResponse;
+      }
+    }
+
+    window.google = window.google || {};
+    window.google.visualization =
+      window.google.visualization || {};
+    window.google.visualization.Query =
+      window.google.visualization.Query || {};
+
+    window.google.visualization.Query.setResponse = function(response) {
+      if (finished) return;
+
+      try {
+        if (!response || response.status !== "ok") {
+          throw new Error("구글시트 응답 오류");
+        }
+
+        const rows = response.table.rows || [];
+
+        const loadedProducts = [];
+
+        rows.forEach(function(row) {
+          const cells = row.c || [];
+
+          // 첫 번째 행은 제목이므로 제외
+          const firstValue = getCellValue(cells[0]);
+
+          if (firstValue === "상품분류") {
+            return;
+          }
+
+          const product = {
+            category: getCellValue(cells[0]),
+            barcode: getCellValue(cells[1]),
+            name: getCellValue(cells[2]),
+            size: getCellValue(cells[3]),
+            price: getCellValue(cells[4])
+          };
+
+          // 상품명이 없는 빈 행은 제외
+          if (!product.name && !product.barcode) {
+            return;
+          }
+
+          loadedProducts.push(product);
+        });
+
+        products = loadedProducts;
+
+        finish();
+
+        document.getElementById("loadingStatus").textContent =
+          "연결 완료";
+
+        searchProducts();
+
+      } catch (error) {
+        finish();
+
+        document.getElementById("loadingStatus").textContent =
+          "데이터 처리 실패";
+
+        document.getElementById("productTable").innerHTML =
+          '<tr><td colspan="5" class="message">상품 데이터를 처리하지 못했습니다.</td></tr>';
+
+        document.getElementById("resultCount").textContent =
+          "데이터 처리 오류";
+
+        console.error(error);
+      }
+    };
 
     const url =
       "https://docs.google.com/spreadsheets/d/" +
       SPREADSHEET_ID +
       "/gviz/tq?tqx=out:json&gid=" +
       GID +
-      "&headers=1";
+      "&headers=0";
 
-    try {
-      const response = await fetch(url, {
-        cache: "no-store"
-      });
+    script = document.createElement("script");
+    script.src = url;
+    script.onerror = function() {
+      if (finished) return;
 
-      if (!response.ok) {
-        throw new Error("Google Sheets 응답 오류: " + response.status);
-      }
+      finish();
 
-      const responseText = await response.text();
+      document.getElementById("loadingStatus").textContent =
+        "연결 실패";
 
-      // JSONP 형태의 응답에서 JSON 부분 추출
-      const start = responseText.indexOf("{");
-      const end = responseText.lastIndexOf("}");
+      document.getElementById("resultCount").textContent =
+        "구글시트 연결에 실패했습니다. 주소와 공유 설정을 확인해 주세요.";
 
-      if (start === -1 || end === -1) {
-        throw new Error("데이터 응답 형식이 올바르지 않습니다.");
-      }
+      document.getElementById("productTable").innerHTML =
+        '<tr><td colspan="5" class="message">데이터를 불러오지 못했습니다.</td></tr>';
+    };
 
-      const json = JSON.parse(
-        responseText.substring(start, end + 1)
-      );
+    timeout = setTimeout(function() {
+      if (finished) return;
 
-      if (json.status !== "ok") {
-        const message =
-          json.errors?.[0]?.detailed_message ||
-          json.errors?.[0]?.message ||
-          "Google Sheets 접근 오류";
+      finish();
 
-        throw new Error(message);
-      }
+      document.getElementById("loadingStatus").textContent =
+        "응답 시간 초과";
 
-      const table = json.table;
+      document.getElementById("resultCount").textContent =
+        "구글시트 응답이 지연되고 있습니다. 다시 시도해 주세요.";
 
-      if (!table || !table.cols) {
-        throw new Error("시트 데이터를 확인할 수 없습니다.");
-      }
+    }, 15000);
 
-      const headers = table.cols.map((col, index) => {
-        return String(col.label || col.id || "").trim();
-      });
+    document.head.appendChild(script);
+  }
 
-      const headerIndex = {};
-
-      headers.forEach((header, index) => {
-        headerIndex[header] = index;
-      });
-
-      const requiredHeaders = [
-        "상품분류",
-        "바코드",
-        "상품명",
-        "규격",
-        "소매가"
-      ];
-
-      const missingHeaders = requiredHeaders.filter(
-        header => headerIndex[header] === undefined
-      );
-
-      if (missingHeaders.length > 0) {
-        throw new Error(
-          "시트 열 이름을 확인해 주세요: " +
-          missingHeaders.join(", ")
-        );
-      }
-
-      products = table.rows.map(row => {
-        const cells = row.c || [];
-
-        function getValue(header) {
-          const index = headerIndex[header];
-          const cell = cells[index];
-
-          if (!cell || cell.v === null || cell.v === undefined) {
-            return "";
-          }
-
-          // 표시 형식이 있으면 우선 사용
-          return String(
-            cell.f !== undefined ? cell.f : cell.v
-          ).trim();
-        }
-
-        return {
-          category: getValue("상품분류"),
-          barcode: getValue("바코드"),
-          name: getValue("상품명"),
-          size: getValue("규격"),
-          price: getValue("소매가")
-        };
-      }).filter(item => {
-        return item.category ||
-               item.barcode ||
-               item.name ||
-               item.size ||
-               item.price;
-      });
-
-      status.textContent =
-        "상품 데이터 " + products.length.toLocaleString() +
-        "개를 불러왔습니다.";
-
-      status.className = "status success";
-
-      document.getElementById("count").textContent =
-        "전체 상품 수: " + products.length.toLocaleString() + "개";
-
-      // 검색어가 있으면 갱신된 데이터로 다시 검색
-      const keyword = document.getElementById("searchInput").value.trim();
-
-      if (keyword) {
-        searchProducts();
-      } else {
-        document.getElementById("resultBody").innerHTML =
-          '<tr><td colspan="5">상품명 또는 바코드를 검색해 주세요.</td></tr>';
-      }
-
-    } catch (error) {
-      console.error("상품 데이터 조회 오류:", error);
-
-      status.textContent =
-        "데이터를 불러오지 못했습니다: " + error.message;
-
-      status.className = "status error";
-
-      document.getElementById("resultBody").innerHTML =
-        '<tr><td colspan="5">데이터 조회에 실패했습니다.</td></tr>';
-    }
+  // 바코드 앞자리 0 제거
+  function normalizeBarcode(value) {
+    return String(value)
+      .replace(/\D/g, "")
+      .replace(/^0+/, "");
   }
 
   // 상품 검색
   function searchProducts() {
-    const keyword = document.getElementById("searchInput").value.trim();
+    const keyword = document
+      .getElementById("searchInput")
+      .value
+      .trim();
 
-    const resultBody = document.getElementById("resultBody");
-    const count = document.getElementById("count");
+    let filteredProducts = products;
 
-    if (!keyword) {
-      resultBody.innerHTML =
-        '<tr><td colspan="5">검색어를 입력해 주세요.</td></tr>';
+    if (keyword) {
+      const isBarcode = /^\d+$/.test(keyword);
+
+      if (isBarcode) {
+        const searchBarcode = normalizeBarcode(keyword);
+
+        filteredProducts = products.filter(function(product) {
+          return normalizeBarcode(product.barcode) === searchBarcode;
+        });
+
+      } else {
+        const searchName = keyword.toLowerCase();
+
+        filteredProducts = products.filter(function(product) {
+          return product.name.toLowerCase().includes(searchName);
+        });
+      }
+    }
+
+    renderProducts(filteredProducts);
+  }
+
+  // 결과 표시
+  function renderProducts(list) {
+    const tbody = document.getElementById("productTable");
+
+    document.getElementById("resultCount").textContent =
+      "검색 결과 " + list.length + "개";
+
+    if (list.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="message">검색 결과가 없습니다.</td></tr>';
       return;
     }
 
-    const normalizedKeyword = normalizeBarcode(keyword);
-
-    const isBarcodeSearch = /^[0-9]+$/.test(keyword);
-
-    let results;
-
-    if (isBarcodeSearch) {
-      results = products.filter(item => {
-        return normalizeBarcode(item.barcode) === normalizedKeyword;
-      });
-    } else {
-      results = products.filter(item => {
-        return item.name.toLowerCase().includes(
-          keyword.toLowerCase()
-        );
-      });
-    }
-
-    count.textContent =
-      "검색 결과: " + results.length.toLocaleString() + "개";
-
-    if (results.length === 0) {
-      resultBody.innerHTML =
-        '<tr><td colspan="5">검색 결과가 없습니다.</td></tr>';
-      return;
-    }
-
-    resultBody.innerHTML = results.map(item => {
+    tbody.innerHTML = list.map(function(product) {
       return `
         <tr>
-          <td>${escapeHTML(item.category)}</td>
-          <td>${escapeHTML(item.barcode)}</td>
-          <td>${escapeHTML(item.name)}</td>
-          <td>${escapeHTML(item.size)}</td>
-          <td>${escapeHTML(item.price)}</td>
+          <td>${escapeHTML(product.category)}</td>
+          <td>${escapeHTML(product.barcode)}</td>
+          <td>${escapeHTML(product.name)}</td>
+          <td>${escapeHTML(product.size)}</td>
+          <td>${escapeHTML(product.price)}</td>
         </tr>
       `;
     }).join("");
   }
 
+  // HTML 특수문자 처리
+  function escapeHTML(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   // 검색 초기화
   function resetSearch() {
     document.getElementById("searchInput").value = "";
-
-    document.getElementById("resultBody").innerHTML =
-      '<tr><td colspan="5">상품명 또는 바코드를 검색해 주세요.</td></tr>';
-
-    document.getElementById("count").textContent =
-      "전체 상품 수: " + products.length.toLocaleString() + "개";
+    searchProducts();
   }
-
-  // 60초마다 자동 갱신
-  setInterval(function() {
-    if (!document.getElementById("mainScreen").classList.contains("hidden")) {
-      loadProducts();
-    }
-  }, REFRESH_INTERVAL);
 
 </script>
 
