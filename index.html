@@ -1,703 +1,628 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SW 상품조회</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SW 상품조회</title>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-  margin: 0;
-  font-family: Arial, "Malgun Gothic", sans-serif;
-  background: #f3f5f8;
-  color: #222;
-}
+    body {
+      margin: 0;
+      padding: 25px 15px;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      background: #f5f6f8;
+      color: #222;
+    }
 
-header {
-  background: #172b4d;
-  color: white;
-  padding: 23px 15px;
-  text-align: center;
-}
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-header h1 {
-  margin: 0;
-  font-size: 25px;
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
 
-header p {
-  color: #cbd5e1;
-  font-size: 13px;
-  margin: 7px 0 0;
-}
+    .panel {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
 
-.container {
-  width: 94%;
-  max-width: 1100px;
-  margin: 35px auto;
-}
+    .login-box {
+      max-width: 400px;
+      margin: 70px auto;
+    }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 3px 15px rgba(0,0,0,.06);
-}
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-size: 16px;
+      outline: none;
+    }
 
-.hidden {
-  display: none !important;
-}
+    input:focus {
+      border-color: #3478f6;
+    }
 
-/* 로그인 */
-.login-box {
-  max-width: 380px;
-  margin: 100px auto;
-  text-align: center;
-}
+    button {
+      border: none;
+      border-radius: 7px;
+      padding: 13px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      background: #3478f6;
+      color: white;
+    }
 
-.login-box h2 {
-  margin-top: 0;
-}
+    button:hover {
+      background: #2464d8;
+    }
 
-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #d5dbe5;
-  border-radius: 8px;
-  font-size: 16px;
-  outline: none;
-}
+    .login-btn {
+      width: 100%;
+      margin-top: 12px;
+    }
 
-input:focus {
-  border-color: #2563eb;
-}
+    .search-area {
+      display: flex;
+      gap: 10px;
+    }
 
-button {
-  border: none;
-  border-radius: 8px;
-  padding: 13px 20px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: bold;
-}
+    .search-area input {
+      flex: 1;
+      min-width: 0;
+    }
 
-.login-btn {
-  width: 100%;
-  margin-top: 12px;
-  color: white;
-  background: #2563eb;
-}
+    .search-btn {
+      min-width: 90px;
+    }
 
-.login-btn:hover,
-.search-btn:hover {
-  background: #1d4ed8;
-}
+    .status {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #666;
+    }
 
-.error {
-  color: #dc2626;
-  font-size: 13px;
-  margin-top: 12px;
-}
+    .error {
+      color: #d93025;
+    }
 
-/* 상품조회 */
-.top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
+    .result-count {
+      margin: 20px 0 12px;
+      font-weight: bold;
+      font-size: 15px;
+    }
 
-.top-row h2 {
-  margin: 0;
-  font-size: 21px;
-}
+    .table-wrap {
+      overflow-x: auto;
+    }
 
-.logout-btn {
-  background: #e8edf5;
-  color: #334155;
-  font-size: 13px;
-  padding: 9px 13px;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      min-width: 600px;
+    }
 
-.search-area {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
+    th, td {
+      padding: 13px 10px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+      font-size: 14px;
+    }
 
-.search-area input {
-  flex: 1;
-  min-width: 0;
-}
+    th {
+      background: #f0f3f8;
+      font-weight: bold;
+      white-space: nowrap;
+    }
 
-.search-btn {
-  background: #2563eb;
-  color: white;
-  min-width: 90px;
-}
+    td:nth-child(3) {
+      text-align: left;
+    }
 
-.reset-btn {
-  background: #e8edf5;
-  color: #334155;
-}
+    .empty {
+      padding: 40px 10px;
+      text-align: center;
+      color: #888;
+    }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
-  color: #64748b;
-  font-size: 13px;
-}
+    .top-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
 
-.status {
-  color: #16a34a;
-}
+    .logout-btn {
+      background: #777;
+      padding: 9px 14px;
+      font-size: 13px;
+    }
 
-.table-wrap {
-  overflow-x: auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-}
+    .hidden {
+      display: none;
+    }
 
-table {
-  width: 100%;
-  min-width: 650px;
-  border-collapse: collapse;
-  text-align: center;
-}
+    @media (max-width: 600px) {
+      body {
+        padding: 15px 10px;
+      }
 
-th {
-  background: #edf2f8;
-  padding: 14px 10px;
-  font-size: 14px;
-  white-space: nowrap;
-}
+      .panel {
+        padding: 17px;
+      }
 
-td {
-  padding: 13px 10px;
-  border-top: 1px solid #edf0f4;
-  font-size: 14px;
-}
+      h1 {
+        font-size: 23px;
+      }
 
-tbody tr:hover {
-  background: #f8fafc;
-}
+      .search-area {
+        flex-direction: column;
+      }
 
-.empty {
-  padding: 40px 10px;
-  color: #94a3b8;
-  text-align: center;
-}
-
-.footer {
-  text-align: center;
-  color: #94a3b8;
-  font-size: 12px;
-  margin: 22px 0;
-}
-
-@media(max-width:600px) {
-  .container {
-    width: 96%;
-    margin: 18px auto;
-  }
-
-  .card {
-    padding: 17px;
-  }
-
-  .login-box {
-    margin: 75px auto;
-  }
-
-  .search-area {
-    flex-wrap: wrap;
-  }
-
-  .search-btn,
-  .reset-btn {
-    flex: 1;
-  }
-}
-</style>
+      .search-btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
-  <h1>SW 상품조회</h1>
-  <p>상품명 및 바코드 통합 검색 시스템</p>
-</header>
-
 <div class="container">
 
-  <!-- 로그인 -->
-  <div id="loginScreen" class="card login-box">
-    <h2>SW 상품조회</h2>
+  <h1>SW 상품조회</h1>
 
-    <p style="color:#64748b;font-size:14px;">
-      접속 비밀번호를 입력해주세요.
-    </p>
+  <!-- 로그인 화면 -->
+  <div id="loginSection" class="panel login-box">
+
+    <h3>비밀번호 입력</h3>
 
     <input
       type="password"
       id="password"
-      placeholder="비밀번호 입력"
-      autocomplete="current-password"
+      placeholder="비밀번호를 입력하세요"
+      onkeydown="if(event.key === 'Enter') login()"
     >
 
-    <button class="login-btn" id="loginBtn" onclick="login()">
+    <button class="login-btn" onclick="login()">
       로그인
     </button>
 
-    <div id="loginError" class="error"></div>
-  </div>
-
-  <!-- 상품조회 -->
-  <div id="searchScreen" class="card hidden">
-
-    <div class="top-row">
-      <h2>상품 검색</h2>
-
-      <button class="logout-btn" onclick="logout()">
-        로그아웃
-      </button>
-    </div>
-
-    <div class="search-area">
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="상품명 또는 바코드를 입력하세요."
-        autocomplete="off"
-      >
-
-      <button class="search-btn" onclick="searchProducts()">
-        검색
-      </button>
-
-      <button class="reset-btn" onclick="resetSearch()">
-        초기화
-      </button>
-    </div>
-
-    <div class="info-row">
-      <span id="resultCount">상품 정보를 불러오는 중...</span>
-      <span id="updateStatus" class="status"></span>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>상품분류</th>
-            <th>바코드</th>
-            <th>상품명</th>
-            <th>규격</th>
-            <th>소매가</th>
-          </tr>
-        </thead>
-
-        <tbody id="productList">
-          <tr>
-            <td colspan="5" class="empty">
-              상품 정보를 불러오는 중입니다.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="loginStatus" class="status"></div>
 
   </div>
 
-  <div class="footer">
-    SW 상품조회
+
+  <!-- 상품 조회 화면 -->
+  <div id="mainSection" class="hidden">
+
+    <div class="panel">
+
+      <div class="top-area">
+        <strong>상품 검색</strong>
+
+        <button class="logout-btn" onclick="logout()">
+          로그아웃
+        </button>
+      </div>
+
+      <div class="search-area">
+
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="상품명 또는 바코드를 입력하세요"
+          onkeydown="if(event.key === 'Enter') searchProducts()"
+        >
+
+        <button
+          class="search-btn"
+          onclick="searchProducts()"
+        >
+          검색
+        </button>
+
+      </div>
+
+      <div id="status" class="status">
+        상품 데이터를 불러오는 중입니다.
+      </div>
+
+      <div class="result-count" id="resultCount"></div>
+
+      <div class="table-wrap">
+
+        <table>
+          <thead>
+            <tr>
+              <th>상품분류</th>
+              <th>바코드</th>
+              <th>상품명</th>
+              <th>규격</th>
+              <th>소매가</th>
+            </tr>
+          </thead>
+
+          <tbody id="productList">
+            <tr>
+              <td colspan="5" class="empty">
+                데이터를 불러오는 중입니다.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+    </div>
+
   </div>
 
 </div>
 
+
 <script>
+  // Apps Script 웹앱 주소
+  const API_URL =
+    "https://script.google.com/macros/s/AKfycbzDF6R9tdMwMJJhKxL58RB8_zCJnQD9-b1CUx3XlRNa0Id3M7PPSAOjr8oZI9jgoxL0/exec";
 
-/* Google Apps Script 주소 */
-const API_URL =
-"https://script.google.com/macros/s/AKfycbzDF6R9tdMwMJJhKxL58RB8_zCJnQD9-b1CUx3XlRNa0Id3M7PPSAOjr8oZI9jgoxL0/exec";
+  let products = [];
+  let token = sessionStorage.getItem("sw_token") || null;
+  let refreshTimer = null;
 
-let products = [];
-let updateTimer = null;
-let isLoading = false;
 
-/* 서버 요청 */
-function apiRequest(params) {
+  /**
+   * JSONP 서버 요청
+   */
+  function apiRequest(params) {
 
-  return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
 
-    const callbackName =
-      "swCallback_" +
-      Date.now() + "_" +
-      Math.random().toString(36).slice(2);
+      const callbackName =
+        "swCallback_" +
+        Date.now() +
+        "_" +
+        Math.floor(Math.random() * 100000);
 
-    const script = document.createElement("script");
+      const script = document.createElement("script");
 
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error("서버 응답 시간이 초과되었습니다."));
-    }, 15000);
+      let finished = false;
 
-    function cleanup() {
-      clearTimeout(timeout);
-      delete window[callbackName];
-      script.remove();
-    }
+      const timeout = setTimeout(function() {
+        cleanup();
+        reject(new Error("서버 응답 시간이 초과되었습니다."));
+      }, 20000);
 
-    window[callbackName] = function(result) {
-      cleanup();
-      resolve(result);
-    };
+      function cleanup() {
+        if (finished) return;
 
-    const query = new URLSearchParams({
-      ...params,
-      callback: callbackName
+        finished = true;
+
+        clearTimeout(timeout);
+
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+
+        try {
+          delete window[callbackName];
+        } catch (e) {
+          window[callbackName] = undefined;
+        }
+      }
+
+      window[callbackName] = function(response) {
+        cleanup();
+        resolve(response);
+      };
+
+      const query = new URLSearchParams({
+        ...params,
+        callback: callbackName,
+        _: Date.now()
+      });
+
+      script.src = API_URL + "?" + query.toString();
+
+      script.onerror = function() {
+        cleanup();
+        reject(new Error("서버에 연결할 수 없습니다."));
+      };
+
+      document.body.appendChild(script);
+
     });
-
-    script.src = API_URL + "?" + query.toString();
-
-    script.onerror = function() {
-      cleanup();
-      reject(new Error("서버에 연결할 수 없습니다."));
-    };
-
-    document.body.appendChild(script);
-
-  });
-}
-
-/* 로그인 */
-async function login() {
-
-  const password =
-    document.getElementById("password").value.trim();
-
-  const error =
-    document.getElementById("loginError");
-
-  const btn =
-    document.getElementById("loginBtn");
-
-  if (!password) {
-    error.textContent = "비밀번호를 입력해주세요.";
-    return;
   }
 
-  btn.disabled = true;
-  btn.textContent = "확인 중...";
-  error.textContent = "";
 
-  try {
+  /**
+   * 로그인
+   */
+  async function login() {
 
-    const result = await apiRequest({
-      action: "login",
-      password: password
-    });
+    const password =
+      document.getElementById("password").value.trim();
 
-    if (!result.success) {
-      error.textContent =
-        result.message || "비밀번호가 일치하지 않습니다.";
+    const status =
+      document.getElementById("loginStatus");
+
+    if (!password) {
+      status.textContent = "비밀번호를 입력해 주세요.";
+      status.className = "status error";
       return;
     }
 
-    sessionStorage.setItem("sw_token", result.token);
+    status.textContent = "로그인 중입니다.";
+    status.className = "status";
 
-    document.getElementById("password").value = "";
+    try {
 
-    showSearchScreen();
+      const response = await apiRequest({
+        action: "login",
+        password: password
+      });
 
-    await loadProducts();
-
-  } catch(e) {
-
-    error.textContent = e.message;
-
-  } finally {
-
-    btn.disabled = false;
-    btn.textContent = "로그인";
-
-  }
-}
-
-/* 상품조회 화면 표시 */
-function showSearchScreen() {
-
-  document
-    .getElementById("loginScreen")
-    .classList.add("hidden");
-
-  document
-    .getElementById("searchScreen")
-    .classList.remove("hidden");
-
-  document.getElementById("searchInput").focus();
-
-  if (updateTimer) {
-    clearInterval(updateTimer);
-  }
-
-  updateTimer = setInterval(() => {
-    loadProducts(true);
-  }, 60000);
-
-}
-
-/* 로그아웃 */
-function logout() {
-
-  sessionStorage.removeItem("sw_token");
-
-  if (updateTimer) {
-    clearInterval(updateTimer);
-    updateTimer = null;
-  }
-
-  products = [];
-
-  document
-    .getElementById("searchScreen")
-    .classList.add("hidden");
-
-  document
-    .getElementById("loginScreen")
-    .classList.remove("hidden");
-
-  document.getElementById("password").value = "";
-
-  document.getElementById("loginError").textContent = "";
-
-  document.getElementById("searchInput").value = "";
-
-  document.getElementById("productList").innerHTML = "";
-
-  document.getElementById("resultCount").textContent = "";
-
-  document.getElementById("updateStatus").textContent = "";
-
-}
-
-/* 상품 데이터 가져오기 */
-async function loadProducts(silent = false) {
-
-  if (isLoading) return;
-
-  isLoading = true;
-
-  if (!silent) {
-    document.getElementById("resultCount").textContent =
-      "상품 정보를 불러오는 중...";
-  }
-
-  try {
-
-    const token = sessionStorage.getItem("sw_token");
-
-    const result = await apiRequest({
-      action: "data",
-      token: token
-    });
-
-    if (!result.success) {
-
-      if (result.code === "AUTH") {
-        logout();
-
-        document.getElementById("loginError").textContent =
-          "로그인이 만료되었습니다. 다시 로그인해주세요.";
-
+      if (!response.success) {
+        status.textContent = response.message;
+        status.className = "status error";
         return;
       }
 
-      throw new Error(
-        result.message || "상품 조회 실패"
-      );
+      token = response.token;
+
+      sessionStorage.setItem("sw_token", token);
+
+      document.getElementById("password").value = "";
+
+      showMain();
+
+      await loadProducts();
+
+    } catch (error) {
+
+      status.textContent = error.message;
+      status.className = "status error";
+
+    }
+  }
+
+
+  /**
+   * 로그인 상태 표시
+   */
+  function showMain() {
+
+    document.getElementById("loginSection")
+      .classList.add("hidden");
+
+    document.getElementById("mainSection")
+      .classList.remove("hidden");
+
+  }
+
+
+  /**
+   * 로그아웃
+   */
+  function logout() {
+
+    sessionStorage.removeItem("sw_token");
+
+    token = null;
+    products = [];
+
+    if (refreshTimer) {
+      clearInterval(refreshTimer);
+      refreshTimer = null;
     }
 
-    products = result.products || [];
+    document.getElementById("mainSection")
+      .classList.add("hidden");
 
-    searchProducts();
+    document.getElementById("loginSection")
+      .classList.remove("hidden");
 
-    const now = new Date();
+    document.getElementById("productList").innerHTML = "";
 
-    document.getElementById("updateStatus").textContent =
-      "최근 업데이트: " +
-      now.toLocaleTimeString("ko-KR");
+    document.getElementById("resultCount").textContent = "";
 
-  } catch(e) {
-
-    document.getElementById("resultCount").textContent =
-      "데이터를 불러오지 못했습니다.";
-
-    if (!silent) {
-      document.getElementById("updateStatus").textContent =
-        e.message;
-    }
-
-  } finally {
-
-    isLoading = false;
-
-  }
-}
-
-/* 바코드 앞자리 0 제거 */
-function normalizeBarcode(value) {
-
-  return String(value ?? "")
-    .replace(/^0+/, "");
-
-}
-
-/* 상품 검색 */
-function searchProducts() {
-
-  const query = document
-    .getElementById("searchInput")
-    .value.trim()
-    .toLowerCase();
-
-  let filtered = products;
-
-  if (query) {
-
-    const normalizedQuery = normalizeBarcode(query);
-
-    filtered = products.filter(item => {
-
-      const name = String(item.name || "").toLowerCase();
-
-      const barcode = String(item.barcode || "");
-
-      // 상품명은 부분 일치
-      const nameMatch = name.includes(query);
-
-      // 바코드는 전체 일치 (앞자리 0 무시)
-      const barcodeMatch =
-        normalizedQuery !== "" &&
-        normalizeBarcode(barcode) === normalizedQuery;
-
-      return nameMatch || barcodeMatch;
-
-    });
+    document.getElementById("status").textContent = "";
 
   }
 
-  renderProducts(filtered);
 
-}
+  /**
+   * 상품 데이터 불러오기
+   */
+  async function loadProducts() {
 
-/* 검색 결과 표시 */
-function renderProducts(list) {
+    const status =
+      document.getElementById("status");
 
-  const tbody = document.getElementById("productList");
+    status.textContent = "상품 데이터를 불러오는 중입니다.";
+    status.className = "status";
 
-  document.getElementById("resultCount").textContent =
-    "검색 결과 " +
-    list.length.toLocaleString("ko-KR") +
-    "개";
+    try {
 
-  if (list.length === 0) {
+      const response = await apiRequest({
+        action: "data",
+        token: token
+      });
 
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" class="empty">
-          검색 결과가 없습니다.
-        </td>
-      </tr>
-    `;
+      if (!response.success) {
 
-    return;
-  }
+        if (
+          response.message &&
+          response.message.includes("로그인이 만료")
+        ) {
+          logout();
 
-  tbody.innerHTML = list.map(item => `
+          document.getElementById("loginStatus").textContent =
+            response.message;
 
-    <tr>
-      <td>${escapeHTML(item.category)}</td>
-      <td>${escapeHTML(item.barcode)}</td>
-      <td style="text-align:left;">
-        ${escapeHTML(item.name)}
-      </td>
-      <td>${escapeHTML(item.size)}</td>
-      <td>${escapeHTML(item.price)}</td>
-    </tr>
+          return;
+        }
 
-  `).join("");
+        throw new Error(response.message || "상품 데이터를 불러오지 못했습니다.");
+      }
 
-}
+      products = response.products || [];
 
-/* HTML 특수문자 보호 */
-function escapeHTML(value) {
+      status.textContent =
+        "상품 " + products.length.toLocaleString() + "개 불러오기 완료";
 
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
+      status.className = "status";
 
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-
-  })[char]);
-
-}
-
-/* 검색 초기화 */
-function resetSearch() {
-
-  document.getElementById("searchInput").value = "";
-
-  searchProducts();
-
-  document.getElementById("searchInput").focus();
-
-}
-
-/* 엔터키 검색 */
-document
-  .getElementById("searchInput")
-  .addEventListener("keydown", function(e) {
-
-    if (e.key === "Enter") {
       searchProducts();
+
+      // 60초마다 자동 갱신
+      if (!refreshTimer) {
+        refreshTimer = setInterval(loadProducts, 60000);
+      }
+
+    } catch (error) {
+
+      status.textContent = error.message;
+      status.className = "status error";
+
+      document.getElementById("productList").innerHTML =
+        '<tr><td colspan="5" class="empty">데이터를 불러오지 못했습니다.</td></tr>';
+
     }
+  }
 
-  });
 
-document
-  .getElementById("password")
-  .addEventListener("keydown", function(e) {
+  /**
+   * 바코드 앞자리 0 제거
+   */
+  function normalizeBarcode(value) {
 
-    if (e.key === "Enter") {
-      login();
-    }
-
-  });
-
-/* 기존 로그인 상태 확인 */
-window.addEventListener("load", async function() {
-
-  if (sessionStorage.getItem("sw_token")) {
-
-    showSearchScreen();
-
-    await loadProducts();
+    return String(value || "")
+      .trim()
+      .replace(/^0+/, "");
 
   }
 
-});
+
+  /**
+   * 상품 검색
+   */
+  function searchProducts() {
+
+    const keyword =
+      document.getElementById("searchInput")
+        .value.trim();
+
+    const tbody =
+      document.getElementById("productList");
+
+    const count =
+      document.getElementById("resultCount");
+
+    if (!products.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="empty">상품 데이터가 없습니다.</td></tr>';
+
+      count.textContent = "";
+      return;
+    }
+
+    let filtered = products;
+
+    if (keyword) {
+
+      const barcodeKeyword = normalizeBarcode(keyword);
+
+      filtered = products.filter(function(item) {
+
+        const name = String(item.name || "").toLowerCase();
+
+        const barcode = normalizeBarcode(item.barcode);
+
+        // 상품명은 부분 일치
+        const nameMatch =
+          name.includes(keyword.toLowerCase());
+
+        // 바코드는 완전 일치
+        const barcodeMatch =
+          barcodeKeyword !== "" &&
+          barcode === barcodeKeyword;
+
+        return nameMatch || barcodeMatch;
+
+      });
+
+    }
+
+    count.textContent =
+      "검색 결과 : " + filtered.length.toLocaleString() + "개";
+
+    if (filtered.length === 0) {
+
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="empty">검색 결과가 없습니다.</td></tr>';
+
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(function(item) {
+
+      return `
+        <tr>
+          <td>${escapeHTML(item.category)}</td>
+          <td>${escapeHTML(item.barcode)}</td>
+          <td>${escapeHTML(item.name)}</td>
+          <td>${escapeHTML(item.size)}</td>
+          <td>${escapeHTML(item.price)}</td>
+        </tr>
+      `;
+
+    }).join("");
+
+  }
+
+
+  /**
+   * HTML 특수문자 처리
+   */
+  function escapeHTML(value) {
+
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
+
+
+  /**
+   * 페이지 시작
+   */
+  window.onload = function() {
+
+    if (token) {
+
+      showMain();
+      loadProducts();
+
+    }
+
+  };
 
 </script>
 
