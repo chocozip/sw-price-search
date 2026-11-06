@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 및 가격 조회 시스템</title>
+    <!-- 엑셀 파일을 읽기 위한 라이브러리 (SheetJS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 30px; background-color: #f4f6f8; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin-bottom: 25px; color: #2c3e50; }
+        .upload-section { margin-bottom: 20px; padding: 15px; background: #eef2f7; border-radius: 6px; text-align: center; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 12px 24px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f1f1f1; text-align: center; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .info-msg { text-align: center; color: #888; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📦 상품 가격 및 규격 조회</h2>
+    
+    <!-- 엑셀 파일 업로드 영역 -->
+    <div class="upload-section">
+        <label for="excelFile"><strong>엑셀 파일 불러오기: </strong></label>
+        <input type="file" id="excelFile" accept=".xlsx, .xls" onchange="readExcel(event)">
+    </div>
+
+    <!-- 검색 영역 (바코드 스캐너 입력이나 상품명 입력 모두 대응) -->
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="바코드를 스캔하거나 상품명/규격을 입력하세요 (Enter)" onkeyup="if(event.key === 'Enter') searchProduct();" disabled>
+        <button onclick="searchProduct()" id="searchBtn" disabled>조회</button>
+    </div>
+
+    <!-- 결과 테이블 -->
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">바코드</th>
+                <th style="width: 35%;">상품명</th>
+                <th style="width: 20%;">규격</th>
+                <th style="width: 20%;">소비자가</th>
+            </tr>
+        </thead>
+        <tbody id="resultTable">
+            <tr>
+                <td colspan="4" class="info-msg">먼저 상단에서 엑셀 파일을 업로드해 주세요.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let excelData = [];
+
+    // 엑셀 파일을 읽어와서 데이터로 변환하는 함수
+    function readExcel(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            // JSON 형태로 변환
+            excelData = XLSX.utils.sheet_to_json(worksheet);
+
+            alert("엑셀 파일이 성공적으로 로드되었습니다! 검색을 시작하세요.");
+            
+            // 입력창 활성화 및 포커스
+            const searchInput = document.getElementById('searchInput');
+            searchInput.disabled = false;
+            document.getElementById('searchBtn').disabled = false;
+            searchInput.focus();
+            
+            document.getElementById('resultTable').innerHTML = '<tr><td colspan="4" class="info-msg">검색어나 바코드를 입력해 주세요.</td></tr>';
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // 상품 검색 함수 (바코드, 상품명, 규격 중 일치하는 항목 검색)
+    function searchProduct() {
+        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+        const tbody = document.getElementById('resultTable');
+        tbody.innerHTML = '';
+
+        if (!keyword) {
+            tbody.innerHTML = '<tr><td colspan="4" class="info-msg">검색어를 입력해 주세요.</td></tr>';
+            return;
+        }
+
+        // 엑셀의 열 이름('바코드', '상품명', '규격', '소비자가') 매칭
+        const filtered = excelData.filter(item => {
+            const barcode = String(item['바코드'] || '').toLowerCase();
+            const name = String(item['상품명'] || '').toLowerCase();
+            const spec = String(item['규격'] || '').toLowerCase();
+
+            // 바코드, 상품명, 규격 중 하나라도 키워드를 포함하면 검색됨
+            return barcode.includes(keyword) || name.includes(keyword) || spec.includes(keyword);
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="info-msg">검색 결과가 없습니다.</td></tr>';
+            return;
+        }
+
+        // 결과 출력
+        filtered.forEach(item => {
+            const barcode = item['바코드'] || '-';
+            const name = item['상품명'] || '-';
+            const spec = item['규격'] || '-';
+            
+            // 소비자가 숫자에 콤마(,) 포맷팅 적용 (숫자형태일 경우)
+            let price = item['소비자가'] || '-';
+            if (!isNaN(price) && price !== '-') {
+                price = Number(price).toLocaleString() + '원';
+            }
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="text-center">${barcode}</td>
+                    <td>${name}</td>
+                    <td class="text-center">${spec}</td>
+                    <td class="text-right" style="font-weight: bold; color: #d9534f;">${price}</td>
+                </tr>
+            `;
+        });
+        
+        // 검색 후 입력창 전체 선택 (연속 바코드 스캔 시 편리)
+        const searchInput = document.getElementById('searchInput');
+        searchInput.select();
+    }
+</script>
+
+</body>
+</html>
