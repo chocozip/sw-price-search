@@ -210,7 +210,7 @@
         <input
           type="text"
           id="searchInput"
-          placeholder="상품명 또는 바코드를 입력하세요"
+          placeholder="상품명 또는 전체 바코드를 입력하세요"
           onkeydown="if(event.key === 'Enter') searchProducts()"
         >
         <button onclick="searchProducts()">검색</button>
@@ -233,6 +233,7 @@
               <th>소매가</th>
             </tr>
           </thead>
+
           <tbody id="productTable">
             <tr>
               <td colspan="5" class="message">
@@ -299,7 +300,7 @@
     return "";
   }
 
-  // 구글시트 JSONP 데이터 불러오기
+  // 구글시트 데이터 불러오기
   function loadProducts() {
     if (isLoading) return;
 
@@ -308,7 +309,8 @@
     document.getElementById("loadingStatus").textContent =
       "데이터 갱신 중...";
 
-    const oldCallback = window.google &&
+    const oldCallback =
+      window.google &&
       window.google.visualization &&
       window.google.visualization.Query &&
       window.google.visualization.Query.setResponse;
@@ -357,13 +359,12 @@
         }
 
         const rows = response.table.rows || [];
-
         const loadedProducts = [];
 
         rows.forEach(function(row) {
           const cells = row.c || [];
 
-          // 첫 번째 행은 제목이므로 제외
+          // 첫 번째 제목 행 제외
           const firstValue = getCellValue(cells[0]);
 
           if (firstValue === "상품분류") {
@@ -378,7 +379,6 @@
             price: getCellValue(cells[4])
           };
 
-          // 상품명이 없는 빈 행은 제외
           if (!product.name && !product.barcode) {
             return;
           }
@@ -419,7 +419,9 @@
       "&headers=0";
 
     script = document.createElement("script");
+
     script.src = url;
+
     script.onerror = function() {
       if (finished) return;
 
@@ -468,28 +470,34 @@
     let filteredProducts = products;
 
     if (keyword) {
-      const isBarcode = /^\d+$/.test(keyword);
+      const searchBarcode = normalizeBarcode(keyword);
 
-      if (isBarcode) {
-        const searchBarcode = normalizeBarcode(keyword);
+      // 전체 바코드와 일치하는 상품이 있는 경우
+      const barcodeMatches = products.filter(function(product) {
+        return normalizeBarcode(product.barcode) === searchBarcode;
+      });
 
-        filteredProducts = products.filter(function(product) {
-          return normalizeBarcode(product.barcode) === searchBarcode;
-        });
+      if (/^\d+$/.test(keyword) && barcodeMatches.length > 0) {
+
+        // 바코드 전체 일치 검색 우선
+        filteredProducts = barcodeMatches;
 
       } else {
+
+        // 숫자 포함 상품명 부분 검색
         const searchName = keyword.toLowerCase();
 
         filteredProducts = products.filter(function(product) {
           return product.name.toLowerCase().includes(searchName);
         });
+
       }
     }
 
     renderProducts(filteredProducts);
   }
 
-  // 결과 표시
+  // 검색 결과 표시
   function renderProducts(list) {
     const tbody = document.getElementById("productTable");
 
