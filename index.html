@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,214 +15,313 @@
       margin: 0;
       padding: 20px;
       font-family: Arial, "Malgun Gothic", sans-serif;
-      background: #f4f6f9;
+      background: #f3f5f8;
       color: #222;
     }
 
     .container {
-      max-width: 1000px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.07);
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
     h1 {
-      text-align: center;
-      margin: 0 0 25px;
-      font-size: 28px;
-    }
-
-    .login-area {
-      max-width: 360px;
-      margin: 60px auto;
+      margin: 0 0 20px;
+      font-size: 26px;
       text-align: center;
     }
 
-    input {
+    /* 로그인 */
+    #loginArea {
+      max-width: 400px;
+      margin: 80px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    #passwordInput {
       width: 100%;
-      padding: 13px;
-      border: 1px solid #ccc;
-      border-radius: 7px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #2563eb;
+      padding: 14px;
+      margin: 15px 0;
+      font-size: 18px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
 
     button {
-      padding: 12px 18px;
       border: none;
-      border-radius: 7px;
+      border-radius: 8px;
+      padding: 13px 18px;
       background: #2563eb;
       color: white;
-      font-size: 15px;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #1d4ed8;
-    }
-
-    .login-area button {
+    #loginButton {
       width: 100%;
-      margin-top: 12px;
     }
 
+    /* 검색 영역 */
     .search-area {
       display: flex;
       gap: 8px;
       margin-bottom: 15px;
     }
 
-    .search-area input {
+    #searchInput {
       flex: 1;
       min-width: 0;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
     }
 
-    .search-area button {
+    #searchButton {
       white-space: nowrap;
     }
 
-    .info {
+    .info-area {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
       font-size: 14px;
       color: #666;
+      gap: 10px;
     }
 
-    .table-wrap {
+    #resultCount {
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    /* PC 테이블 */
+    .table-wrapper {
       overflow-x: auto;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     table {
       width: 100%;
-      min-width: 600px;
       border-collapse: collapse;
-      font-size: 14px;
+      min-width: 650px;
     }
 
     th {
-      background: #f1f5f9;
-      font-weight: bold;
-      padding: 13px 10px;
+      background: #e9efff;
+      color: #333;
+      padding: 14px 10px;
+      font-size: 14px;
       border-bottom: 1px solid #ddd;
-      white-space: nowrap;
     }
 
     td {
-      padding: 12px 10px;
+      padding: 13px 10px;
+      font-size: 14px;
       border-bottom: 1px solid #eee;
       text-align: center;
+      word-break: break-word;
+    }
+
+    td.product-name {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    td.price {
+      font-weight: bold;
+      color: #2563eb;
+      white-space: nowrap;
     }
 
     tr:last-child td {
       border-bottom: none;
     }
 
-    td:nth-child(3) {
-      text-align: left;
-      min-width: 220px;
-    }
-
-    .message {
-      padding: 25px 10px;
-      text-align: center;
-      color: #777;
-    }
-
-    .error {
-      color: #dc2626;
-      margin-top: 12px;
-      font-size: 14px;
-    }
-
-    .hidden {
+    /* 모바일 카드 */
+    #mobileResults {
       display: none;
     }
 
-    .refresh-info {
-      font-size: 12px;
-      color: #999;
-      text-align: right;
-      margin-top: 12px;
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid #e9edf3;
     }
 
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .category {
+      display: inline-block;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 5px 8px;
+      border-radius: 6px;
+    }
+
+    .card-price {
+      font-size: 16px;
+      font-weight: bold;
+      color: #2563eb;
+      white-space: nowrap;
+    }
+
+    .card-name {
+      font-size: 17px;
+      font-weight: bold;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .card-info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-label {
+      flex-shrink: 0;
+      width: 45px;
+      color: #999;
+    }
+
+    .card-value {
+      min-width: 0;
+      word-break: break-all;
+      color: #333;
+    }
+
+    .empty-message {
+      padding: 30px 15px;
+      text-align: center;
+      color: #888;
+      background: white;
+      border-radius: 10px;
+    }
+
+    #statusMessage {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+    }
+
+    /* 모바일 반응형 */
     @media (max-width: 600px) {
       body {
-        padding: 10px;
-      }
-
-      .container {
-        padding: 18px 12px;
-        margin: 10px auto;
+        padding: 12px;
       }
 
       h1 {
-        font-size: 23px;
+        font-size: 22px;
+        margin-bottom: 16px;
       }
 
       .search-area {
-        flex-wrap: wrap;
+        gap: 6px;
       }
 
-      .search-area input {
-        width: 100%;
-        flex-basis: 100%;
+      #searchInput {
+        padding: 12px;
+        font-size: 15px;
       }
 
-      .search-area button {
-        flex: 1;
+      #searchButton {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+
+      .info-area {
+        font-size: 12px;
+      }
+
+      .table-wrapper {
+        display: none;
+      }
+
+      #mobileResults {
+        display: block;
+      }
+
+      .product-card {
+        padding: 12px;
+      }
+
+      .card-name {
+        font-size: 16px;
+      }
+
+      .card-price {
+        font-size: 15px;
       }
     }
   </style>
 </head>
 
 <body>
-
   <div class="container">
 
-    <h1>SW 상품조회</h1>
-
     <!-- 로그인 -->
-    <div id="loginArea" class="login-area">
+    <div id="loginArea">
+      <h1>SW 상품조회</h1>
       <input
         type="password"
-        id="password"
-        placeholder="비밀번호를 입력하세요"
-        onkeydown="if(event.key === 'Enter') login()"
+        id="passwordInput"
+        placeholder="비밀번호 입력"
+        inputmode="numeric"
       >
-      <button onclick="login()">로그인</button>
-      <div id="loginError" class="error"></div>
+      <button id="loginButton">로그인</button>
+      <div id="loginMessage"></div>
     </div>
 
     <!-- 상품 조회 -->
-    <div id="mainArea" class="hidden">
+    <div id="mainArea" style="display:none;">
+      <h1>SW 상품조회</h1>
 
       <div class="search-area">
         <input
           type="text"
           id="searchInput"
-          placeholder="상품명 또는 전체 바코드를 입력하세요"
-          onkeydown="if(event.key === 'Enter') searchProducts()"
+          placeholder="상품명 또는 바코드 검색"
         >
-        <button onclick="searchProducts()">검색</button>
-        <button onclick="resetSearch()" style="background:#64748b;">초기화</button>
+        <button id="searchButton">검색</button>
       </div>
 
-      <div class="info">
-        <span id="resultCount">상품 데이터를 불러오는 중입니다.</span>
-        <span id="loadingStatus"></span>
+      <div class="info-area">
+        <div>검색 결과 <span id="resultCount">0</span>건</div>
+        <div id="updateTime">데이터 불러오는 중...</div>
       </div>
 
-      <div class="table-wrap">
+      <!-- PC 테이블 -->
+      <div class="table-wrapper">
         <table>
           <thead>
             <tr>
@@ -233,313 +332,333 @@
               <th>소매가</th>
             </tr>
           </thead>
-
-          <tbody id="productTable">
-            <tr>
-              <td colspan="5" class="message">
-                상품 데이터를 불러오는 중입니다.
-              </td>
-            </tr>
-          </tbody>
+          <tbody id="tableBody"></tbody>
         </table>
       </div>
 
-      <div class="refresh-info">
-        상품 정보는 60초마다 자동으로 갱신됩니다.
-      </div>
+      <!-- 모바일 카드 -->
+      <div id="mobileResults"></div>
 
+      <div id="statusMessage"></div>
     </div>
+
   </div>
 
-<script>
-  // 기본 설정
-  const PASSWORD = "2221";
+  <script>
+    const PASSWORD = "2221";
 
-  const SPREADSHEET_ID =
-    "12vYM5rzLo_bCiKipLJfX-io3c9ycI9cW18ST07_d6GY";
+    const SPREADSHEET_ID =
+      "12vYM5rzLo_bCiKipLJfX-io3c9ycI9cW18ST07_d6GY";
 
-  const GID = "0";
+    const GID = "0";
 
-  const REFRESH_INTERVAL = 60000;
+    let products = [];
+    let filteredProducts = [];
 
-  let products = [];
-  let refreshTimer = null;
-  let isLoading = false;
+    let refreshTimer = null;
+    let isLoading = false;
 
-  // 로그인
-  function login() {
-    const password = document.getElementById("password").value;
+    // 로그인
+    document.getElementById("loginButton").addEventListener("click", login);
 
-    if (password === PASSWORD) {
-      document.getElementById("loginArea").classList.add("hidden");
-      document.getElementById("mainArea").classList.remove("hidden");
-
-      loadProducts();
-
-      if (!refreshTimer) {
-        refreshTimer = setInterval(loadProducts, REFRESH_INTERVAL);
-      }
-    } else {
-      document.getElementById("loginError").textContent =
-        "비밀번호가 올바르지 않습니다.";
-    }
-  }
-
-  // 셀 값 가져오기
-  function getCellValue(cell) {
-    if (!cell) return "";
-
-    if (cell.f !== undefined && cell.f !== null) {
-      return String(cell.f).trim();
-    }
-
-    if (cell.v !== undefined && cell.v !== null) {
-      return String(cell.v).trim();
-    }
-
-    return "";
-  }
-
-  // 구글시트 데이터 불러오기
-  function loadProducts() {
-    if (isLoading) return;
-
-    isLoading = true;
-
-    document.getElementById("loadingStatus").textContent =
-      "데이터 갱신 중...";
-
-    const oldCallback =
-      window.google &&
-      window.google.visualization &&
-      window.google.visualization.Query &&
-      window.google.visualization.Query.setResponse;
-
-    let finished = false;
-    let script = null;
-    let timeout = null;
-
-    function finish() {
-      if (finished) return;
-
-      finished = true;
-      isLoading = false;
-
-      if (script) {
-        script.remove();
-      }
-
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-
-      if (oldCallback) {
-        window.google.visualization.Query.setResponse = oldCallback;
-      } else if (
-        window.google &&
-        window.google.visualization &&
-        window.google.visualization.Query
-      ) {
-        delete window.google.visualization.Query.setResponse;
-      }
-    }
-
-    window.google = window.google || {};
-    window.google.visualization =
-      window.google.visualization || {};
-    window.google.visualization.Query =
-      window.google.visualization.Query || {};
-
-    window.google.visualization.Query.setResponse = function(response) {
-      if (finished) return;
-
-      try {
-        if (!response || response.status !== "ok") {
-          throw new Error("구글시트 응답 오류");
+    document.getElementById("passwordInput")
+      .addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+          login();
         }
+      });
 
-        const rows = response.table.rows || [];
-        const loadedProducts = [];
+    function login() {
+      const password =
+        document.getElementById("passwordInput").value;
 
-        rows.forEach(function(row) {
-          const cells = row.c || [];
+      if (password === PASSWORD) {
+        document.getElementById("loginArea").style.display = "none";
+        document.getElementById("mainArea").style.display = "block";
 
-          // 첫 번째 제목 행 제외
-          const firstValue = getCellValue(cells[0]);
+        loadProducts();
 
-          if (firstValue === "상품분류") {
-            return;
-          }
-
-          const product = {
-            category: getCellValue(cells[0]),
-            barcode: getCellValue(cells[1]),
-            name: getCellValue(cells[2]),
-            size: getCellValue(cells[3]),
-            price: getCellValue(cells[4])
-          };
-
-          if (!product.name && !product.barcode) {
-            return;
-          }
-
-          loadedProducts.push(product);
-        });
-
-        products = loadedProducts;
-
-        finish();
-
-        document.getElementById("loadingStatus").textContent =
-          "연결 완료";
-
-        searchProducts();
-
-      } catch (error) {
-        finish();
-
-        document.getElementById("loadingStatus").textContent =
-          "데이터 처리 실패";
-
-        document.getElementById("productTable").innerHTML =
-          '<tr><td colspan="5" class="message">상품 데이터를 처리하지 못했습니다.</td></tr>';
-
-        document.getElementById("resultCount").textContent =
-          "데이터 처리 오류";
-
-        console.error(error);
+        refreshTimer = setInterval(loadProducts, 60000);
+      } else {
+        document.getElementById("loginMessage").textContent =
+          "비밀번호가 올바르지 않습니다.";
       }
-    };
+    }
 
-    const url =
-      "https://docs.google.com/spreadsheets/d/" +
-      SPREADSHEET_ID +
-      "/gviz/tq?tqx=out:json&gid=" +
-      GID +
-      "&headers=0";
+    // Google Sheets 데이터 불러오기
+    function loadProducts() {
+      if (isLoading) return;
 
-    script = document.createElement("script");
+      isLoading = true;
 
-    script.src = url;
+      document.getElementById("statusMessage").textContent =
+        "상품 데이터를 불러오는 중입니다...";
 
-    script.onerror = function() {
-      if (finished) return;
+      const callbackName = "googleVisualizationCallback";
 
-      finish();
+      const oldScript = document.getElementById("googleSheetScript");
+      if (oldScript) {
+        oldScript.remove();
+      }
 
-      document.getElementById("loadingStatus").textContent =
-        "연결 실패";
+      window.google = window.google || {};
+      window.google.visualization =
+        window.google.visualization || {};
 
-      document.getElementById("resultCount").textContent =
-        "구글시트 연결에 실패했습니다. 주소와 공유 설정을 확인해 주세요.";
+      window.google.visualization.Query =
+        window.google.visualization.Query || {};
 
-      document.getElementById("productTable").innerHTML =
-        '<tr><td colspan="5" class="message">데이터를 불러오지 못했습니다.</td></tr>';
-    };
+      window.google.visualization.Query.setResponse =
+        function(response) {
+          try {
+            if (!response || response.status !== "ok") {
+              throw new Error("데이터를 불러오지 못했습니다.");
+            }
 
-    timeout = setTimeout(function() {
-      if (finished) return;
+            const rows = response.table.rows || [];
 
-      finish();
+            products = rows.map(function(row) {
+              const cells = row.c || [];
 
-      document.getElementById("loadingStatus").textContent =
-        "응답 시간 초과";
+              return {
+                category: getCellValue(cells[0]),
+                barcode: getCellValue(cells[1]),
+                name: getCellValue(cells[2]),
+                size: getCellValue(cells[3]),
+                price: getCellValue(cells[4])
+              };
+            });
 
-      document.getElementById("resultCount").textContent =
-        "구글시트 응답이 지연되고 있습니다. 다시 시도해 주세요.";
+            // 첫 행이 제목 행이면 제거
+            if (
+              products.length > 0 &&
+              products[0].category === "상품분류"
+            ) {
+              products.shift();
+            }
 
-    }, 15000);
+            products = products.filter(function(product) {
+              return product.name !== "";
+            });
 
-    document.head.appendChild(script);
-  }
+            const keyword =
+              document.getElementById("searchInput").value.trim();
 
-  // 바코드 앞자리 0 제거
-  function normalizeBarcode(value) {
-    return String(value)
-      .replace(/\D/g, "")
-      .replace(/^0+/, "");
-  }
+            if (keyword) {
+              searchProducts();
+            } else {
+              filteredProducts = products.slice();
+              renderProducts();
+            }
 
-  // 상품 검색
-  function searchProducts() {
-    const keyword = document
-      .getElementById("searchInput")
-      .value
-      .trim();
+            document.getElementById("updateTime").textContent =
+              "갱신 " + new Date().toLocaleTimeString("ko-KR");
 
-    let filteredProducts = products;
+            document.getElementById("statusMessage").textContent =
+              "데이터가 정상적으로 업데이트되었습니다.";
 
-    if (keyword) {
+          } catch (error) {
+            document.getElementById("statusMessage").textContent =
+              "데이터 처리 중 오류가 발생했습니다.";
+          } finally {
+            isLoading = false;
+
+            const script =
+              document.getElementById("googleSheetScript");
+
+            if (script) {
+              script.remove();
+            }
+          }
+        };
+
+      const url =
+        "https://docs.google.com/spreadsheets/d/" +
+        SPREADSHEET_ID +
+        "/gviz/tq?tqx=out:json&gid=" +
+        GID +
+        "&headers=0";
+
+      const script = document.createElement("script");
+      script.id = "googleSheetScript";
+      script.src = url;
+      script.onerror = function() {
+        isLoading = false;
+
+        document.getElementById("statusMessage").textContent =
+          "데이터 연결에 실패했습니다.";
+      };
+
+      document.body.appendChild(script);
+    }
+
+    // 셀 값 처리
+    function getCellValue(cell) {
+      if (!cell) return "";
+
+      if (cell.f !== null && cell.f !== undefined) {
+        return String(cell.f).trim();
+      }
+
+      if (cell.v !== null && cell.v !== undefined) {
+        return String(cell.v).trim();
+      }
+
+      return "";
+    }
+
+    // 바코드 앞자리 0 정규화
+    function normalizeBarcode(value) {
+      return String(value || "")
+        .trim()
+        .replace(/\s/g, "")
+        .replace(/^0+/, "");
+    }
+
+    // 검색
+    document.getElementById("searchButton")
+      .addEventListener("click", searchProducts);
+
+    document.getElementById("searchInput")
+      .addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+          searchProducts();
+        }
+      });
+
+    function searchProducts() {
+      const keyword =
+        document.getElementById("searchInput").value.trim();
+
+      if (!keyword) {
+        filteredProducts = products.slice();
+        renderProducts();
+        return;
+      }
+
       const searchBarcode = normalizeBarcode(keyword);
 
-      // 전체 바코드와 일치하는 상품이 있는 경우
+      // 바코드 전체 일치 검색
       const barcodeMatches = products.filter(function(product) {
         return normalizeBarcode(product.barcode) === searchBarcode;
       });
 
       if (/^\d+$/.test(keyword) && barcodeMatches.length > 0) {
-
-        // 바코드 전체 일치 검색 우선
         filteredProducts = barcodeMatches;
-
       } else {
-
-        // 숫자 포함 상품명 부분 검색
+        // 상품명 부분 검색
         const searchName = keyword.toLowerCase();
 
         filteredProducts = products.filter(function(product) {
           return product.name.toLowerCase().includes(searchName);
         });
-
       }
+
+      renderProducts();
     }
 
-    renderProducts(filteredProducts);
-  }
-
-  // 검색 결과 표시
-  function renderProducts(list) {
-    const tbody = document.getElementById("productTable");
-
-    document.getElementById("resultCount").textContent =
-      "검색 결과 " + list.length + "개";
-
-    if (list.length === 0) {
-      tbody.innerHTML =
-        '<tr><td colspan="5" class="message">검색 결과가 없습니다.</td></tr>';
-      return;
+    // HTML 문자 처리
+    function escapeHTML(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    tbody.innerHTML = list.map(function(product) {
-      return `
-        <tr>
+    // 가격 표시
+    function formatPrice(value) {
+      const number = Number(
+        String(value).replace(/,/g, "").replace(/[^\d.-]/g, "")
+      );
+
+      if (value === "" || !Number.isFinite(number)) {
+        return escapeHTML(value);
+      }
+
+      return number.toLocaleString("ko-KR") + "원";
+    }
+
+    // 결과 렌더링
+    function renderProducts() {
+      const tableBody =
+        document.getElementById("tableBody");
+
+      const mobileResults =
+        document.getElementById("mobileResults");
+
+      tableBody.innerHTML = "";
+      mobileResults.innerHTML = "";
+
+      document.getElementById("resultCount").textContent =
+        filteredProducts.length.toLocaleString("ko-KR");
+
+      if (filteredProducts.length === 0) {
+        const message =
+          '<div class="empty-message">검색 결과가 없습니다.</div>';
+
+        tableBody.innerHTML =
+          '<tr><td colspan="5">검색 결과가 없습니다.</td></tr>';
+
+        mobileResults.innerHTML = message;
+        return;
+      }
+
+      filteredProducts.forEach(function(product) {
+        // PC 테이블
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
           <td>${escapeHTML(product.category)}</td>
           <td>${escapeHTML(product.barcode)}</td>
-          <td>${escapeHTML(product.name)}</td>
+          <td class="product-name">${escapeHTML(product.name)}</td>
           <td>${escapeHTML(product.size)}</td>
-          <td>${escapeHTML(product.price)}</td>
-        </tr>
-      `;
-    }).join("");
-  }
+          <td class="price">${formatPrice(product.price)}</td>
+        `;
 
-  // HTML 특수문자 처리
-  function escapeHTML(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+        tableBody.appendChild(tr);
 
-  // 검색 초기화
-  function resetSearch() {
-    document.getElementById("searchInput").value = "";
-    searchProducts();
-  }
+        // 모바일 카드
+        const card = document.createElement("div");
+        card.className = "product-card";
 
-</script>
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="category">
+              ${escapeHTML(product.category || "분류 없음")}
+            </span>
 
+            <span class="card-price">
+              ${formatPrice(product.price)}
+            </span>
+          </div>
+
+          <div class="card-name">
+            ${escapeHTML(product.name)}
+          </div>
+
+          <div class="card-info">
+            <div class="card-info-row">
+              <span class="card-label">바코드</span>
+              <span class="card-value">
+                ${escapeHTML(product.barcode)}
+              </span>
+            </div>
+
+            <div class="card-info-row">
+              <span class="card-label">규격</span>
+              <span class="card-value">
+                ${escapeHTML(product.size || "-")}
+              </span>
+            </div>
+          </div>
+        `;
+
+        mobileResults.appendChild(card);
+      });
+    }
+  </script>
 </body>
 </html>
+```
