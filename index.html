@@ -31,13 +31,8 @@ body {
   color:var(--text);
 }
 
-button,select,input {
-  font:inherit;
-}
-
-button {
-  cursor:pointer;
-}
+button,select,input { font:inherit; }
+button { cursor:pointer; }
 
 .header {
   background:#172554;
@@ -142,9 +137,7 @@ button {
   color:white;
 }
 
-.btn-primary:hover {
-  background:var(--primary-dark);
-}
+.btn-primary:hover { background:var(--primary-dark); }
 
 .btn-light {
   background:#eef2f7;
@@ -331,27 +324,12 @@ td {
   white-space:nowrap;
 }
 
-tbody tr:hover {
-  background:#f8fbff;
-}
-
+tbody tr:hover { background:#f8fbff; }
 td.left { text-align:left; }
 td.right { text-align:right; }
-
-.money {
-  font-weight:700;
-  color:#2563eb;
-}
-
-.receipt {
-  color:var(--green);
-  font-weight:700;
-}
-
-.balance {
-  color:var(--red);
-  font-weight:700;
-}
+.money { font-weight:700; color:#2563eb; }
+.receipt { color:var(--green); font-weight:700; }
+.balance { color:var(--red); font-weight:700; }
 
 .empty {
   padding:35px 10px;
@@ -376,9 +354,11 @@ td.right { text-align:right; }
   border:1px solid #fecdd3;
   padding:17px;
   border-radius:10px;
-  line-height:1.7;
+  line-height:1.8;
   font-size:13px;
   margin-bottom:20px;
+  white-space:pre-line;
+  overflow-wrap:anywhere;
 }
 
 .hidden { display:none !important; }
@@ -414,12 +394,8 @@ td.right { text-align:right; }
 }
 
 @media(max-width:900px) {
-  .filters {
-    grid-template-columns:repeat(3,1fr);
-  }
-  .summary-grid {
-    grid-template-columns:repeat(2,1fr);
-  }
+  .filters { grid-template-columns:repeat(3,1fr); }
+  .summary-grid { grid-template-columns:repeat(2,1fr); }
 }
 
 @media(max-width:600px) {
@@ -433,21 +409,11 @@ td.right { text-align:right; }
     padding:0 12px 35px;
     margin:15px auto;
   }
-  .filters {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-  .summary-grid {
-    gap:9px;
-  }
-  .summary-card {
-    padding:14px;
-  }
-  .summary-value {
-    font-size:20px;
-  }
-  .panel-grid {
-    grid-template-columns:1fr;
-  }
+  .filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .summary-grid { gap:9px; }
+  .summary-card { padding:14px; }
+  .summary-value { font-size:20px; }
+  .panel-grid { grid-template-columns:1fr; }
   .nav {
     display:grid;
     grid-template-columns:repeat(2,1fr);
@@ -608,19 +574,13 @@ td.right { text-align:right; }
     </div>
 
     <div class="table-panel">
-      <div class="table-heading">
-        <h3>거래처별 매출 요약</h3>
-      </div>
+      <div class="table-heading"><h3>거래처별 매출 요약</h3></div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>거래처</th>
-              <th>지역</th>
-              <th>영업사원</th>
-              <th>매출액</th>
-              <th>수금액</th>
-              <th>미수금</th>
+              <th>거래처</th><th>지역</th><th>영업사원</th>
+              <th>매출액</th><th>수금액</th><th>미수금</th>
             </tr>
           </thead>
           <tbody id="overviewTable"></tbody>
@@ -669,12 +629,8 @@ td.right { text-align:right; }
         <table>
           <thead>
             <tr>
-              <th>영업사원</th>
-              <th>거래처</th>
-              <th>지역</th>
-              <th>매출액</th>
-              <th>수금액</th>
-              <th>미수금</th>
+              <th>영업사원</th><th>거래처</th><th>지역</th>
+              <th>매출액</th><th>수금액</th><th>미수금</th>
             </tr>
           </thead>
           <tbody id="salesTable"></tbody>
@@ -764,12 +720,8 @@ td.right { text-align:right; }
         <table>
           <thead>
             <tr>
-              <th>거래처</th>
-              <th>지역</th>
-              <th>영업사원</th>
-              <th>매출액</th>
-              <th>수금액</th>
-              <th>미수금</th>
+              <th>거래처</th><th>지역</th><th>영업사원</th>
+              <th>매출액</th><th>수금액</th><th>미수금</th>
             </tr>
           </thead>
           <tbody id="customerTable"></tbody>
@@ -814,11 +766,8 @@ td.right { text-align:right; }
         <table>
           <thead>
             <tr>
-              <th>일자</th>
-              <th>구분</th>
-              <th>매출액</th>
-              <th>수금액</th>
-              <th>미수금</th>
+              <th>일자</th><th>구분</th><th>매출액</th>
+              <th>수금액</th><th>미수금</th>
             </tr>
           </thead>
           <tbody id="dailyTable">
@@ -828,57 +777,57 @@ td.right { text-align:right; }
       </div>
 
       <div class="notice">
-        ※ 이월·월계·거래처계 행은 일반 날짜별 매출 합계에 중복 반영하지 않습니다.
+        ※ 이월·월계·거래처계 행은 날짜별 매출 합계에 중복 반영하지 않습니다.
         미수금은 원본 시트의 날짜별 값을 표시합니다.
       </div>
     </div>
   </section>
 
-  <div class="footer">
-    매출 현황 관리 시스템
-  </div>
+  <div class="footer">매출 현황 관리 시스템</div>
 
 </main>
 
 <script>
+
 /* ==========================================
    1. 구글 스프레드시트 설정
 ========================================== */
 
 const SPREADSHEET_ID = "19WlE1Iou4tsuqdb5qACWUheZeX3-F1ccNKs4_IucepQ";
 
-const SHEET_SALES = "매출데이터";
-const SHEET_CUSTOMERS = "거래처";
+const SHEET_CUSTOMERS_GID = "1695021966";
+const SHEET_SALES_GID = "4439395";
 
 let salesData = [];
 let customerData = [];
 let currentPage = "overview";
 
-google.charts.load("current", {packages:["corechart"]});
-
 /* ==========================================
    2. 구글 시트 데이터 불러오기
 ========================================== */
 
-function loadSheet(sheetName, columns) {
-  return new Promise((resolve,reject) => {
+function loadSheet(gid, columns) {
+  return new Promise((resolve, reject) => {
+
     const queryText = "select " + columns;
 
     const url =
       "https://docs.google.com/spreadsheets/d/" +
       SPREADSHEET_ID +
-      "/gviz/tq?sheet=" +
-      encodeURIComponent(sheetName) +
+      "/gviz/tq?gid=" +
+      gid +
       "&headers=1&tq=" +
       encodeURIComponent(queryText);
 
     const query = new google.visualization.Query(url);
 
     query.send(response => {
+
       if (response.isError()) {
         reject(new Error(
-          sheetName + " 시트 읽기 오류: " +
-          response.getMessage()
+          "GID " + gid + " 시트 읽기 오류: " +
+          response.getMessage() + " / " +
+          response.getDetailedMessage()
         ));
         return;
       }
@@ -902,7 +851,7 @@ function loadSheet(sheetName, columns) {
 }
 
 /* ==========================================
-   3. 데이터 변환 및 기본 처리
+   3. 데이터 변환
 ========================================== */
 
 function cleanText(value) {
@@ -923,6 +872,7 @@ function numberValue(value) {
 }
 
 function parseDate(value) {
+
   if (value instanceof Date && !isNaN(value)) {
     return {
       year:value.getFullYear(),
@@ -944,7 +894,7 @@ function parseDate(value) {
     const month = Number(raw.substring(4,6));
     const day = Number(raw.substring(6,8));
 
-    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    if (month<1 || month>12 || day<1 || day>31) return null;
 
     return {year,month,day,key:raw};
   }
@@ -1001,6 +951,7 @@ function normalizeSalesRows(rows) {
   const result = [];
 
   rows.forEach(row => {
+
     const customer = cleanText(row[0]);
     const rawDate = row[1];
 
@@ -1029,20 +980,29 @@ function normalizeSalesRows(rows) {
       receipt:numberValue(row[3]),
       balance:numberValue(row[4])
     });
+
   });
 
   return result;
 }
 
 /* ==========================================
-   4. 최초 실행
+   4. 최초 실행 및 오류 처리
 ========================================== */
 
 async function initialize() {
+
   try {
+
+    document.getElementById("loadingBox").classList.remove("hidden");
+    document.getElementById("errorBox").classList.add("hidden");
+
     const [customerRows,salesRows] = await Promise.all([
-      loadSheet(SHEET_CUSTOMERS,"A,B,C"),
-      loadSheet(SHEET_SALES,"A,B,C,D,E")
+
+      loadSheet(SHEET_CUSTOMERS_GID,"A,B,C"),
+
+      loadSheet(SHEET_SALES_GID,"A,B,C,D,E")
+
     ]);
 
     customerData = customerRows
@@ -1053,11 +1013,11 @@ async function initialize() {
       }))
       .filter(item => item.name);
 
-    salesData = normalizeSalesRows(salesRows);
-
     if (!customerData.length) {
       throw new Error("거래처 시트에서 거래처 정보를 찾을 수 없습니다.");
     }
+
+    salesData = normalizeSalesRows(salesRows);
 
     if (!salesData.length) {
       throw new Error("매출데이터 시트에서 매출 정보를 찾을 수 없습니다.");
@@ -1066,31 +1026,42 @@ async function initialize() {
     setupFilters();
 
     document.getElementById("loadingBox").classList.add("hidden");
+
     document.getElementById("connectionStatus").textContent =
       "● 데이터 연결 완료";
 
     renderAll();
 
   } catch(error) {
+
     document.getElementById("loadingBox").classList.add("hidden");
 
     const errorBox = document.getElementById("errorBox");
+
     errorBox.classList.remove("hidden");
 
-    errorBox.innerHTML =
-      "<b>데이터를 불러오지 못했습니다.</b><br>" +
-      escapeHtml(error.message) +
-      "<br><br>확인 사항:<br>" +
-      "1. 구글 시트 공유 설정이 '링크가 있는 사용자 - 뷰어'인지 확인해 주세요.<br>" +
-      "2. 탭 이름이 매출데이터, 거래처로 정확히 되어 있는지 확인해 주세요.<br>" +
-      "3. 첫 번째 행에 열 제목이 있는지 확인해 주세요.";
+    errorBox.textContent =
+      "데이터를 불러오지 못했습니다.\n\n" +
+      "오류 내용: " + error.message +
+      "\n\n확인 사항:" +
+      "\n1. 구글 시트 공유 설정이 '링크가 있는 사용자 - 뷰어'인지 확인해 주세요." +
+      "\n2. 거래처 GID: " + SHEET_CUSTOMERS_GID +
+      "\n3. 매출데이터 GID: " + SHEET_SALES_GID +
+      "\n4. 각 시트의 첫 번째 행이 열 제목인지 확인해 주세요." +
+      "\n5. 인터넷 연결 및 구글 차트 라이브러리 로딩을 확인해 주세요.";
 
     document.getElementById("connectionStatus").textContent =
       "데이터 연결 실패";
 
     console.error(error);
+
   }
+
 }
+
+/* ==========================================
+   5. HTML 안전 처리
+========================================== */
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -1103,22 +1074,23 @@ function escapeHtml(value) {
 }
 
 /* ==========================================
-   5. 조회 필터 설정
+   6. 조회 필터 설정
 ========================================== */
 
 function setupFilters() {
+
   const years = [...new Set(
     salesData
-      .filter(item => item.type === "날짜" && item.date)
-      .map(item => item.date.year)
+      .filter(item=>item.type==="날짜" && item.date)
+      .map(item=>item.date.year)
   )].sort((a,b)=>b-a);
 
   const yearSelect = document.getElementById("yearFilter");
 
-  years.forEach(year => {
+  years.forEach(year=>{
     const option = document.createElement("option");
     option.value = year;
-    option.textContent = year + "년";
+    option.textContent = year+"년";
     yearSelect.appendChild(option);
   });
 
@@ -1128,7 +1100,7 @@ function setupFilters() {
 
   const regionSelect = document.getElementById("regionFilter");
 
-  regions.forEach(region => {
+  regions.forEach(region=>{
     const option = document.createElement("option");
     option.value = region;
     option.textContent = region;
@@ -1141,13 +1113,18 @@ function setupFilters() {
   customerData
     .slice()
     .sort((a,b)=>a.name.localeCompare(b.name,"ko"))
-    .forEach(item => {
-      [customerSelect,dailySelect].forEach(select => {
+    .forEach(item=>{
+
+      [customerSelect,dailySelect].forEach(select=>{
+
         const option = document.createElement("option");
         option.value = item.name;
         option.textContent = item.name;
+
         select.appendChild(option);
+
       });
+
     });
 
   [
@@ -1157,12 +1134,14 @@ function setupFilters() {
     "salesFilter",
     "regionFilter",
     "customerFilter"
-  ].forEach(id => {
+  ].forEach(id=>{
     document.getElementById(id).addEventListener("change",renderAll);
   });
+
 }
 
 function resetFilters() {
+
   [
     "yearFilter",
     "quarterFilter",
@@ -1170,7 +1149,7 @@ function resetFilters() {
     "salesFilter",
     "regionFilter",
     "customerFilter"
-  ].forEach(id => {
+  ].forEach(id=>{
     document.getElementById(id).value = "";
   });
 
@@ -1178,6 +1157,7 @@ function resetFilters() {
 }
 
 function getFilters() {
+
   return {
     year:document.getElementById("yearFilter").value,
     quarter:document.getElementById("quarterFilter").value,
@@ -1186,40 +1166,48 @@ function getFilters() {
     region:document.getElementById("regionFilter").value,
     customer:document.getElementById("customerFilter").value
   };
+
 }
 
 function getFilteredRows(options={}) {
+
   const f = getFilters();
 
-  return salesData.filter(item => {
-    if (item.type !== "날짜" || !item.date) return false;
+  return salesData.filter(item=>{
 
-    if (f.year && String(item.date.year) !== f.year) return false;
+    if (item.type!=="날짜" || !item.date) return false;
+
+    if (f.year && String(item.date.year)!==f.year) return false;
 
     const quarter = Math.ceil(item.date.month/3);
 
-    if (f.quarter && String(quarter) !== f.quarter) return false;
-    if (f.month && String(item.date.month) !== f.month) return false;
-    if (f.salesperson && item.salesperson !== f.salesperson) return false;
-    if (f.region && item.region !== f.region) return false;
-    if (f.customer && item.customer !== f.customer) return false;
+    if (f.quarter && String(quarter)!==f.quarter) return false;
+    if (f.month && String(item.date.month)!==f.month) return false;
+    if (f.salesperson && item.salesperson!==f.salesperson) return false;
+    if (f.region && item.region!==f.region) return false;
+    if (f.customer && item.customer!==f.customer) return false;
 
     if (options.salespeopleOnly &&
       !["조재호","윤선환"].includes(item.salesperson)) return false;
 
     return true;
+
   });
+
 }
 
 /* ==========================================
-   6. 거래처별 집계
+   7. 거래처별 집계
 ========================================== */
 
 function aggregateCustomers(rows) {
+
   const map = new Map();
 
-  rows.forEach(item => {
+  rows.forEach(item=>{
+
     if (!map.has(item.customer)) {
+
       map.set(item.customer,{
         customer:item.customer,
         region:item.region,
@@ -1230,6 +1218,7 @@ function aggregateCustomers(rows) {
         latestDate:"",
         count:0
       });
+
     }
 
     const data = map.get(item.customer);
@@ -1242,12 +1231,15 @@ function aggregateCustomers(rows) {
       data.latestDate = item.date.key;
       data.balance = item.balance;
     }
+
   });
 
   return [...map.values()];
+
 }
 
 function summarize(rows) {
+
   const customers = aggregateCustomers(rows);
 
   return {
@@ -1257,13 +1249,15 @@ function summarize(rows) {
     customerCount:customers.length,
     customers
   };
+
 }
 
 /* ==========================================
-   7. 화면 이동 및 전체 렌더링
+   8. 페이지 이동
 ========================================== */
 
 function changePage(page,button) {
+
   currentPage = page;
 
   document.querySelectorAll(".page").forEach(el=>{
@@ -1279,9 +1273,11 @@ function changePage(page,button) {
   button.classList.add("active");
 
   renderAll();
+
 }
 
 function renderAll() {
+
   if (!salesData.length) return;
 
   renderOverview();
@@ -1292,14 +1288,16 @@ function renderAll() {
   renderRegion();
   renderCustomer();
 
-  if (currentPage === "daily") renderDaily();
+  if (currentPage==="daily") renderDaily();
+
 }
 
 /* ==========================================
-   8. 공통 차트
+   9. 공통 차트
 ========================================== */
 
 function drawBars(elementId,items) {
+
   const el = document.getElementById(elementId);
 
   if (!items.length) {
@@ -1309,7 +1307,8 @@ function drawBars(elementId,items) {
 
   const max = Math.max(...items.map(item=>Math.abs(item.value)),1);
 
-  el.innerHTML = items.map(item => {
+  el.innerHTML = items.map(item=>{
+
     const width = Math.max(0,Math.abs(item.value)/max*100);
 
     return `
@@ -1321,18 +1320,29 @@ function drawBars(elementId,items) {
         <div class="chart-amount">${formatMoney(item.value)}</div>
       </div>
     `;
+
   }).join("");
+
 }
 
 function renderSummaryCards(summary) {
-  document.getElementById("totalSales").textContent = formatMoney(summary.sales);
-  document.getElementById("totalReceipt").textContent = formatMoney(summary.receipt);
-  document.getElementById("totalBalance").textContent = formatMoney(summary.balance);
+
+  document.getElementById("totalSales").textContent =
+    formatMoney(summary.sales);
+
+  document.getElementById("totalReceipt").textContent =
+    formatMoney(summary.receipt);
+
+  document.getElementById("totalBalance").textContent =
+    formatMoney(summary.balance);
+
   document.getElementById("totalCustomers").textContent =
     summary.customerCount.toLocaleString("ko-KR")+"개";
+
 }
 
 function makeCustomerRows(items,includeSalesperson=true) {
+
   if (!items.length) {
     return '<tr><td colspan="6" class="empty">조회 결과가 없습니다.</td></tr>';
   }
@@ -1340,6 +1350,7 @@ function makeCustomerRows(items,includeSalesperson=true) {
   return items
     .sort((a,b)=>b.sales-a.sales)
     .map(item=>`
+
       <tr>
         <td class="left">${escapeHtml(item.customer)}</td>
         <td>${escapeHtml(item.region)}</td>
@@ -1348,14 +1359,17 @@ function makeCustomerRows(items,includeSalesperson=true) {
         <td class="right receipt">${formatMoney(item.receipt)}</td>
         <td class="right balance">${formatMoney(item.balance)}</td>
       </tr>
+
     `).join("");
+
 }
 
 /* ==========================================
-   9. 종합 매출 현황
+   10. 종합 매출 현황
 ========================================== */
 
 function renderOverview() {
+
   const rows = getFilteredRows();
   const summary = summarize(rows);
 
@@ -1378,7 +1392,8 @@ function renderOverview() {
   const regionMap = {};
 
   rows.forEach(item=>{
-    regionMap[item.region] = (regionMap[item.region] || 0)+item.sales;
+    regionMap[item.region] =
+      (regionMap[item.region] || 0) + item.sales;
   });
 
   drawBars(
@@ -1390,13 +1405,15 @@ function renderOverview() {
 
   document.getElementById("overviewTable").innerHTML =
     makeCustomerRows(summary.customers,true);
+
 }
 
 /* ==========================================
-   10. 영업사원별 매출 현황
+   11. 영업사원별 매출
 ========================================== */
 
 function renderSales() {
+
   const rows = getFilteredRows({salespeopleOnly:true});
   const summary = summarize(rows);
 
@@ -1409,10 +1426,17 @@ function renderSales() {
   const jaehoReceipt = jaeho.reduce((s,x)=>s+x.receipt,0);
   const seonhwanReceipt = seonhwan.reduce((s,x)=>s+x.receipt,0);
 
-  document.getElementById("jaehoSales").textContent = formatMoney(jaehoSales);
-  document.getElementById("seonhwanSales").textContent = formatMoney(seonhwanSales);
-  document.getElementById("jaehoCount").textContent = jaeho.length+"개";
-  document.getElementById("seonhwanCount").textContent = seonhwan.length+"개";
+  document.getElementById("jaehoSales").textContent =
+    formatMoney(jaehoSales);
+
+  document.getElementById("seonhwanSales").textContent =
+    formatMoney(seonhwanSales);
+
+  document.getElementById("jaehoCount").textContent =
+    jaeho.length+"개";
+
+  document.getElementById("seonhwanCount").textContent =
+    seonhwan.length+"개";
 
   drawBars("salesCompareChart",[
     {name:"조재호",value:jaehoSales},
@@ -1438,16 +1462,19 @@ function renderSales() {
         </tr>
       `).join("") ||
       '<tr><td colspan="6" class="empty">조회 결과가 없습니다.</td></tr>';
+
 }
 
 /* ==========================================
-   11. 기간별 집계
+   12. 연도 / 분기 / 월별 집계
 ========================================== */
 
 function groupByPeriod(rows,type) {
+
   const map = new Map();
 
   rows.forEach(item=>{
+
     let key;
     let label;
 
@@ -1473,20 +1500,27 @@ function groupByPeriod(rows,type) {
     }
 
     const data = map.get(key);
+
     data.sales += item.sales;
     data.receipt += item.receipt;
+
   });
 
   return [...map.values()].sort((a,b)=>Number(a.key)-Number(b.key));
+
 }
 
 function periodTable(items) {
+
   if (!items.length) {
     return '<tr><td colspan="4" class="empty">조회 결과가 없습니다.</td></tr>';
   }
 
   return items.map(item=>{
-    const rate = item.sales ? item.receipt/item.sales*100 : 0;
+
+    const rate = item.sales
+      ? item.receipt/item.sales*100
+      : 0;
 
     return `
       <tr>
@@ -1496,43 +1530,69 @@ function periodTable(items) {
         <td>${rate.toFixed(1)}%</td>
       </tr>
     `;
+
   }).join("");
+
 }
 
 function renderYear() {
+
   const rows = getFilteredRows();
   const items = groupByPeriod(rows,"year");
 
-  drawBars("yearChart",items.map(x=>({name:x.label,value:x.sales})));
-  document.getElementById("yearTable").innerHTML = periodTable(items);
+  drawBars("yearChart",items.map(x=>({
+    name:x.label,
+    value:x.sales
+  })));
+
+  document.getElementById("yearTable").innerHTML =
+    periodTable(items);
+
 }
 
 function renderQuarter() {
+
   const rows = getFilteredRows();
   const items = groupByPeriod(rows,"quarter");
 
-  drawBars("quarterChart",items.map(x=>({name:x.label,value:x.sales})));
-  document.getElementById("quarterTable").innerHTML = periodTable(items);
+  drawBars("quarterChart",items.map(x=>({
+    name:x.label,
+    value:x.sales
+  })));
+
+  document.getElementById("quarterTable").innerHTML =
+    periodTable(items);
+
 }
 
 function renderMonth() {
+
   const rows = getFilteredRows();
   const items = groupByPeriod(rows,"month");
 
-  drawBars("monthChart",items.map(x=>({name:x.label,value:x.sales})));
-  document.getElementById("monthTable").innerHTML = periodTable(items);
+  drawBars("monthChart",items.map(x=>({
+    name:x.label,
+    value:x.sales
+  })));
+
+  document.getElementById("monthTable").innerHTML =
+    periodTable(items);
+
 }
 
 /* ==========================================
-   12. 지역별 매출
+   13. 지역별 매출
 ========================================== */
 
 function renderRegion() {
+
   const summary = summarize(getFilteredRows());
   const map = new Map();
 
   summary.customers.forEach(item=>{
+
     if (!map.has(item.region)) {
+
       map.set(item.region,{
         region:item.region,
         count:0,
@@ -1540,20 +1600,26 @@ function renderRegion() {
         receipt:0,
         balance:0
       });
+
     }
 
     const data = map.get(item.region);
+
     data.count++;
     data.sales += item.sales;
     data.receipt += item.receipt;
     data.balance += item.balance;
+
   });
 
   const items = [...map.values()].sort((a,b)=>b.sales-a.sales);
 
   drawBars(
     "regionChart",
-    items.map(item=>({name:item.region,value:item.sales}))
+    items.map(item=>({
+      name:item.region,
+      value:item.sales
+    }))
   );
 
   document.getElementById("regionTable").innerHTML =
@@ -1567,28 +1633,33 @@ function renderRegion() {
       </tr>
     `).join("") ||
     '<tr><td colspan="5" class="empty">조회 결과가 없습니다.</td></tr>';
+
 }
 
 /* ==========================================
-   13. 거래처별 매출
+   14. 거래처별 매출
 ========================================== */
 
 function renderCustomer() {
+
   const summary = summarize(getFilteredRows());
 
   document.getElementById("customerTable").innerHTML =
     makeCustomerRows(summary.customers,true);
+
 }
 
 /* ==========================================
-   14. 거래처 일별 매출현황
+   15. 거래처 일별 매출현황
 ========================================== */
 
 function renderDaily() {
+
   const customer = document.getElementById("dailyCustomer").value;
   const month = document.getElementById("dailyMonth").value;
 
   if (!customer) {
+
     document.getElementById("dailyTable").innerHTML =
       '<tr><td colspan="5" class="empty">거래처를 선택해 주세요.</td></tr>';
 
@@ -1596,6 +1667,7 @@ function renderDaily() {
     document.getElementById("dailyReceipt").textContent = "0원";
     document.getElementById("dailyBalance").textContent = "0원";
     document.getElementById("dailySalesperson").textContent = "-";
+
     return;
   }
 
@@ -1604,13 +1676,15 @@ function renderDaily() {
   let rows = salesData.filter(item=>item.customer===customer);
 
   if (month) {
+
     const [year,monthValue] = month.split("-").map(Number);
 
-    rows = rows.filter(item =>
+    rows = rows.filter(item=>
       item.date
         ? item.date.year===year && item.date.month===monthValue
-        : true
+        : item.type==="이월"
     );
+
   }
 
   const dailyRows = rows
@@ -1624,47 +1698,49 @@ function renderDaily() {
     ? dailyRows[dailyRows.length-1]
     : null;
 
-  document.getElementById("dailySales").textContent = formatMoney(totalSales);
-  document.getElementById("dailyReceipt").textContent = formatMoney(totalReceipt);
+  document.getElementById("dailySales").textContent =
+    formatMoney(totalSales);
+
+  document.getElementById("dailyReceipt").textContent =
+    formatMoney(totalReceipt);
+
   document.getElementById("dailyBalance").textContent =
     latest ? formatMoney(latest.balance) : "0원";
 
   document.getElementById("dailySalesperson").textContent =
     customerInfo ? customerInfo.salesperson : "-";
 
-  const displayRows = [];
+  if (!dailyRows.length) {
 
-  rows.forEach(item=>{
-    if (item.type==="날짜" && item.date) {
-      displayRows.push(item);
-    }
-  });
-
-  if (!displayRows.length) {
     document.getElementById("dailyTable").innerHTML =
       '<tr><td colspan="5" class="empty">해당 기간의 매출 내역이 없습니다.</td></tr>';
+
     return;
+
   }
 
   document.getElementById("dailyTable").innerHTML =
-    displayRows
-      .sort((a,b)=>a.date.key.localeCompare(b.date.key))
-      .map(item=>`
-        <tr>
-          <td>${item.date.year}-${String(item.date.month).padStart(2,"0")}-${String(item.date.day).padStart(2,"0")}</td>
-          <td>매출</td>
-          <td class="right money">${formatMoney(item.sales)}</td>
-          <td class="right receipt">${formatMoney(item.receipt)}</td>
-          <td class="right balance">${formatMoney(item.balance)}</td>
-        </tr>
-      `).join("");
+    dailyRows.map(item=>`
+      <tr>
+        <td>${item.date.year}-${String(item.date.month).padStart(2,"0")}-${String(item.date.day).padStart(2,"0")}</td>
+        <td>매출</td>
+        <td class="right money">${formatMoney(item.sales)}</td>
+        <td class="right receipt">${formatMoney(item.receipt)}</td>
+        <td class="right balance">${formatMoney(item.balance)}</td>
+      </tr>
+    `).join("");
+
 }
 
 /* ==========================================
-   15. 실행
+   16. 구글 차트 라이브러리 준비 후 실행
 ========================================== */
 
-initialize();
+google.charts.load("current", {
+  packages:["corechart"]
+});
+
+google.charts.setOnLoadCallback(initialize);
 
 </script>
 </body>
