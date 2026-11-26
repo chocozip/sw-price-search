@@ -60,8 +60,8 @@ td.unpaid{color:#e05252;font-weight:700}
 .negative{color:#e05252!important}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .customer-search{height:36px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;width:220px}
-.loading,.error{background:white;border-radius:12px;padding:24px;text-align:center;color:#667085;margin-bottom:18px}
-.error{color:#c24141}
+.loading,.error{background:white;border-radius:12px;padding:24px;text-align:center;color:#667085;margin-bottom:18px;line-height:1.7}
+.error{color:#c24141;white-space:pre-line}
 .detail-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
 .detail-top select,.detail-top input{height:38px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white}
 .small-btn{height:36px;padding:0 13px;border:1px solid #dce2eb;background:white;border-radius:8px;color:#344054}
@@ -292,60 +292,173 @@ document.getElementById("endMonth").value = currentMonth();
 function parseCSV(text){
   const rows=[];
   let row=[],cell="",quoted=false;
+
+  // UTF-8 BOM 제거
+  text=String(text||"").replace(/^\uFEFF/,"");
+
   for(let i=0;i<text.length;i++){
     const c=text[i],next=text[i+1];
+
     if(c === '"'){
       if(quoted && next === '"'){cell+='"';i++;}
       else quoted=!quoted;
     }else if(c==="," && !quoted){
-      row.push(cell);cell="";
+      row.push(cell);
+      cell="";
     }else if((c==="\n" || c==="\r") && !quoted){
       if(c==="\r" && next==="\n") i++;
       row.push(cell);
+
       if(row.some(v=>String(v).trim()!=="")) rows.push(row);
-      row=[];cell="";
-    }else cell+=c;
+
+      row=[];
+      cell="";
+    }else{
+      cell+=c;
+    }
   }
+
   row.push(cell);
   if(row.some(v=>String(v).trim()!=="")) rows.push(row);
+
   return rows;
 }
 
-async function fetchSheet(gid){
-  const url="https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+
-    "/gviz/tq?tqx=out:csv&gid="+gid;
-  const response=await fetch(url);
-  if(!response.ok) throw new Error("스프레드시트에 연결할 수 없습니다.");
-  return parseCSV(await response.text());
+/* =========================
+   구글시트 데이터 연결 보완
+   1차: gviz CSV
+   2차: export CSV
+========================= */
+async function fetchSheet(sheetName,gid){
+
+  const timestamp=Date.now();
+
+  const urls=[
+    "https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+
+    "/gviz/tq?tqx=out:csv&gid="+gid+"&_="+timestamp,
+
+    "https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+
+    "/export?format=csv&gid="+gid+"&_="+timestamp
+  ];
+
+  const errors=[];
+
+  for(let i=0;i<urls.length;i++){
+
+    try{
+      const response=await fetch(urls[i],{
+        method:"GET",
+        cache:"no-store",
+        redirect:"follow"
+      });
+
+      if(!response.ok){
+        throw new Error("HTTP 상태 코드 "+response.status);
+      }
+
+      const text=await response.text();
+      const trimmed=text.trim();
+
+      if(!trimmed){
+        throw new Error("시트에서 빈 응답이 반환되었습니다.");
+      }
+
+      // 구글 로그인/권한 오류 페이지인지 확인
+      const lower=trimmed.slice(0,1000).toLowerCase();
+
+      if(
+        lower.includes("<!doctype html") ||
+        lower.includes("<html") ||
+        lower.includes("<title>google") ||
+        lower.includes("accounts.google.com") ||
+        lower.includes("sign in") ||
+        lower.includes("로그인")
+      ){
+        throw new Error("CSV 대신 구글 로그인 또는 권한 페이지가 반환되었습니다.");
+      }
+
+      // 구글 오류 응답 확인
+      if(
+        lower.includes("error") &&
+        (lower.includes("permission") || lower.includes("access denied"))
+      ){
+        throw new Error("스프레드시트 접근 권한이 없습니다.");
+      }
+
+      const rows=parseCSV(text);
+
+      if(!rows.length){
+        throw new Error("CSV 데이터를 읽을 수 없습니다.");
+      }
+
+      if(rows.length<2){
+        throw new Error("헤더 외에 데이터가 없습니다. 시트 내용을 확인해 주세요.");
+      }
+
+      return rows;
+
+    }catch(error){
+      errors.push((i===0?"gviz 방식":"export 방식")+": "+error.message);
+    }
+  }
+
+  throw new Error(
+    sheetName+" 시트 연결 실패\n"+
+    errors.join("\n")+
+    "\n\n스프레드시트 공유 설정에서 '링크가 있는 사용자 - 뷰어'인지 확인해 주세요."
+  );
 }
 
 function clean(value){
-  return String(value??"").trim().replace(/^"|"$/g,"");
+  return String(value??"")
+    .replace(/^\uFEFF/,"")
+    .trim()
+    .replace(/^"|"$/g,"");
 }
 
 function parseAmount(value){
   if(value===null || value===undefined) return 0;
-  const s=String(value).replace(/[₩,\s원]/g,"").replace(/[()]/g,"");
+
+  let s=String(value).trim();
+
+  if(!s) return 0;
+
+  const isNegative=/^\(.*\)$/.test(s);
+
+  s=s
+    .replace(/[₩,\s원]/g,"")
+    .replace(/[()]/g,"");
+
   const n=Number(s);
-  return Number.isFinite(n)?n:0;
+
+  if(!Number.isFinite(n)) return 0;
+
+  return isNegative?-Math.abs(n):n;
 }
 
 function parseDate(value){
   if(!value) return null;
+
   const s=String(value).trim();
 
   // 구글 시트 CSV의 Date(2025,0,1) 형식
   let m=s.match(/Date\(\s*(\d{4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})/i);
-  if(m) return new Date(+m[1],+m[2],+m[3]);
+
+  if(m){
+    const d=new Date(+m[1],+m[2],+m[3]);
+    return isNaN(d.getTime())?null:d;
+  }
 
   // yyyy-mm-dd, yyyy. m. d. 등
   m=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+
   if(m){
     const d=new Date(+m[1],+m[2]-1,+m[3]);
     if(!isNaN(d.getTime())) return d;
   }
 
   const d=new Date(s);
+
   return isNaN(d.getTime())?null:d;
 }
 
@@ -362,6 +475,7 @@ function isDateRow(row){
 }
 
 function normalizeCustomers(rows){
+
   return rows.slice(1).map(r=>({
     name:clean(r[0]),
     region:clean(r[1]) || "기타",
@@ -370,23 +484,35 @@ function normalizeCustomers(rows){
 }
 
 function normalizeSales(rows){
-  return rows.slice(1).filter(isDateRow).map(r=>{
-    const date=parseDate(r[1]);
-    return {
-      customer:clean(r[0]),
-      date,
-      dateKey:dateKey(date),
-      month:monthKey(date),
-      sales:parseAmount(r[2]),
-      collection:parseAmount(r[3]),
-      unpaid:parseAmount(r[4])
-    };
-  }).filter(r=>r.customer && r.date);
+
+  return rows.slice(1)
+    .filter(isDateRow)
+    .map(r=>{
+
+      const date=parseDate(r[1]);
+
+      return {
+        customer:clean(r[0]),
+        date,
+        dateKey:dateKey(date),
+        month:monthKey(date),
+        sales:parseAmount(r[2]),
+        collection:parseAmount(r[3]),
+        unpaid:parseAmount(r[4])
+      };
+
+    })
+    .filter(r=>r.customer && r.date);
 }
 
 function connectCustomerInfo(){
+
   const map={};
-  customerInfo.forEach(c=>map[c.name]=c);
+
+  customerInfo.forEach(c=>{
+    map[c.name]=c;
+  });
+
   salesData=salesData.map(s=>({
     ...s,
     region:map[s.customer]?.region || "기타",
@@ -398,34 +524,87 @@ function connectCustomerInfo(){
    데이터 불러오기
 ========================= */
 async function loadData(){
+
   const status=document.getElementById("statusMessage");
+
+  status.style.display="block";
   status.className="loading";
   status.textContent="구글 스프레드시트 데이터를 불러오는 중입니다.";
 
   try{
-    const [customerRows,salesRows]=await Promise.all([
-      fetchSheet(CUSTOMER_GID),
-      fetchSheet(SALES_GID)
+
+    // 두 시트를 각각 불러와서 오류를 구분
+    const results=await Promise.allSettled([
+      fetchSheet("거래처",CUSTOMER_GID),
+      fetchSheet("매출데이터",SALES_GID)
     ]);
 
-    customerInfo=normalizeCustomers(customerRows);
-    salesData=normalizeSales(salesRows);
+    const customerResult=results[0];
+    const salesResult=results[1];
+
+    const errors=[];
+
+    if(customerResult.status==="rejected"){
+      errors.push("■ 거래처 시트 오류\n"+customerResult.reason.message);
+    }
+
+    if(salesResult.status==="rejected"){
+      errors.push("■ 매출데이터 시트 오류\n"+salesResult.reason.message);
+    }
+
+    if(errors.length){
+      throw new Error(errors.join("\n\n"));
+    }
+
+    const customerRows=customerResult.value;
+    const salesRows=salesResult.value;
+
+    const newCustomerInfo=normalizeCustomers(customerRows);
+    const newSalesData=normalizeSales(salesRows);
+
+    if(!newCustomerInfo.length){
+      throw new Error("거래처 시트에서 거래처 정보를 찾지 못했습니다. A열에 거래처명이 있는지 확인해 주세요.");
+    }
+
+    if(!newSalesData.length){
+      throw new Error(
+        "매출데이터 시트에서 날짜가 있는 매출 행을 찾지 못했습니다.\n"+
+        "B열 날짜 형식과 A~E열 데이터 위치를 확인해 주세요."
+      );
+    }
+
+    customerInfo=newCustomerInfo;
+    salesData=newSalesData;
+
     connectCustomerInfo();
     populateCustomerOptions();
     applyFilters();
 
     status.style.display="none";
+
   }catch(error){
+
     status.style.display="block";
     status.className="error";
-    status.textContent="데이터를 불러오지 못했습니다. 스프레드시트 공유 설정을 확인해 주세요. ("+error.message+")";
+
+    status.textContent=
+      "데이터를 불러오지 못했습니다.\n\n"+
+      error.message;
+
+    console.error("매출 현황 데이터 연결 오류:",error);
   }
 }
 
 function populateCustomerOptions(){
-  const names=[...new Set(customerInfo.map(c=>c.name))].sort((a,b)=>a.localeCompare(b,"ko"));
+
+  const names=[...new Set(customerInfo.map(c=>c.name))]
+    .sort((a,b)=>a.localeCompare(b,"ko"));
+
   const filter=document.getElementById("customerFilter");
   const detail=document.getElementById("detailCustomer");
+
+  const previousFilter=filter.value;
+  const previousDetail=detail.value;
 
   filter.innerHTML='<option value="">전체 거래처</option>';
   detail.innerHTML='<option value="">거래처 선택</option>';
@@ -434,12 +613,21 @@ function populateCustomerOptions(){
     filter.add(new Option(name,name));
     detail.add(new Option(name,name));
   });
+
+  if(names.includes(previousFilter)){
+    filter.value=previousFilter;
+  }
+
+  if(names.includes(previousDetail)){
+    detail.value=previousDetail;
+  }
 }
 
 /* =========================
    조회 조건
 ========================= */
 function applyFilters(){
+
   const start=document.getElementById("startMonth").value;
   const end=document.getElementById("endMonth").value;
   const salesperson=document.getElementById("salespersonFilter").value;
@@ -451,10 +639,12 @@ function applyFilters(){
   }
 
   filteredData=salesData.filter(s=>{
+
     if(start && s.month<start) return false;
     if(end && s.month>end) return false;
     if(salesperson && s.salesperson!==salesperson) return false;
     if(customer && s.customer!==customer) return false;
+
     return true;
   });
 
@@ -477,31 +667,53 @@ function sumBy(data,key){
 }
 
 function groupBy(data,keyFn){
+
   const result={};
+
   data.forEach(row=>{
+
     const key=keyFn(row);
+
     if(!result[key]) result[key]=[];
+
     result[key].push(row);
   });
+
   return result;
 }
 
+/* 거래처별 가장 최근 날짜의 미수금만 사용
+   같은 날짜에 여러 행이 있으면 마지막 행의 잔액 사용 */
 function latestUnpaidByCustomer(){
+
   const map={};
+
   salesData.forEach(s=>{
-    if(!map[s.customer] || s.date>map[s.customer].date){
-      map[s.customer]={date:s.date,unpaid:s.unpaid};
+
+    if(
+      !map[s.customer] ||
+      s.date>map[s.customer].date ||
+      s.date.getTime()===map[s.customer].date.getTime()
+    ){
+      map[s.customer]={
+        date:s.date,
+        unpaid:s.unpaid
+      };
     }
   });
+
   return map;
 }
 
 function customerSummary(data){
+
   const grouped=groupBy(data,s=>s.customer);
   const latest=latestUnpaidByCustomer();
 
   return Object.keys(grouped).map(name=>{
+
     const rows=grouped[name];
+
     return {
       name,
       sales:sumBy(rows,"sales"),
@@ -509,22 +721,26 @@ function customerSummary(data){
       unpaid:latest[name]?.unpaid ?? 0,
       count:rows.length
     };
+
   }).sort((a,b)=>b.sales-a.sales);
 }
 
 function formatPeriodLabel(key,unit){
+
   if(unit==="year") return key+"년";
   if(unit==="quarter") return key.replace("-","년 ")+"분기";
+
   return key.replace("-","년 ")+"월";
 }
 
 /* =========================
    기간별 비교 데이터
-   선택한 월 범위를 각 연도에 동일하게 적용
 ========================= */
 function getSelectedRange(){
+
   const start=document.getElementById("startMonth").value || currentMonth();
   const end=document.getElementById("endMonth").value || currentMonth();
+
   return {
     startYear:Number(start.slice(0,4)),
     endYear:Number(end.slice(0,4)),
@@ -534,63 +750,100 @@ function getSelectedRange(){
 }
 
 function getComparisonData(unit){
+
   const range=getSelectedRange();
+
   const years=[];
-  for(let y=range.startYear;y<=range.endYear;y++) years.push(y);
+
+  for(let y=range.startYear;y<=range.endYear;y++){
+    years.push(y);
+  }
 
   const labels=[];
+
   if(unit==="month"){
+
     for(let m=range.startMonth;m<=range.endMonth;m++){
       labels.push(String(m).padStart(2,"0")+"월");
     }
+
   }else if(unit==="quarter"){
+
     const firstQ=Math.ceil(range.startMonth/3);
     const lastQ=Math.ceil(range.endMonth/3);
-    for(let q=firstQ;q<=lastQ;q++) labels.push(q+"분기");
+
+    for(let q=firstQ;q<=lastQ;q++){
+      labels.push(q+"분기");
+    }
+
   }else{
+
     labels.push("연간 매출");
   }
 
   const datasets=years.map(year=>{
+
     const values=labels.map(label=>{
+
       const rows=salesData.filter(s=>{
+
         if(s.date.getFullYear()!==year) return false;
+
         if(unit==="month"){
+
           const m=s.date.getMonth()+1;
-          return m>=range.startMonth && m<=range.endMonth &&
+
+          return m>=range.startMonth &&
+            m<=range.endMonth &&
             label===String(m).padStart(2,"0")+"월";
         }
+
         if(unit==="quarter"){
+
           const q=Math.ceil((s.date.getMonth()+1)/3);
+
           return q>=Math.ceil(range.startMonth/3) &&
             q<=Math.ceil(range.endMonth/3) &&
             label===q+"분기";
         }
+
         return true;
+
       }).filter(s=>{
+
         const salesperson=document.getElementById("salespersonFilter").value;
         const customer=document.getElementById("customerFilter").value;
+
         if(salesperson && s.salesperson!==salesperson) return false;
         if(customer && s.customer!==customer) return false;
+
         return true;
       });
 
       return sumBy(rows,"sales");
     });
 
-    return {label:year+"년",data:values};
+    return {
+      label:year+"년",
+      data:values
+    };
   });
 
   return {labels,datasets};
 }
 
 function compareSummary(comp){
-  if(comp.datasets.length<2) return "비교할 연도가 2개 이상이면 전년 대비 증감이 표시됩니다.";
+
+  if(comp.datasets.length<2){
+    return "비교할 연도가 2개 이상이면 전년 대비 증감이 표시됩니다.";
+  }
 
   const last=comp.datasets[comp.datasets.length-1];
   const prev=comp.datasets[comp.datasets.length-2];
+
   const currentTotal=last.data.reduce((a,b)=>a+b,0);
   const previousTotal=prev.data.reduce((a,b)=>a+b,0);
+
   const diff=currentTotal-previousTotal;
   const rate=previousTotal ? diff/previousTotal*100 : 0;
 
@@ -601,31 +854,48 @@ function compareSummary(comp){
 }
 
 function drawGroupedBar(canvasId,comp){
+
   if(charts[canvasId]) charts[canvasId].destroy();
 
   const colors=["#94a3b8","#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899"];
+
   charts[canvasId]=new Chart(document.getElementById(canvasId),{
+
     type:"bar",
+
     data:{
       labels:comp.labels,
+
       datasets:comp.datasets.map((ds,i)=>({
+
         label:ds.label,
         data:ds.data,
         backgroundColor:colors[i%colors.length],
         borderRadius:5,
         maxBarThickness:48
+
       }))
     },
+
     options:{
       responsive:true,
       maintainAspectRatio:false,
       interaction:{mode:"index",intersect:false},
+
       plugins:{
         legend:{position:"bottom"},
-        tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+money(ctx.raw)}}
+        tooltip:{
+          callbacks:{
+            label:ctx=>ctx.dataset.label+": "+money(ctx.raw)
+          }
+        }
       },
+
       scales:{
-        y:{beginAtZero:true,ticks:{callback:v=>number(v)}},
+        y:{
+          beginAtZero:true,
+          ticks:{callback:v=>number(v)}
+        },
         x:{grid:{display:false}}
       }
     }
@@ -636,54 +906,106 @@ function drawGroupedBar(canvasId,comp){
    종합 현황
 ========================= */
 function renderOverview(){
+
   document.getElementById("totalSales").textContent=money(sumBy(filteredData,"sales"));
   document.getElementById("totalCollection").textContent=money(sumBy(filteredData,"collection"));
 
   const unit=document.getElementById("overviewUnit").value;
   const comp=getComparisonData(unit);
+
   drawGroupedBar("overviewChart",comp);
+
   document.getElementById("overviewSummary").innerHTML=compareSummary(comp);
 
   const regions=groupBy(filteredData,s=>s.region || "기타");
+
   const regionLabels=Object.keys(regions);
   const regionValues=regionLabels.map(k=>sumBy(regions[k],"sales"));
 
   if(charts.regionChart) charts.regionChart.destroy();
+
   charts.regionChart=new Chart(document.getElementById("regionChart"),{
+
     type:"doughnut",
-    data:{labels:regionLabels,datasets:[{data:regionValues,backgroundColor:[
-      "#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899",
-      "#06b6d4","#64748b","#84cc16","#f97316"
-    ]}]},
+
+    data:{
+      labels:regionLabels,
+      datasets:[{
+        data:regionValues,
+        backgroundColor:[
+          "#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899",
+          "#06b6d4","#64748b","#84cc16","#f97316"
+        ]
+      }]
+    },
+
     options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:"bottom"},tooltip:{callbacks:{label:ctx=>ctx.label+": "+money(ctx.raw)}}}
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{position:"bottom"},
+        tooltip:{
+          callbacks:{
+            label:ctx=>ctx.label+": "+money(ctx.raw)
+          }
+        }
+      }
     }
   });
 
   const top=customerSummary(filteredData).slice(0,10);
+
   if(charts.topCustomerChart) charts.topCustomerChart.destroy();
+
   charts.topCustomerChart=new Chart(document.getElementById("topCustomerChart"),{
+
     type:"bar",
+
     data:{
       labels:top.map(x=>x.name),
-      datasets:[{label:"매출액",data:top.map(x=>x.sales),backgroundColor:"#3b82f6",borderRadius:5}]
+      datasets:[{
+        label:"매출액",
+        data:top.map(x=>x.sales),
+        backgroundColor:"#3b82f6",
+        borderRadius:5
+      }]
     },
+
     options:{
-      indexAxis:"y",responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>money(ctx.raw)}}},
-      scales:{x:{beginAtZero:true,ticks:{callback:v=>number(v)}},y:{grid:{display:false}}}
+      indexAxis:"y",
+      responsive:true,
+      maintainAspectRatio:false,
+
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:ctx=>money(ctx.raw)
+          }
+        }
+      },
+
+      scales:{
+        x:{
+          beginAtZero:true,
+          ticks:{callback:v=>number(v)}
+        },
+        y:{grid:{display:false}}
+      }
     }
   });
 
   const rows=customerSummary(filteredData);
+
   document.getElementById("overviewCustomerTable").innerHTML=rows.length
+
     ? rows.map(r=>`<tr>
       <td class="name">${escapeHTML(r.name)}</td>
       <td class="amount">${money(r.sales)}</td>
       <td>${money(r.collection)}</td>
       <td class="unpaid">${money(r.unpaid)}</td>
     </tr>`).join("")
+
     : '<tr><td colspan="4" class="empty">조회된 데이터가 없습니다.</td></tr>';
 }
 
@@ -692,9 +1014,13 @@ function renderOverview(){
    기타 제외
 ========================= */
 function renderSalesperson(){
+
   const names=["조재호","윤선환"];
+
   const rows=names.map(name=>{
+
     const list=filteredData.filter(s=>s.salesperson===name);
+
     return {
       name,
       sales:sumBy(list,"sales"),
@@ -704,19 +1030,49 @@ function renderSalesperson(){
   });
 
   if(charts.salespersonChart) charts.salespersonChart.destroy();
+
   charts.salespersonChart=new Chart(document.getElementById("salespersonChart"),{
+
     type:"bar",
+
     data:{
       labels:names,
+
       datasets:[
-        {label:"매출액",data:rows.map(r=>r.sales),backgroundColor:"#2563eb",borderRadius:5},
-        {label:"수금액",data:rows.map(r=>r.collection),backgroundColor:"#10b981",borderRadius:5}
+        {
+          label:"매출액",
+          data:rows.map(r=>r.sales),
+          backgroundColor:"#2563eb",
+          borderRadius:5
+        },
+        {
+          label:"수금액",
+          data:rows.map(r=>r.collection),
+          backgroundColor:"#10b981",
+          borderRadius:5
+        }
       ]
     },
+
     options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:"bottom"},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+": "+money(ctx.raw)}}},
-      scales:{y:{beginAtZero:true,ticks:{callback:v=>number(v)}}}
+      responsive:true,
+      maintainAspectRatio:false,
+
+      plugins:{
+        legend:{position:"bottom"},
+        tooltip:{
+          callbacks:{
+            label:ctx=>ctx.dataset.label+": "+money(ctx.raw)
+          }
+        }
+      },
+
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{callback:v=>number(v)}
+        }
+      }
     }
   });
 
@@ -733,27 +1089,44 @@ function renderSalesperson(){
    기간별 매출
 ========================= */
 function renderPeriod(){
+
   const unit=document.getElementById("periodUnit").value;
+
   const comp=getComparisonData(unit);
+
   drawGroupedBar("periodChart",comp);
+
   document.getElementById("periodSummary").innerHTML=compareSummary(comp);
 
   const grouped=groupBy(filteredData,s=>{
+
     if(unit==="year") return s.date.getFullYear()+"";
-    if(unit==="quarter") return s.date.getFullYear()+"-"+Math.ceil((s.date.getMonth()+1)/3);
+
+    if(unit==="quarter"){
+      return s.date.getFullYear()+"-"+Math.ceil((s.date.getMonth()+1)/3);
+    }
+
     return s.month;
   });
 
   const keys=Object.keys(grouped).sort();
+
   document.getElementById("periodTable").innerHTML=keys.length
+
     ? keys.map(key=>{
+
       const list=grouped[key];
+
       let label=key;
-      if(unit==="year") label=key+"년";
-      else if(unit==="quarter"){
+
+      if(unit==="year"){
+        label=key+"년";
+      }else if(unit==="quarter"){
         const p=key.split("-");
         label=p[0]+"년 "+p[1]+"분기";
-      }else label=key.replace("-","년 ")+"월";
+      }else{
+        label=key.replace("-","년 ")+"월";
+      }
 
       return `<tr>
         <td class="name">${label}</td>
@@ -761,7 +1134,9 @@ function renderPeriod(){
         <td>${money(sumBy(list,"collection"))}</td>
         <td>${number(list.length)}건</td>
       </tr>`;
+
     }).join("")
+
     : '<tr><td colspan="4" class="empty">조회된 데이터가 없습니다.</td></tr>';
 }
 
@@ -769,21 +1144,28 @@ function renderPeriod(){
    거래처별 매출 및 일별 내역
 ========================= */
 function renderCustomer(){
+
   const search=document.getElementById("customerSearch").value.trim().toLowerCase();
-  const rows=customerSummary(filteredData).filter(r=>r.name.toLowerCase().includes(search));
+
+  const rows=customerSummary(filteredData)
+    .filter(r=>r.name.toLowerCase().includes(search));
 
   document.getElementById("customerTable").innerHTML=rows.length
+
     ? rows.map(r=>`<tr>
       <td class="name">${escapeHTML(r.name)}</td>
       <td class="amount">${money(r.sales)}</td>
       <td>${money(r.collection)}</td>
       <td class="unpaid">${money(r.unpaid)}</td>
     </tr>`).join("")
+
     : '<tr><td colspan="4" class="empty">조회된 데이터가 없습니다.</td></tr>';
 }
 
 function renderCustomerDaily(){
+
   const name=document.getElementById("detailCustomer").value;
+
   const tbody=document.getElementById("customerDailyTable");
 
   if(!name){
@@ -791,10 +1173,12 @@ function renderCustomerDaily(){
     return;
   }
 
-  const rows=filteredData.filter(s=>s.customer===name)
+  const rows=filteredData
+    .filter(s=>s.customer===name)
     .sort((a,b)=>a.date-b.date);
 
   tbody.innerHTML=rows.length
+
     ? rows.map(s=>`<tr>
       <td>${s.date.getFullYear()}-${String(s.date.getMonth()+1).padStart(2,"0")}-${String(s.date.getDate()).padStart(2,"0")}</td>
       <td class="name">${escapeHTML(s.customer)}</td>
@@ -802,6 +1186,7 @@ function renderCustomerDaily(){
       <td>${money(s.collection)}</td>
       <td class="unpaid">${money(s.unpaid)}</td>
     </tr>`).join("")
+
     : '<tr><td colspan="5" class="empty">선택한 기간에 매출 내역이 없습니다.</td></tr>';
 }
 
@@ -809,17 +1194,28 @@ function renderCustomerDaily(){
    화면 전환 및 보조 함수
 ========================= */
 function escapeHTML(value){
+
   return String(value).replace(/[&<>"']/g,char=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
   })[char]);
 }
 
 document.querySelectorAll(".nav button").forEach(btn=>{
+
   btn.addEventListener("click",()=>{
-    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+    document.querySelectorAll(".nav button")
+      .forEach(b=>b.classList.remove("active"));
+
+    document.querySelectorAll(".page")
+      .forEach(p=>p.classList.remove("active"));
 
     btn.classList.add("active");
+
     document.getElementById(btn.dataset.page).classList.add("active");
   });
 });
