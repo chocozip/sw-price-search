@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>매출 현황</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -279,15 +280,17 @@ td.unpaid{color:#e05252;font-weight:700}
     <h2 class="section-title">기간별 매출</h2>
     <section class="panel">
       <div class="panel-head">
-        <h3>기간별 매출 비교</h3>
-        <div class="compare-controls">
-          <select id="periodUnit" onchange="renderPeriod()">
-            <option value="month">월별</option>
-            <option value="quarter">분기별</option>
-            <option value="year">연도별</option>
-          </select>
-        </div>
-      </div>
+  <h3>기간별 매출 비교</h3>
+  <div class="compare-controls">
+    <select id="periodYear" onchange="renderPeriod()"></select>
+
+    <select id="periodUnit" onchange="renderPeriod()">
+      <option value="month">월별</option>
+      <option value="quarter">분기별</option>
+      <option value="year">연도별</option>
+    </select>
+  </div>
+</div>
       <div class="chart-wrap"><canvas id="periodChart"></canvas></div>
       <div class="summary-line" id="periodSummary"></div>
     </section>
@@ -351,6 +354,44 @@ let charts = {};
 
 const money = n => Math.round(Number(n)||0).toLocaleString("ko-KR") + "원";
 const number = n => Math.round(Number(n)||0).toLocaleString("ko-KR");
+ // 그래프 금액 간략 표시
+function formatCompactAmount(value){
+
+  const n=Number(value)||0;
+
+  if(n===0) return "";
+
+  const abs=Math.abs(n);
+
+  if(abs>=100000000){
+    return (n/100000000).toFixed(1)+"억";
+  }
+
+  if(abs>=10000){
+    return Math.round(n/10000).toLocaleString("ko-KR")+"만";
+  }
+
+  return Math.round(n).toLocaleString("ko-KR");
+}
+
+// 모든 그래프에 숫자 표시 플러그인 적용
+Chart.register(ChartDataLabels);
+
+Chart.defaults.plugins.datalabels={
+  display:true,
+  color:"#344054",
+  anchor:"end",
+  align:"end",
+  offset:4,
+  clamp:true,
+  font:{
+    weight:"bold",
+    size:10
+  },
+  formatter:function(value){
+    return formatCompactAmount(value);
+  }
+};
 
 function currentYear(){
   return new Date().getFullYear();
@@ -403,6 +444,7 @@ function initializeDateControls(){
 
   fillYearSelect("overviewYear",y);
   fillYearSelect("salespersonYear",y);
+ fillYearSelect("periodYear",y);
 
   fillMonthSelect("salespersonMonth",m);
 
@@ -1414,57 +1456,192 @@ function renderSalesperson(){
 
 /* =========================
    기간별 매출
+   선택 연도의 1~12월 전체 표시
+   상세 내역은 항상 월별 집계
 ========================= */
 function renderPeriod(){
 
+  const year=Number(
+    document.getElementById("periodYear").value
+  );
+
   const unit=document.getElementById("periodUnit").value;
 
-  const comp=getComparisonData(unit);
+  const customer=document.getElementById("customerFilter").value;
 
-  drawGroupedBar("periodChart",comp);
+  // 선택 연도의 데이터만 가져오기
+  const yearData=salesData.filter(s=>{
 
-  document.getElementById("periodSummary").innerHTML=compareSummary(comp);
+    if(s.date.getFullYear()!==year) return false;
 
-  const grouped=groupBy(filteredData,s=>{
+    if(customer && s.customer!==customer) return false;
 
-    if(unit==="year") return s.date.getFullYear()+"";
-
-    if(unit==="quarter"){
-      return s.date.getFullYear()+"-"+Math.ceil((s.date.getMonth()+1)/3);
-    }
-
-    return s.month;
+    return true;
   });
 
-  const keys=Object.keys(grouped).sort();
+  let labels=[];
+  let groupedRows=[];
 
-  document.getElementById("periodTable").innerHTML=keys.length
+  // 월별
+  if(unit==="month"){
 
-    ? keys.map(key=>{
+    labels=Array.from(
+      {length:12},
+      (_,i)=>(i+1)+"월"
+    );
 
-      const list=grouped[key];
+    groupedRows=labels.map((label,index)=>
+      yearData.filter(s=>s.date.getMonth()===index)
+    );
 
-      let label=key;
+  }
 
-      if(unit==="year"){
-        label=key+"년";
-      }else if(unit==="quarter"){
-        const p=key.split("-");
-        label=p[0]+"년 "+p[1]+"분기";
-      }else{
-        label=key.replace("-","년 ")+"월";
+  // 분기별
+  else if(unit==="quarter"){
+
+    labels=["1분기","2분기","3분기","4분기"];
+
+    groupedRows=labels.map((label,index)=>
+      yearData.filter(s=>
+        Math.ceil((s.date.getMonth()+1)/3)===index+1
+      )
+    );
+
+  }
+
+  // 연도별
+  else{
+
+    labels=[year+"년"];
+
+    groupedRows=[yearData];
+  }
+
+  const salesValues=groupedRows.map(rows=>
+    sumBy(rows,"sales")
+  );
+
+  const collectionValues=groupedRows.map(rows=>
+    sumBy(rows,"collection")
+  );
+
+  // 기존 그래프 제거
+  if(charts.periodChart){
+    charts.periodChart.destroy();
+  }
+
+  // 그래프 생성
+  charts.periodChart=new Chart(
+    document.getElementById("periodChart"),
+    {
+      type:"bar",
+
+      data:{
+        labels:labels,
+
+        datasets:[
+          {
+            label:"매출액",
+            data:salesValues,
+            backgroundColor:"#2563eb",
+            borderRadius:5,
+            maxBarThickness:48
+          },
+          {
+            label:"수금액",
+            data:collectionValues,
+            backgroundColor:"#10b981",
+            borderRadius:5,
+            maxBarThickness:48
+          }
+        ]
+      },
+
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+
+        plugins:{
+          legend:{
+            position:"bottom"
+          },
+
+          datalabels:{
+            display:true,
+            anchor:"end",
+            align:"end",
+            offset:4,
+            clamp:true,
+            color:"#344054",
+            font:{
+              weight:"bold",
+              size:10
+            },
+            formatter:value=>formatCompactAmount(value)
+          },
+
+          tooltip:{
+            callbacks:{
+              label:ctx=>
+                ctx.dataset.label+": "+money(ctx.raw)
+            }
+          }
+        },
+
+        scales:{
+          y:{
+            beginAtZero:true,
+            ticks:{
+              callback:v=>number(v)
+            }
+          },
+
+          x:{
+            grid:{
+              display:false
+            }
+          }
+        }
       }
+    }
+  );
 
-      return `<tr>
-        <td class="name">${label}</td>
-        <td class="amount">${money(sumBy(list,"sales"))}</td>
-        <td>${money(sumBy(list,"collection"))}</td>
-        <td>${number(list.length)}건</td>
-      </tr>`;
+  // 요약 정보
+  const totalSales=sumBy(yearData,"sales");
+  const totalCollection=sumBy(yearData,"collection");
 
-    }).join("")
+  document.getElementById("periodSummary").innerHTML=`
+    <span>조회 연도 <strong>${year}년</strong></span>
+    <span>총 매출액 <strong>${money(totalSales)}</strong></span>
+    <span>총 수금액 <strong>${money(totalCollection)}</strong></span>
+  `;
 
-    : '<tr><td colspan="4" class="empty">조회된 데이터가 없습니다.</td></tr>';
+  // 상세 내역은 그래프 단위와 관계없이 항상 월별
+  const monthlyRows=[];
+
+  for(let month=1;month<=12;month++){
+
+    const list=yearData.filter(s=>
+      s.date.getMonth()+1===month
+    );
+
+    monthlyRows.push({
+      month,
+      sales:sumBy(list,"sales"),
+      collection:sumBy(list,"collection"),
+      count:list.length
+    });
+  }
+
+  document.getElementById("periodTable").innerHTML=
+    monthlyRows.map(r=>`
+      <tr>
+        <td class="name">${year}년 ${r.month}월</td>
+        <td class="amount">${money(r.sales)}</td>
+        <td>${money(r.collection)}</td>
+        <td>${number(r.count)}건</td>
+      </tr>
+    `).join("");
 }
 
 /* =========================
