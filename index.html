@@ -17,12 +17,17 @@ button{cursor:pointer}
 .header h1{font-size:27px;margin:0 0 5px}
 .header p{margin:0;color:#7b8494;font-size:13px}
 .refresh-btn{border:1px solid #dce2eb;background:white;border-radius:9px;padding:10px 15px;color:#344054}
+
 .filters{background:white;border:1px solid #e8ecf2;border-radius:14px;padding:17px;margin-bottom:20px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
 .filter{display:flex;flex-direction:column;gap:6px}
 .filter label{font-size:12px;color:#667085;font-weight:700}
-.filter input,.filter select{height:39px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white;min-width:135px;color:#344054}
-.filter .month-input{min-width:145px}
+.filter select{height:39px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white;min-width:100px;color:#344054}
+.filter .year-select{min-width:110px}
+.filter .month-select{min-width:85px}
+.date-filter{display:flex;gap:6px;align-items:center}
+.date-filter span{color:#98a2b3;font-size:12px}
 .apply-btn{height:39px;background:#2563eb;color:white;border:0;border-radius:8px;padding:0 22px;font-weight:700}
+
 .nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .nav button{border:1px solid #e1e6ef;background:white;color:#667085;padding:11px 18px;border-radius:9px;font-weight:700}
 .nav button.active{background:#1d4ed8;color:white;border-color:#1d4ed8}
@@ -30,12 +35,14 @@ button{cursor:pointer}
 .page.active{display:block}
 .section-title{font-size:18px;font-weight:800;margin:4px 0 15px}
 .sub-title{font-size:14px;font-weight:700;margin:0 0 13px;color:#344054}
+
 .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-bottom:20px}
 .kpi{background:white;border:1px solid #e8ecf2;border-radius:14px;padding:21px}
 .kpi-label{font-size:13px;color:#667085;margin-bottom:10px}
 .kpi-value{font-size:27px;font-weight:800;letter-spacing:-.5px}
 .kpi.sales .kpi-value{color:#2563eb}
 .kpi.collection .kpi-value{color:#0f9f78}
+
 .panel{background:white;border:1px solid #e8ecf2;border-radius:14px;padding:20px;margin-bottom:18px;min-width:0}
 .panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
 .panel-head h3{font-size:15px;margin:0}
@@ -52,8 +59,9 @@ td.amount{font-weight:700;color:#2563eb}
 td.unpaid{color:#e05252;font-weight:700}
 .empty{text-align:center!important;padding:35px;color:#98a2b3}
 .badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#eef2ff;color:#4355bb;font-size:11px}
+
 .compare-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.compare-controls select{height:34px;border:1px solid #dce2eb;border-radius:7px;padding:0 9px;background:white}
+.compare-controls select{height:36px;border:1px solid #dce2eb;border-radius:7px;padding:0 9px;background:white;color:#344054}
 .summary-line{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:#667085}
 .summary-line strong{color:#344054}
 .positive{color:#0f9f78!important}
@@ -65,12 +73,20 @@ td.unpaid{color:#e05252;font-weight:700}
 .detail-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
 .detail-top select,.detail-top input{height:38px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white}
 .small-btn{height:36px;padding:0 13px;border:1px solid #dce2eb;background:white;border-radius:8px;color:#344054}
+
+.salesperson-controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.salesperson-controls .filter select{height:38px;min-width:115px}
+.salesperson-controls .filter label{font-size:12px}
+.salesperson-info{font-size:12px;color:#667085;margin-bottom:12px}
+
 @media(max-width:760px){
  .app{padding:15px}
  .header h1{font-size:23px}
  .filters{gap:10px}
  .filter{flex:1;min-width:calc(50% - 10px)}
- .filter input,.filter select{width:100%;min-width:0}
+ .filter select{width:100%;min-width:0}
+ .date-filter{width:100%}
+ .date-filter select{flex:1;min-width:0}
  .apply-btn{width:100%}
  .kpis{gap:10px}
  .kpi{padding:16px}
@@ -81,6 +97,9 @@ td.unpaid{color:#e05252;font-weight:700}
  .chart-wrap{height:270px}
  .two-col{grid-template-columns:1fr}
  .customer-search{width:100%}
+ .salesperson-controls{width:100%}
+ .salesperson-controls .filter{min-width:calc(50% - 8px)}
+ .salesperson-controls .filter select{width:100%}
 }
 </style>
 </head>
@@ -95,30 +114,31 @@ td.unpaid{color:#e05252;font-weight:700}
     <button class="refresh-btn" onclick="loadData()">↻ 데이터 새로고침</button>
   </header>
 
+  <!-- 공통 조회 -->
   <section class="filters">
     <div class="filter">
-      <label>시작 연월</label>
-      <input class="month-input" type="month" id="startMonth">
+      <label>시작 년도 / 월</label>
+      <div class="date-filter">
+        <select id="startYear" class="year-select"></select>
+        <select id="startMonth" class="month-select"></select>
+      </div>
     </div>
+
     <div class="filter">
-      <label>종료 연월</label>
-      <input class="month-input" type="month" id="endMonth">
+      <label>종료 년도 / 월</label>
+      <div class="date-filter">
+        <select id="endYear" class="year-select"></select>
+        <select id="endMonth" class="month-select"></select>
+      </div>
     </div>
-    <div class="filter">
-      <label>영업사원</label>
-      <select id="salespersonFilter">
-        <option value="">전체 영업사원</option>
-        <option value="조재호">조재호</option>
-        <option value="윤선환">윤선환</option>
-        <option value="기타">기타</option>
-      </select>
-    </div>
+
     <div class="filter">
       <label>거래처</label>
       <select id="customerFilter">
         <option value="">전체 거래처</option>
       </select>
     </div>
+
     <button class="apply-btn" onclick="applyFilters()">조회하기</button>
   </section>
 
@@ -134,6 +154,7 @@ td.unpaid{color:#e05252;font-weight:700}
   <!-- 종합 현황 -->
   <main id="overview" class="page active">
     <h2 class="section-title">종합 현황</h2>
+
     <div class="kpis">
       <div class="kpi sales">
         <div class="kpi-label">총 매출액</div>
@@ -149,13 +170,15 @@ td.unpaid{color:#e05252;font-weight:700}
       <div class="panel-head">
         <h3>전년 대비 매출 비교</h3>
         <div class="compare-controls">
+          <select id="overviewYear" onchange="renderOverview()"></select>
           <select id="overviewUnit" onchange="renderOverview()">
+            <option value="quarter" selected>분기별 비교</option>
             <option value="month">월별 비교</option>
-            <option value="quarter">분기별 비교</option>
             <option value="year">연도별 비교</option>
           </select>
         </div>
       </div>
+      <div class="muted" id="overviewCompareDescription" style="margin-bottom:10px"></div>
       <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
       <div class="summary-line" id="overviewSummary"></div>
     </section>
@@ -185,15 +208,66 @@ td.unpaid{color:#e05252;font-weight:700}
   <!-- 영업사원별 매출 -->
   <main id="salesperson" class="page">
     <h2 class="section-title">영업사원별 매출</h2>
+
     <section class="panel">
-      <div class="panel-head"><h3>영업사원 매출 비교</h3><span class="muted">조재호 · 윤선환</span></div>
+      <div class="panel-head">
+        <h3>조회 조건</h3>
+        <span class="muted">영업사원 및 기간을 선택하세요.</span>
+      </div>
+
+      <div class="salesperson-controls">
+        <div class="filter">
+          <label>영업사원</label>
+          <select id="salespersonSelect" onchange="renderSalesperson()">
+            <option value="조재호">조재호</option>
+            <option value="윤선환">윤선환</option>
+          </select>
+        </div>
+
+        <div class="filter">
+          <label>년도</label>
+          <select id="salespersonYear" onchange="renderSalesperson()"></select>
+        </div>
+
+        <div class="filter">
+          <label>조회 단위</label>
+          <select id="salespersonUnit" onchange="updateSalespersonPeriodOptions()">
+            <option value="year">연간 전체</option>
+            <option value="month">월별</option>
+            <option value="quarter">분기별</option>
+          </select>
+        </div>
+
+        <div class="filter" id="salespersonMonthWrap" style="display:none">
+          <label>월 선택</label>
+          <select id="salespersonMonth" onchange="renderSalesperson()"></select>
+        </div>
+
+        <div class="filter" id="salespersonQuarterWrap" style="display:none">
+          <label>분기 선택</label>
+          <select id="salespersonQuarter" onchange="renderSalesperson()">
+            <option value="1">1분기</option>
+            <option value="2">2분기</option>
+            <option value="3">3분기</option>
+            <option value="4">4분기</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h3 id="salespersonChartTitle">영업사원 매출 및 수금</h3>
+        <span class="muted" id="salespersonChartDescription"></span>
+      </div>
       <div class="chart-wrap"><canvas id="salespersonChart"></canvas></div>
     </section>
+
     <section class="panel">
       <div class="panel-head"><h3>영업사원별 실적</h3></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>영업사원</th><th>매출액</th><th>수금액</th><th>거래처 수</th></tr></thead>
+          <thead><tr><th>영업사원</th><th>매출액</th><th>수금액</th><th>거래처 수</th><th>매출 건수</th></tr></thead>
           <tbody id="salespersonTable"></tbody>
         </table>
       </div>
@@ -278,25 +352,78 @@ let charts = {};
 const money = n => Math.round(Number(n)||0).toLocaleString("ko-KR") + "원";
 const number = n => Math.round(Number(n)||0).toLocaleString("ko-KR");
 
-function currentMonth(){
-  const d = new Date();
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+function currentYear(){
+  return new Date().getFullYear();
 }
 
-document.getElementById("startMonth").value = currentMonth();
-document.getElementById("endMonth").value = currentMonth();
+function currentMonthNumber(){
+  return new Date().getMonth()+1;
+}
+
+function monthValue(year,month){
+  return String(year)+"-"+String(month).padStart(2,"0");
+}
 
 /* =========================
-   CSV 읽기 및 데이터 변환
+   년도 / 월 선택 초기화
+========================= */
+function fillYearSelect(selectId,selectedYear){
+
+  const select=document.getElementById(selectId);
+  select.innerHTML="";
+
+  for(let y=currentYear();y>=2013;y--){
+    select.add(new Option(y+"년",String(y)));
+  }
+
+  select.value=String(selectedYear);
+}
+
+function fillMonthSelect(selectId,selectedMonth){
+
+  const select=document.getElementById(selectId);
+  select.innerHTML="";
+
+  for(let m=1;m<=12;m++){
+    select.add(new Option(m+"월",String(m)));
+  }
+
+  select.value=String(selectedMonth);
+}
+
+function initializeDateControls(){
+
+  const y=currentYear();
+  const m=currentMonthNumber();
+
+  fillYearSelect("startYear",y);
+  fillYearSelect("endYear",y);
+  fillMonthSelect("startMonth",m);
+  fillMonthSelect("endMonth",m);
+
+  fillYearSelect("overviewYear",y);
+  fillYearSelect("salespersonYear",y);
+
+  fillMonthSelect("salespersonMonth",m);
+
+  document.getElementById("salespersonUnit").value="year";
+  document.getElementById("overviewUnit").value="quarter";
+
+  updateSalespersonPeriodOptions();
+}
+
+/* =========================
+   CSV 읽기
 ========================= */
 function parseCSV(text){
+
   const rows=[];
   let row=[],cell="",quoted=false;
 
-  // UTF-8 BOM 제거
   text=String(text||"").replace(/^\uFEFF/,"");
 
   for(let i=0;i<text.length;i++){
+
     const c=text[i],next=text[i+1];
 
     if(c === '"'){
@@ -306,7 +433,9 @@ function parseCSV(text){
       row.push(cell);
       cell="";
     }else if((c==="\n" || c==="\r") && !quoted){
+
       if(c==="\r" && next==="\n") i++;
+
       row.push(cell);
 
       if(row.some(v=>String(v).trim()!=="")) rows.push(row);
@@ -325,9 +454,7 @@ function parseCSV(text){
 }
 
 /* =========================
-   구글시트 데이터 연결 보완
-   1차: gviz CSV
-   2차: export CSV
+   구글시트 연결
 ========================= */
 async function fetchSheet(sheetName,gid){
 
@@ -346,6 +473,7 @@ async function fetchSheet(sheetName,gid){
   for(let i=0;i<urls.length;i++){
 
     try{
+
       const response=await fetch(urls[i],{
         method:"GET",
         cache:"no-store",
@@ -363,7 +491,6 @@ async function fetchSheet(sheetName,gid){
         throw new Error("시트에서 빈 응답이 반환되었습니다.");
       }
 
-      // 구글 로그인/권한 오류 페이지인지 확인
       const lower=trimmed.slice(0,1000).toLowerCase();
 
       if(
@@ -377,7 +504,6 @@ async function fetchSheet(sheetName,gid){
         throw new Error("CSV 대신 구글 로그인 또는 권한 페이지가 반환되었습니다.");
       }
 
-      // 구글 오류 응답 확인
       if(
         lower.includes("error") &&
         (lower.includes("permission") || lower.includes("access denied"))
@@ -417,6 +543,7 @@ function clean(value){
 }
 
 function parseAmount(value){
+
   if(value===null || value===undefined) return 0;
 
   let s=String(value).trim();
@@ -436,16 +563,20 @@ function parseAmount(value){
   return isNegative?-Math.abs(n):n;
 }
 
-
+/* =========================
+   날짜 변환
+   YYYYMMDD 형식 포함
+========================= */
 function parseDate(value){
+
   if(value===null || value===undefined) return null;
 
   const s=String(value).trim();
 
   if(!s) return null;
 
-  // 1. YYYYMMDD 형식 (예: 20220816)
   if(/^\d{8}$/.test(s)){
+
     const y=Number(s.substring(0,4));
     const m=Number(s.substring(4,6));
     const d=Number(s.substring(6,8));
@@ -463,7 +594,6 @@ function parseDate(value){
     return null;
   }
 
-  // 2. 구글 시트 Date(2025,0,1) 형식
   let match=s.match(/Date\(\s*(\d{4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})/i);
 
   if(match){
@@ -474,25 +604,29 @@ function parseDate(value){
     );
   }
 
-  // 3. YYYY-MM-DD, YYYY. M. D. 형식
   match=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
 
   if(match){
-    const date=new Date(
-      Number(match[1]),
-      Number(match[2])-1,
-      Number(match[3])
-    );
 
-    if(!isNaN(date.getTime())) return date;
+    const y=Number(match[1]);
+    const m=Number(match[2]);
+    const d=Number(match[3]);
+
+    const date=new Date(y,m-1,d);
+
+    if(
+      date.getFullYear()===y &&
+      date.getMonth()===m-1 &&
+      date.getDate()===d
+    ){
+      return date;
+    }
   }
 
-  // 4. 일반 날짜 형식
   const date=new Date(s);
 
   return isNaN(date.getTime())?null:date;
 }
-
 
 function monthKey(date){
   return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0");
@@ -509,9 +643,11 @@ function isDateRow(row){
 function normalizeCustomers(rows){
 
   return rows.slice(1).map(r=>({
+
     name:clean(r[0]),
     region:clean(r[1]) || "기타",
     salesperson:clean(r[2]) || "기타"
+
   })).filter(x=>x.name);
 }
 
@@ -546,9 +682,11 @@ function connectCustomerInfo(){
   });
 
   salesData=salesData.map(s=>({
+
     ...s,
     region:map[s.customer]?.region || "기타",
     salesperson:map[s.customer]?.salesperson || "기타"
+
   }));
 }
 
@@ -565,7 +703,6 @@ async function loadData(){
 
   try{
 
-    // 두 시트를 각각 불러와서 오류를 구분
     const results=await Promise.allSettled([
       fetchSheet("거래처",CUSTOMER_GID),
       fetchSheet("매출데이터",SALES_GID)
@@ -588,11 +725,8 @@ async function loadData(){
       throw new Error(errors.join("\n\n"));
     }
 
-    const customerRows=customerResult.value;
-    const salesRows=salesResult.value;
-
-    const newCustomerInfo=normalizeCustomers(customerRows);
-    const newSalesData=normalizeSales(salesRows);
+    const newCustomerInfo=normalizeCustomers(customerResult.value);
+    const newSalesData=normalizeSales(salesResult.value);
 
     if(!newCustomerInfo.length){
       throw new Error("거래처 시트에서 거래처 정보를 찾지 못했습니다. A열에 거래처명이 있는지 확인해 주세요.");
@@ -656,25 +790,35 @@ function populateCustomerOptions(){
 }
 
 /* =========================
-   조회 조건
+   공통 조회 조건
 ========================= */
+function getGlobalStart(){
+  const year=document.getElementById("startYear").value;
+  const month=document.getElementById("startMonth").value;
+  return year+"-"+String(month).padStart(2,"0");
+}
+
+function getGlobalEnd(){
+  const year=document.getElementById("endYear").value;
+  const month=document.getElementById("endMonth").value;
+  return year+"-"+String(month).padStart(2,"0");
+}
+
 function applyFilters(){
 
-  const start=document.getElementById("startMonth").value;
-  const end=document.getElementById("endMonth").value;
-  const salesperson=document.getElementById("salespersonFilter").value;
+  const start=getGlobalStart();
+  const end=getGlobalEnd();
   const customer=document.getElementById("customerFilter").value;
 
-  if(start && end && start>end){
-    alert("시작 연월이 종료 연월보다 늦을 수 없습니다.");
+  if(start>end){
+    alert("시작 년월이 종료 년월보다 늦을 수 없습니다.");
     return;
   }
 
   filteredData=salesData.filter(s=>{
 
-    if(start && s.month<start) return false;
-    if(end && s.month>end) return false;
-    if(salesperson && s.salesperson!==salesperson) return false;
+    if(s.month<start) return false;
+    if(s.month>end) return false;
     if(customer && s.customer!==customer) return false;
 
     return true;
@@ -684,6 +828,7 @@ function applyFilters(){
 }
 
 function renderAll(){
+
   renderOverview();
   renderSalesperson();
   renderPeriod();
@@ -714,8 +859,7 @@ function groupBy(data,keyFn){
   return result;
 }
 
-/* 거래처별 가장 최근 날짜의 미수금만 사용
-   같은 날짜에 여러 행이 있으면 마지막 행의 잔액 사용 */
+/* 거래처별 가장 최근 날짜의 미수금만 사용 */
 function latestUnpaidByCustomer(){
 
   const map={};
@@ -757,21 +901,143 @@ function customerSummary(data){
   }).sort((a,b)=>b.sales-a.sales);
 }
 
-function formatPeriodLabel(key,unit){
+/* =========================
+   그래프 공통 함수
+========================= */
+function drawGroupedBar(canvasId,comp){
 
-  if(unit==="year") return key+"년";
-  if(unit==="quarter") return key.replace("-","년 ")+"분기";
+  if(charts[canvasId]) charts[canvasId].destroy();
 
-  return key.replace("-","년 ")+"월";
+  const colors=["#94a3b8","#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899"];
+
+  charts[canvasId]=new Chart(document.getElementById(canvasId),{
+
+    type:"bar",
+
+    data:{
+      labels:comp.labels,
+
+      datasets:comp.datasets.map((ds,i)=>({
+
+        label:ds.label,
+        data:ds.data,
+        backgroundColor:colors[i%colors.length],
+        borderRadius:5,
+        maxBarThickness:48
+
+      }))
+    },
+
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:"index",intersect:false},
+
+      plugins:{
+        legend:{position:"bottom"},
+        tooltip:{
+          callbacks:{
+            label:ctx=>ctx.dataset.label+": "+money(ctx.raw)
+          }
+        }
+      },
+
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{callback:v=>number(v)}
+        },
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+function compareSummary(comp){
+
+  if(comp.datasets.length<2){
+    return "비교할 연도가 2개 이상이면 전년 대비 증감이 표시됩니다.";
+  }
+
+  const last=comp.datasets[comp.datasets.length-1];
+  const prev=comp.datasets[comp.datasets.length-2];
+
+  const currentTotal=last.data.reduce((a,b)=>a+b,0);
+  const previousTotal=prev.data.reduce((a,b)=>a+b,0);
+
+  const diff=currentTotal-previousTotal;
+  const rate=previousTotal ? diff/previousTotal*100 : 0;
+
+  return `<span>${prev.label} 매출 <strong>${money(previousTotal)}</strong></span>
+    <span>${last.label} 매출 <strong>${money(currentTotal)}</strong></span>
+    <span>증감액 <strong class="${diff>=0?"positive":"negative"}">${diff>=0?"+":""}${money(diff)}</strong></span>
+    <span>증감률 <strong class="${diff>=0?"positive":"negative"}">${diff>=0?"+":""}${rate.toFixed(1)}%</strong></span>`;
+}
+
+/* =========================
+   종합 현황 전년 대비 비교
+   기준 연도와 직전 2개 연도 표시
+========================= */
+function getOverviewComparisonData(unit){
+
+  const selectedYear=Number(document.getElementById("overviewYear").value);
+  const years=[selectedYear-2,selectedYear-1,selectedYear];
+
+  let labels=[];
+
+  if(unit==="quarter"){
+    labels=["1분기","2분기","3분기","4분기"];
+  }else if(unit==="month"){
+    labels=Array.from({length:12},(_,i)=>(i+1)+"월");
+  }else{
+    labels=["연간 매출"];
+  }
+
+  const datasets=years.map(year=>{
+
+    const values=labels.map((label,index)=>{
+
+      const rows=salesData.filter(s=>{
+
+        if(s.date.getFullYear()!==year) return false;
+
+        const customer=document.getElementById("customerFilter").value;
+        if(customer && s.customer!==customer) return false;
+
+        if(unit==="quarter"){
+          return Math.ceil((s.date.getMonth()+1)/3)===index+1;
+        }
+
+        if(unit==="month"){
+          return s.date.getMonth()===index;
+        }
+
+        return true;
+      });
+
+      return sumBy(rows,"sales");
+    });
+
+    return {
+      label:year+"년",
+      data:values
+    };
+  });
+
+  return {labels,datasets,years};
 }
 
 /* =========================
    기간별 비교 데이터
+   공통 조회 기간 기준
 ========================= */
 function getSelectedRange(){
 
-  const start=document.getElementById("startMonth").value || currentMonth();
-  const end=document.getElementById("endMonth").value || currentMonth();
+  const start=document.getElementById("startYear").value+"-"+
+    String(document.getElementById("startMonth").value).padStart(2,"0");
+
+  const end=document.getElementById("endYear").value+"-"+
+    String(document.getElementById("endMonth").value).padStart(2,"0");
 
   return {
     startYear:Number(start.slice(0,4)),
@@ -843,10 +1109,8 @@ function getComparisonData(unit){
 
       }).filter(s=>{
 
-        const salesperson=document.getElementById("salespersonFilter").value;
         const customer=document.getElementById("customerFilter").value;
 
-        if(salesperson && s.salesperson!==salesperson) return false;
         if(customer && s.customer!==customer) return false;
 
         return true;
@@ -864,76 +1128,6 @@ function getComparisonData(unit){
   return {labels,datasets};
 }
 
-function compareSummary(comp){
-
-  if(comp.datasets.length<2){
-    return "비교할 연도가 2개 이상이면 전년 대비 증감이 표시됩니다.";
-  }
-
-  const last=comp.datasets[comp.datasets.length-1];
-  const prev=comp.datasets[comp.datasets.length-2];
-
-  const currentTotal=last.data.reduce((a,b)=>a+b,0);
-  const previousTotal=prev.data.reduce((a,b)=>a+b,0);
-
-  const diff=currentTotal-previousTotal;
-  const rate=previousTotal ? diff/previousTotal*100 : 0;
-
-  return `<span>${prev.label} 매출 <strong>${money(previousTotal)}</strong></span>
-    <span>${last.label} 매출 <strong>${money(currentTotal)}</strong></span>
-    <span>증감액 <strong class="${diff>=0?"positive":"negative"}">${diff>=0?"+":""}${money(diff)}</strong></span>
-    <span>증감률 <strong class="${diff>=0?"positive":"negative"}">${diff>=0?"+":""}${rate.toFixed(1)}%</strong></span>`;
-}
-
-function drawGroupedBar(canvasId,comp){
-
-  if(charts[canvasId]) charts[canvasId].destroy();
-
-  const colors=["#94a3b8","#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899"];
-
-  charts[canvasId]=new Chart(document.getElementById(canvasId),{
-
-    type:"bar",
-
-    data:{
-      labels:comp.labels,
-
-      datasets:comp.datasets.map((ds,i)=>({
-
-        label:ds.label,
-        data:ds.data,
-        backgroundColor:colors[i%colors.length],
-        borderRadius:5,
-        maxBarThickness:48
-
-      }))
-    },
-
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      interaction:{mode:"index",intersect:false},
-
-      plugins:{
-        legend:{position:"bottom"},
-        tooltip:{
-          callbacks:{
-            label:ctx=>ctx.dataset.label+": "+money(ctx.raw)
-          }
-        }
-      },
-
-      scales:{
-        y:{
-          beginAtZero:true,
-          ticks:{callback:v=>number(v)}
-        },
-        x:{grid:{display:false}}
-      }
-    }
-  });
-}
-
 /* =========================
    종합 현황
 ========================= */
@@ -943,12 +1137,16 @@ function renderOverview(){
   document.getElementById("totalCollection").textContent=money(sumBy(filteredData,"collection"));
 
   const unit=document.getElementById("overviewUnit").value;
-  const comp=getComparisonData(unit);
+  const comp=getOverviewComparisonData(unit);
 
   drawGroupedBar("overviewChart",comp);
 
   document.getElementById("overviewSummary").innerHTML=compareSummary(comp);
 
+  document.getElementById("overviewCompareDescription").textContent=
+    comp.years[0]+"년부터 "+comp.years[2]+"년까지 최근 3개 연도 비교";
+
+  /* 지역별 매출 */
   const regions=groupBy(filteredData,s=>s.region || "기타");
 
   const regionLabels=Object.keys(regions);
@@ -985,6 +1183,7 @@ function renderOverview(){
     }
   });
 
+  /* 거래처 TOP 10 */
   const top=customerSummary(filteredData).slice(0,10);
 
   if(charts.topCustomerChart) charts.topCustomerChart.destroy();
@@ -1027,6 +1226,7 @@ function renderOverview(){
     }
   });
 
+  /* 거래처별 요약 */
   const rows=customerSummary(filteredData);
 
   document.getElementById("overviewCustomerTable").innerHTML=rows.length
@@ -1042,24 +1242,113 @@ function renderOverview(){
 }
 
 /* =========================
-   영업사원별 매출
-   기타 제외
+   영업사원별 매출 조회 조건
 ========================= */
+function updateSalespersonPeriodOptions(){
+
+  const unit=document.getElementById("salespersonUnit").value;
+
+  document.getElementById("salespersonMonthWrap").style.display=
+    unit==="month"?"flex":"none";
+
+  document.getElementById("salespersonQuarterWrap").style.display=
+    unit==="quarter"?"flex":"none";
+
+  renderSalesperson();
+}
+
+/* =========================
+   영업사원별 매출
+   조재호 / 윤선환
+========================= */
+function getSalespersonData(){
+
+  const name=document.getElementById("salespersonSelect").value;
+  const year=Number(document.getElementById("salespersonYear").value);
+  const unit=document.getElementById("salespersonUnit").value;
+
+  let month=Number(document.getElementById("salespersonMonth").value);
+  let quarter=Number(document.getElementById("salespersonQuarter").value);
+
+  let list=salesData.filter(s=>
+    s.salesperson===name &&
+    s.date.getFullYear()===year
+  );
+
+  let labels=[];
+  let groupedRows=[];
+
+  if(unit==="year"){
+
+    labels=["연간 전체"];
+
+    groupedRows=[list];
+
+  }else if(unit==="month"){
+
+    list=list.filter(s=>s.date.getMonth()+1===month);
+
+    labels=[month+"월"];
+
+    groupedRows=[list];
+
+  }else{
+
+    list=list.filter(s=>
+      Math.ceil((s.date.getMonth()+1)/3)===quarter
+    );
+
+    const startMonth=(quarter-1)*3+1;
+
+    labels=[
+      startMonth+"월",
+      (startMonth+1)+"월",
+      (startMonth+2)+"월"
+    ];
+
+    groupedRows=labels.map((label,index)=>
+      list.filter(s=>s.date.getMonth()+1===startMonth+index)
+    );
+  }
+
+  return {
+    name,
+    year,
+    unit,
+    month,
+    quarter,
+    list,
+    labels,
+    groupedRows
+  };
+}
+
 function renderSalesperson(){
 
-  const names=["조재호","윤선환"];
+  const result=getSalespersonData();
 
-  const rows=names.map(name=>{
+  const name=result.name;
+  const year=result.year;
+  const unit=result.unit;
 
-    const list=filteredData.filter(s=>s.salesperson===name);
+  let description="";
 
-    return {
-      name,
-      sales:sumBy(list,"sales"),
-      collection:sumBy(list,"collection"),
-      customers:new Set(list.map(s=>s.customer)).size
-    };
-  });
+  if(unit==="year"){
+    description=year+"년 전체";
+  }else if(unit==="month"){
+    description=year+"년 "+result.month+"월";
+  }else{
+    description=year+"년 "+result.quarter+"분기";
+  }
+
+  document.getElementById("salespersonChartTitle").textContent=
+    name+" 매출 및 수금";
+
+  document.getElementById("salespersonChartDescription").textContent=
+    description;
+
+  const salesValues=result.groupedRows.map(rows=>sumBy(rows,"sales"));
+  const collectionValues=result.groupedRows.map(rows=>sumBy(rows,"collection"));
 
   if(charts.salespersonChart) charts.salespersonChart.destroy();
 
@@ -1068,18 +1357,18 @@ function renderSalesperson(){
     type:"bar",
 
     data:{
-      labels:names,
+      labels:result.labels,
 
       datasets:[
         {
           label:"매출액",
-          data:rows.map(r=>r.sales),
+          data:salesValues,
           backgroundColor:"#2563eb",
           borderRadius:5
         },
         {
           label:"수금액",
-          data:rows.map(r=>r.collection),
+          data:collectionValues,
           backgroundColor:"#10b981",
           borderRadius:5
         }
@@ -1103,18 +1392,24 @@ function renderSalesperson(){
         y:{
           beginAtZero:true,
           ticks:{callback:v=>number(v)}
-        }
+        },
+        x:{grid:{display:false}}
       }
     }
   });
 
-  document.getElementById("salespersonTable").innerHTML=rows.map(r=>`
+  const totalSales=sumBy(result.list,"sales");
+  const totalCollection=sumBy(result.list,"collection");
+  const customers=new Set(result.list.map(s=>s.customer)).size;
+
+  document.getElementById("salespersonTable").innerHTML=`
     <tr>
-      <td class="name">${r.name}</td>
-      <td class="amount">${money(r.sales)}</td>
-      <td>${money(r.collection)}</td>
-      <td>${number(r.customers)}곳</td>
-    </tr>`).join("");
+      <td class="name">${escapeHTML(name)}</td>
+      <td class="amount">${money(totalSales)}</td>
+      <td>${money(totalCollection)}</td>
+      <td>${number(customers)}곳</td>
+      <td>${number(result.list.length)}건</td>
+    </tr>`;
 }
 
 /* =========================
@@ -1173,7 +1468,7 @@ function renderPeriod(){
 }
 
 /* =========================
-   거래처별 매출 및 일별 내역
+   거래처별 매출
 ========================= */
 function renderCustomer(){
 
@@ -1249,9 +1544,18 @@ document.querySelectorAll(".nav button").forEach(btn=>{
     btn.classList.add("active");
 
     document.getElementById(btn.dataset.page).classList.add("active");
+
+    /* 탭 이동 시 그래프 크기 재계산 */
+    setTimeout(()=>{
+      Object.values(charts).forEach(chart=>{
+        if(chart) chart.resize();
+      });
+    },50);
   });
 });
 
+/* 최초 실행 */
+initializeDateControls();
 loadData();
 </script>
 </body>
