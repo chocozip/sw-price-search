@@ -5,1734 +5,644 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>매출 현황</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f4f6fa;color:#202938;font-family:Arial,"Noto Sans KR",sans-serif}
+body{margin:0;background:#f4f6fa;color:#202938;font-family:Arial,"Malgun Gothic",sans-serif}
 button,input,select{font:inherit}
 button{cursor:pointer}
-.app{max-width:1500px;margin:auto;padding:24px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.header h1{font-size:27px;margin:0 0 5px}
-.header p{margin:0;color:#7b8494;font-size:13px}
-.refresh-btn{border:1px solid #dce2eb;background:white;border-radius:9px;padding:10px 15px;color:#344054}
-
-.filters{background:white;border:1px solid #e8ecf2;border-radius:14px;padding:17px;margin-bottom:20px;display:flex;gap:12px;align-items:end;flex-wrap:wrap}
-.filter{display:flex;flex-direction:column;gap:6px}
-.filter label{font-size:12px;color:#667085;font-weight:700}
-.filter select{height:39px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white;min-width:100px;color:#344054}
-.filter .year-select{min-width:110px}
-.filter .month-select{min-width:85px}
-.date-filter{display:flex;gap:6px;align-items:center}
-.date-filter span{color:#98a2b3;font-size:12px}
-.apply-btn{height:39px;background:#2563eb;color:white;border:0;border-radius:8px;padding:0 22px;font-weight:700}
-
-.nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.nav button{border:1px solid #e1e6ef;background:white;color:#667085;padding:11px 18px;border-radius:9px;font-weight:700}
-.nav button.active{background:#1d4ed8;color:white;border-color:#1d4ed8}
-.page{display:none}
-.page.active{display:block}
-.section-title{font-size:18px;font-weight:800;margin:4px 0 15px}
-.sub-title{font-size:14px;font-weight:700;margin:0 0 13px;color:#344054}
-
-.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-bottom:20px}
-.kpi{background:white;border:1px solid #e8ecf2;border-radius:14px;padding:21px}
-.kpi-label{font-size:13px;color:#667085;margin-bottom:10px}
-.kpi-value{font-size:27px;font-weight:800;letter-spacing:-.5px}
-.kpi.sales .kpi-value{color:#2563eb}
-.kpi.collection .kpi-value{color:#0f9f78}
-
-.panel{background:white;border:1px solid #e8ecf2;border-radius:14px;padding:20px;margin-bottom:18px;min-width:0}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
-.panel-head h3{font-size:15px;margin:0}
-.muted{font-size:12px;color:#98a2b3}
-.chart-wrap{position:relative;height:320px}
-.chart-wrap.small{height:270px}
-.table-wrap{width:100%;overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
-th{background:#f7f9fc;color:#667085;font-weight:700}
-th,td{padding:12px 13px;border-bottom:1px solid #edf0f4;text-align:right}
+.header{background:#243b60;color:white;padding:22px 28px}
+.header h1{margin:0;font-size:25px}
+.header p{margin:6px 0 0;color:#d5deed;font-size:13px}
+.container{max-width:1450px;margin:auto;padding:20px}
+.filter-box,.panel,.kpi{background:white;border-radius:13px;padding:17px;box-shadow:0 2px 9px #172b4d0d}
+.filter-box{margin-bottom:18px}
+.filter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;align-items:end}
+.field label{display:block;font-size:12px;color:#64748b;margin-bottom:6px}
+.field input,.field select{width:100%;height:42px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white;min-width:0}
+.btn{height:42px;border:0;border-radius:8px;background:#2563eb;color:white;padding:0 20px;font-weight:bold}
+.btn.gray{background:#64748b}
+.nav{display:flex;gap:8px;overflow-x:auto;margin:16px 0}
+.nav button{border:0;background:#e5eaf2;color:#42516a;padding:12px 18px;border-radius:9px;white-space:nowrap}
+.nav button.active{background:#243b60;color:white}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.kpi .label{font-size:13px;color:#64748b}
+.kpi .value{font-size:25px;font-weight:800;margin-top:8px;color:#1d4ed8;word-break:break-word}
+.kpi.green .value{color:#059669}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.panel{margin-bottom:16px;min-width:0}
+.panel h3{margin:0 0 15px;font-size:16px}
+.chart-wrap{position:relative;height:310px;width:100%}
+.table-wrap{overflow-x:auto;width:100%}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:11px 9px;border-bottom:1px solid #e8edf3;text-align:right;white-space:nowrap}
+th{background:#f7f9fc;color:#536174;font-weight:700}
 th:first-child,td:first-child{text-align:left}
-td.name{font-weight:700;color:#344054}
-td.amount{font-weight:700;color:#2563eb}
-td.unpaid{color:#e05252;font-weight:700}
-.empty{text-align:center!important;padding:35px;color:#98a2b3}
-.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#eef2ff;color:#4355bb;font-size:11px}
-
-.compare-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.compare-controls select{height:36px;border:1px solid #dce2eb;border-radius:7px;padding:0 9px;background:white;color:#344054}
-.summary-line{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:#667085}
-.summary-line strong{color:#344054}
-.positive{color:#0f9f78!important}
-.negative{color:#e05252!important}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.customer-search{height:36px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;width:220px}
-.loading,.error{background:white;border-radius:12px;padding:24px;text-align:center;color:#667085;margin-bottom:18px;line-height:1.7}
-.error{color:#c24141;white-space:pre-line}
-.detail-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
-.detail-top select,.detail-top input{height:38px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white}
-.small-btn{height:36px;padding:0 13px;border:1px solid #dce2eb;background:white;border-radius:8px;color:#344054}
-
-.salesperson-controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.salesperson-controls .filter select{height:38px;min-width:115px}
-.salesperson-controls .filter label{font-size:12px}
-.salesperson-info{font-size:12px;color:#667085;margin-bottom:12px}
-
-@media(max-width:760px){
- .app{padding:15px}
- .header h1{font-size:23px}
- .filters{gap:10px}
- .filter{flex:1;min-width:calc(50% - 10px)}
- .filter select{width:100%;min-width:0}
- .date-filter{width:100%}
- .date-filter select{flex:1;min-width:0}
- .apply-btn{width:100%}
- .kpis{gap:10px}
- .kpi{padding:16px}
- .kpi-value{font-size:21px}
- .nav{display:grid;grid-template-columns:1fr 1fr}
- .nav button{padding:11px 5px;font-size:13px}
- .panel{padding:15px}
- .chart-wrap{height:270px}
- .two-col{grid-template-columns:1fr}
- .customer-search{width:100%}
- .salesperson-controls{width:100%}
- .salesperson-controls .filter{min-width:calc(50% - 8px)}
- .salesperson-controls .filter select{width:100%}
+td.name{text-align:left;font-weight:600}
+.amount{color:#2563eb;font-weight:700}
+.clickable{cursor:pointer}
+.clickable:hover{background:#eff6ff}
+.empty{text-align:center!important;padding:25px;color:#94a3b8}
+.section{display:none}
+.section.active{display:block}
+.search-wrap{position:relative}
+.suggestions{position:absolute;z-index:20;top:44px;left:0;right:0;background:white;border:1px solid #dbe2ea;border-radius:8px;max-height:230px;overflow:auto;box-shadow:0 5px 15px #0002}
+.suggestions div{padding:11px;cursor:pointer;font-size:13px}
+.suggestions div:hover{background:#eff6ff}
+.cards{display:none}
+.data-card{border:1px solid #e5eaf0;border-radius:10px;padding:13px;margin-bottom:10px;background:white}
+.data-card h4{margin:0 0 10px;font-size:14px}
+.card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card-item span{display:block;color:#64748b;font-size:11px;margin-bottom:4px}
+.card-item strong{font-size:14px;overflow-wrap:anywhere}
+.region-total{font-weight:800;color:#1d4ed8}
+.sub-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sub-title select{height:38px;border:1px solid #dce2eb;border-radius:8px;padding:0 8px;background:white}
+.loading{text-align:center;padding:40px;color:#64748b}
+.error{background:#fff1f2;color:#be123c;padding:14px;border-radius:9px;margin-bottom:15px;display:none}
+.small-note{font-size:11px;color:#94a3b8;margin-top:8px}
+@media(max-width:800px){
+ .header{padding:18px}.container{padding:12px}
+ .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .filter-grid .search-field{grid-column:1/-1}
+ .filter-grid .apply-field{grid-column:1/-1}
+ .grid2{grid-template-columns:1fr;gap:10px}
+ .kpi{padding:14px}.kpi .value{font-size:20px}
+ .chart-wrap{height:240px}
+ .panel{padding:13px;margin-bottom:12px}
+ .panel h3{font-size:15px}
+ .table-wrap{display:none}
+ .cards{display:block}
+ .nav button{padding:11px 13px;font-size:13px}
+ .nav{margin:12px 0}
+ .field input,.field select{font-size:14px}
 }
 </style>
 </head>
 
 <body>
-<div class="app">
-  <header class="header">
-    <div>
-      <h1>매출 현황</h1>
-      <p>매출 · 수금 통합 관리</p>
+<header class="header">
+ <h1>매출 현황</h1>
+ <p>매출 · 수금 통합 관리</p>
+</header>
+
+<div class="container">
+ <div id="errorBox" class="error"></div>
+
+ <div class="filter-box">
+  <div class="filter-grid">
+   <div class="field">
+    <label>시작 연도</label>
+    <select id="startYear"></select>
+   </div>
+   <div class="field">
+    <label>시작 월</label>
+    <select id="startMonth"></select>
+   </div>
+   <div class="field">
+    <label>종료 연도</label>
+    <select id="endYear"></select>
+   </div>
+   <div class="field">
+    <label>종료 월</label>
+    <select id="endMonth"></select>
+   </div>
+   <div class="field search-field">
+    <label>거래처 검색</label>
+    <div class="search-wrap">
+     <input id="customerSearch" type="text" placeholder="거래처명 입력">
+     <div id="customerSuggestions" class="suggestions" hidden></div>
     </div>
-    <button class="refresh-btn" onclick="loadData()">↻ 데이터 새로고침</button>
-  </header>
+   </div>
+   <div class="field apply-field">
+    <button class="btn" style="width:100%" onclick="applyFilters()">조회하기</button>
+   </div>
+  </div>
+ </div>
 
-  <!-- 공통 조회 -->
-  <section class="filters">
-    <div class="filter">
-      <label>시작 년도 / 월</label>
-      <div class="date-filter">
-        <select id="startYear" class="year-select"></select>
-        <select id="startMonth" class="month-select"></select>
-      </div>
-    </div>
+ <div class="nav">
+  <button class="active" data-tab="overview">종합 현황</button>
+  <button data-tab="salesperson">영업사원별 매출</button>
+  <button data-tab="period">기간별 매출</button>
+  <button data-tab="customer">거래처별 매출</button>
+ </div>
 
-    <div class="filter">
-      <label>종료 년도 / 월</label>
-      <div class="date-filter">
-        <select id="endYear" class="year-select"></select>
-        <select id="endMonth" class="month-select"></select>
-      </div>
-    </div>
+ <div id="loading" class="loading">Google Sheets 데이터를 불러오는 중입니다...</div>
 
-    <div class="filter">
-      <label>거래처</label>
-      <select id="customerFilter">
-        <option value="">전체 거래처</option>
-      </select>
-    </div>
-
-    <button class="apply-btn" onclick="applyFilters()">조회하기</button>
-  </section>
-
-  <div id="statusMessage" class="loading">구글 스프레드시트 데이터를 불러오는 중입니다.</div>
-
-  <nav class="nav">
-    <button class="active" data-page="overview">종합 현황</button>
-    <button data-page="salesperson">영업사원별 매출</button>
-    <button data-page="period">기간별 매출</button>
-    <button data-page="customer">거래처별 매출</button>
-  </nav>
+ <div id="dashboard" style="display:none">
+  <div class="kpis">
+   <div class="kpi">
+    <div class="label">총 매출액</div>
+    <div class="value" id="totalSales">0원</div>
+   </div>
+   <div class="kpi green">
+    <div class="label">총 수금액</div>
+    <div class="value" id="totalCollection">0원</div>
+   </div>
+  </div>
 
   <!-- 종합 현황 -->
-  <main id="overview" class="page active">
-    <h2 class="section-title">종합 현황</h2>
-
-    <div class="kpis">
-      <div class="kpi sales">
-        <div class="kpi-label">총 매출액</div>
-        <div class="kpi-value" id="totalSales">0원</div>
-      </div>
-      <div class="kpi collection">
-        <div class="kpi-label">총 수금액</div>
-        <div class="kpi-value" id="totalCollection">0원</div>
-      </div>
+  <section id="overview" class="section active">
+   <div class="panel">
+    <div class="sub-title">
+     <h3>전년 대비 매출 비교</h3>
+     <select id="overviewUnit" onchange="renderOverview()">
+      <option value="quarter" selected>분기별</option>
+      <option value="month">월별</option>
+      <option value="year">연도별</option>
+     </select>
     </div>
+    <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
+   </div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <h3>전년 대비 매출 비교</h3>
-        <div class="compare-controls">
-          <select id="overviewYear" onchange="renderOverview()"></select>
-          <select id="overviewUnit" onchange="renderOverview()">
-            <option value="quarter" selected>분기별 비교</option>
-            <option value="month">월별 비교</option>
-            <option value="year">연도별 비교</option>
-          </select>
-        </div>
-      </div>
-      <div class="muted" id="overviewCompareDescription" style="margin-bottom:10px"></div>
-      <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
-      <div class="summary-line" id="overviewSummary"></div>
-    </section>
-
-    <div class="two-col">
-      <section class="panel">
-        <div class="panel-head"><h3>지역별 매출</h3></div>
-        <div class="chart-wrap small"><canvas id="regionChart"></canvas></div>
-      </section>
-      <section class="panel">
-        <div class="panel-head"><h3>거래처별 매출 TOP 10</h3></div>
-        <div class="chart-wrap small"><canvas id="topCustomerChart"></canvas></div>
-      </section>
+   <div class="grid2">
+    <div class="panel">
+     <h3>지역별 매출 비중</h3>
+     <div class="chart-wrap"><canvas id="regionChart"></canvas></div>
     </div>
+    <div class="panel">
+     <h3>거래처 매출 TOP 10</h3>
+     <div class="chart-wrap"><canvas id="topChart"></canvas></div>
+    </div>
+   </div>
 
-    <section class="panel">
-      <div class="panel-head"><h3>거래처별 매출 요약</h3><span class="muted">매출액 · 수금액 · 미수금</span></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>거래처명</th><th>매출액</th><th>수금액</th><th>미수금</th></tr></thead>
-          <tbody id="overviewCustomerTable"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+   <div class="panel">
+    <h3>지역별 매출 상세</h3>
+    <div class="table-wrap"><table><thead><tr>
+     <th>지역</th><th>매출액</th><th>수금액</th><th>미수금</th><th>거래처 수</th>
+    </tr></thead><tbody id="regionTable"></tbody></table></div>
+    <div class="cards" id="regionCards"></div>
+    <div class="small-note">지역을 선택하면 해당 지역의 거래처별 매출 내역을 확인할 수 있습니다.</div>
+   </div>
 
-  <!-- 영업사원별 매출 -->
-  <main id="salesperson" class="page">
-    <h2 class="section-title">영업사원별 매출</h2>
+   <div class="panel" id="regionDetailPanel" style="display:none">
+    <div class="sub-title">
+     <h3 id="regionDetailTitle">지역 거래처 상세</h3>
+     <button class="btn gray" onclick="closeRegionDetail()">닫기</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr>
+     <th>거래처</th><th>매출액</th><th>수금액</th><th>미수금</th>
+    </tr></thead><tbody id="regionDetailTable"></tbody></table></div>
+    <div class="cards" id="regionDetailCards"></div>
+   </div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <h3>조회 조건</h3>
-        <span class="muted">영업사원 및 기간을 선택하세요.</span>
-      </div>
+   <div class="panel">
+    <h3>거래처별 매출 요약</h3>
+    <div class="table-wrap"><table><thead><tr>
+     <th>거래처</th><th>지역</th><th>매출액</th><th>수금액</th><th>미수금</th>
+    </tr></thead><tbody id="overviewCustomerTable"></tbody></table></div>
+    <div class="cards" id="overviewCustomerCards"></div>
+   </div>
+  </section>
 
-      <div class="salesperson-controls">
-        <div class="filter">
-          <label>영업사원</label>
-          <select id="salespersonSelect" onchange="renderSalesperson()">
-            <option value="조재호">조재호</option>
-            <option value="윤선환">윤선환</option>
-          </select>
-        </div>
+  <!-- 영업사원별 -->
+  <section id="salesperson" class="section">
+   <div class="panel">
+    <div class="filter-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+     <div class="field"><label>영업사원</label>
+      <select id="salespersonSelect" onchange="renderSalesperson()">
+       <option value="조재호">조재호</option>
+       <option value="윤선환">윤선환</option>
+      </select>
+     </div>
+     <div class="field"><label>연도</label><select id="salespersonYear" onchange="renderSalesperson()"></select></div>
+     <div class="field"><label>조회 단위</label>
+      <select id="salespersonUnit" onchange="renderSalesperson()">
+       <option value="month">월별</option><option value="quarter">분기별</option>
+      </select>
+     </div>
+    </div>
+   </div>
+   <div class="panel">
+    <h3>영업사원 매출·수금 실적</h3>
+    <div class="chart-wrap"><canvas id="salespersonChart"></canvas></div>
+   </div>
+   <div class="panel">
+    <h3>실적 상세</h3>
+    <div class="table-wrap"><table><thead><tr>
+     <th>기간</th><th>매출액</th><th>수금액</th><th>거래처 수</th>
+    </tr></thead><tbody id="salespersonTable"></tbody></table></div>
+    <div class="cards" id="salespersonCards"></div>
+   </div>
+  </section>
 
-        <div class="filter">
-          <label>년도</label>
-          <select id="salespersonYear" onchange="renderSalesperson()"></select>
-        </div>
-
-        <div class="filter">
-          <label>조회 단위</label>
-          <select id="salespersonUnit" onchange="updateSalespersonPeriodOptions()">
-            <option value="year">연간 전체</option>
-            <option value="month">월별</option>
-            <option value="quarter">분기별</option>
-          </select>
-        </div>
-
-        <div class="filter" id="salespersonMonthWrap" style="display:none">
-          <label>월 선택</label>
-          <select id="salespersonMonth" onchange="renderSalesperson()"></select>
-        </div>
-
-        <div class="filter" id="salespersonQuarterWrap" style="display:none">
-          <label>분기 선택</label>
-          <select id="salespersonQuarter" onchange="renderSalesperson()">
-            <option value="1">1분기</option>
-            <option value="2">2분기</option>
-            <option value="3">3분기</option>
-            <option value="4">4분기</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h3 id="salespersonChartTitle">영업사원 매출 및 수금</h3>
-        <span class="muted" id="salespersonChartDescription"></span>
-      </div>
-      <div class="chart-wrap"><canvas id="salespersonChart"></canvas></div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head"><h3>영업사원별 실적</h3></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>영업사원</th><th>매출액</th><th>수금액</th><th>거래처 수</th><th>매출 건수</th></tr></thead>
-          <tbody id="salespersonTable"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <!-- 기간별 매출 -->
-  <main id="period" class="page">
-    <h2 class="section-title">기간별 매출</h2>
-    <section class="panel">
-      <div class="panel-head">
-  <h3>기간별 매출 비교</h3>
-  <div class="compare-controls">
-    <select id="periodYear" onchange="renderPeriod()"></select>
-
-    <select id="periodUnit" onchange="renderPeriod()">
+  <!-- 기간별 -->
+  <section id="period" class="section">
+   <div class="panel">
+    <div class="sub-title">
+     <h3>기간별 매출</h3>
+     <select id="periodYear" onchange="renderPeriod()"></select>
+    </div>
+    <div class="field" style="max-width:180px;margin-bottom:14px">
+     <label>그래프 단위</label>
+     <select id="periodUnit" onchange="renderPeriod()">
       <option value="month">월별</option>
       <option value="quarter">분기별</option>
       <option value="year">연도별</option>
-    </select>
-  </div>
-</div>
-      <div class="chart-wrap"><canvas id="periodChart"></canvas></div>
-      <div class="summary-line" id="periodSummary"></div>
-    </section>
-    <section class="panel">
-      <div class="panel-head"><h3>기간별 매출 상세</h3></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>기간</th><th>매출액</th><th>수금액</th><th>매출 건수</th></tr></thead>
-          <tbody id="periodTable"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+     </select>
+    </div>
+    <div class="chart-wrap"><canvas id="periodChart"></canvas></div>
+   </div>
+   <div class="panel">
+    <h3>월별 매출 상세</h3>
+    <div class="table-wrap"><table><thead><tr>
+     <th>월</th><th>매출액</th><th>수금액</th>
+    </tr></thead><tbody id="periodTable"></tbody></table></div>
+    <div class="cards" id="periodCards"></div>
+   </div>
+  </section>
 
-  <!-- 거래처별 매출 -->
-  <main id="customer" class="page">
-    <h2 class="section-title">거래처별 매출</h2>
-    <section class="panel">
-      <div class="panel-head">
-        <h3>거래처별 매출 내역</h3>
-        <input id="customerSearch" class="customer-search" placeholder="거래처명 검색" oninput="renderCustomer()">
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>거래처명</th><th>매출액</th><th>수금액</th><th>미수금</th></tr></thead>
-          <tbody id="customerTable"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head"><h3>거래처 일별 매출현황</h3></div>
-      <div class="detail-top">
-        <select id="detailCustomer" onchange="renderCustomerDaily()">
-          <option value="">거래처 선택</option>
-        </select>
-        <span class="muted">선택한 조회 기간의 일별 매출</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>일자</th><th>거래처명</th><th>매출액</th><th>수금액</th><th>미수금</th></tr></thead>
-          <tbody id="customerDailyTable"><tr><td colspan="5" class="empty">거래처를 선택해 주세요.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+  <!-- 거래처별 -->
+  <section id="customer" class="section">
+   <div class="panel">
+    <h3>거래처별 매출 현황</h3>
+    <div class="field" style="max-width:420px;margin-bottom:15px">
+     <label>거래처 검색</label>
+     <input id="customerTabSearch" placeholder="거래처명 검색" oninput="renderCustomerTab()">
+    </div>
+    <div class="table-wrap"><table><thead><tr>
+     <th>거래처</th><th>지역</th><th>매출액</th><th>수금액</th><th>미수금</th>
+    </tr></thead><tbody id="customerTable"></tbody></table></div>
+    <div class="cards" id="customerCards"></div>
+   </div>
+   <div class="panel">
+    <h3 id="dailyTitle">거래처 일별 매출현황</h3>
+    <div class="table-wrap"><table><thead><tr>
+     <th>일자</th><th>거래처명</th><th>매출액</th><th>수금액</th><th>미수금</th>
+    </tr></thead><tbody id="dailyTable"></tbody></table></div>
+    <div class="cards" id="dailyCards"></div>
+   </div>
+  </section>
+ </div>
 </div>
 
 <script>
-/* =========================
-   구글 스프레드시트 설정
-========================= */
-const SPREADSHEET_ID = "19WlE1Iou4tsuqdb5qACWUheZeX3-F1ccNKs4_IucepQ";
-const CUSTOMER_GID = "1695021966";
-const SALES_GID = "4439395";
+const SHEET_ID="19WlE1Iou4tsuqdb5qACWUheZeX3-F1ccNKs4_IucepQ";
+const SALES_GID="4439395";
+const CUSTOMER_GID="1695021966";
 
-let customerInfo = [];
-let salesData = [];
-let filteredData = [];
-let charts = {};
+let salesData=[];
+let customerMap={};
+let customerList=[];
+let filteredData=[];
+let charts={};
+let selectedCustomer="";
+let selectedRegion="";
 
-const money = n => Math.round(Number(n)||0).toLocaleString("ko-KR") + "원";
-const number = n => Math.round(Number(n)||0).toLocaleString("ko-KR");
- // 그래프 금액 간략 표시
-function formatCompactAmount(value){
-
-  const n=Number(value)||0;
-
-  if(n===0) return "";
-
-  const abs=Math.abs(n);
-
-  if(abs>=100000000){
-    return (n/100000000).toFixed(1)+"억";
-  }
-
-  if(abs>=10000){
-    return Math.round(n/10000).toLocaleString("ko-KR")+"만";
-  }
-
-  return Math.round(n).toLocaleString("ko-KR");
-}
-
-// 모든 그래프에 숫자 표시 플러그인 적용
-Chart.register(ChartDataLabels);
-
-Chart.defaults.plugins.datalabels={
-  display:true,
-  color:"#344054",
-  anchor:"end",
-  align:"end",
-  offset:4,
-  clamp:true,
-  font:{
-    weight:"bold",
-    size:10
-  },
-  formatter:function(value){
-    return formatCompactAmount(value);
-  }
+const money=n=>Math.round(Number(n)||0).toLocaleString("ko-KR")+"원";
+const compact=n=>{
+ n=Number(n)||0;
+ if(Math.abs(n)>=100000000)return (n/100000000).toFixed(1).replace(/\.0$/,"")+"억";
+ if(Math.abs(n)>=10000)return (n/10000).toFixed(0)+"만";
+ return Math.round(n).toLocaleString("ko-KR");
 };
+const sum=(arr,key)=>arr.reduce((s,x)=>s+(Number(x[key])||0),0);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-function currentYear(){
-  return new Date().getFullYear();
+function parseDate(v){
+ if(v instanceof Date&&!isNaN(v))return v;
+ let s=String(v??"").trim();
+ let m=s.match(/^(\d{4})(\d{2})(\d{2})$/);
+ if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+ m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+ if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+ return null;
 }
-
-function currentMonthNumber(){
-  return new Date().getMonth()+1;
+function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function parseAmount(v){
+ if(typeof v==="number")return v;
+ return Number(String(v??"").replace(/[₩,\s]/g,""))||0;
 }
-
-function monthValue(year,month){
-  return String(year)+"-"+String(month).padStart(2,"0");
+async function fetchSheet(gid){
+ const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
+ const response=await fetch(url);
+ if(!response.ok)throw new Error("Google Sheets 데이터를 가져오지 못했습니다.");
+ const raw=await response.text();
+ const json=JSON.parse(raw.substring(raw.indexOf("{"),raw.lastIndexOf("}")+1));
+ return json.table.rows.map(row=>(row.c||[]).map(cell=>cell?.f??cell?.v??""));
 }
-
-/* =========================
-   년도 / 월 선택 초기화
-========================= */
-function fillYearSelect(selectId,selectedYear){
-
-  const select=document.getElementById(selectId);
-  select.innerHTML="";
-
-  for(let y=currentYear();y>=2013;y--){
-    select.add(new Option(y+"년",String(y)));
-  }
-
-  select.value=String(selectedYear);
-}
-
-function fillMonthSelect(selectId,selectedMonth){
-
-  const select=document.getElementById(selectId);
-  select.innerHTML="";
-
-  for(let m=1;m<=12;m++){
-    select.add(new Option(m+"월",String(m)));
-  }
-
-  select.value=String(selectedMonth);
-}
-
-function initializeDateControls(){
-
-  const y=currentYear();
-  const m=currentMonthNumber();
-
-  fillYearSelect("startYear",y);
-  fillYearSelect("endYear",y);
-  fillMonthSelect("startMonth",m);
-  fillMonthSelect("endMonth",m);
-
-  fillYearSelect("overviewYear",y);
-  fillYearSelect("salespersonYear",y);
- fillYearSelect("periodYear",y);
-
-  fillMonthSelect("salespersonMonth",m);
-
-  document.getElementById("salespersonUnit").value="year";
-  document.getElementById("overviewUnit").value="quarter";
-
-  updateSalespersonPeriodOptions();
-}
-
-/* =========================
-   CSV 읽기
-========================= */
-function parseCSV(text){
-
-  const rows=[];
-  let row=[],cell="",quoted=false;
-
-  text=String(text||"").replace(/^\uFEFF/,"");
-
-  for(let i=0;i<text.length;i++){
-
-    const c=text[i],next=text[i+1];
-
-    if(c === '"'){
-      if(quoted && next === '"'){cell+='"';i++;}
-      else quoted=!quoted;
-    }else if(c==="," && !quoted){
-      row.push(cell);
-      cell="";
-    }else if((c==="\n" || c==="\r") && !quoted){
-
-      if(c==="\r" && next==="\n") i++;
-
-      row.push(cell);
-
-      if(row.some(v=>String(v).trim()!=="")) rows.push(row);
-
-      row=[];
-      cell="";
-    }else{
-      cell+=c;
-    }
-  }
-
-  row.push(cell);
-  if(row.some(v=>String(v).trim()!=="")) rows.push(row);
-
-  return rows;
-}
-
-/* =========================
-   구글시트 연결
-========================= */
-async function fetchSheet(sheetName,gid){
-
-  const timestamp=Date.now();
-
-  const urls=[
-    "https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+
-    "/gviz/tq?tqx=out:csv&gid="+gid+"&_="+timestamp,
-
-    "https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+
-    "/export?format=csv&gid="+gid+"&_="+timestamp
-  ];
-
-  const errors=[];
-
-  for(let i=0;i<urls.length;i++){
-
-    try{
-
-      const response=await fetch(urls[i],{
-        method:"GET",
-        cache:"no-store",
-        redirect:"follow"
-      });
-
-      if(!response.ok){
-        throw new Error("HTTP 상태 코드 "+response.status);
-      }
-
-      const text=await response.text();
-      const trimmed=text.trim();
-
-      if(!trimmed){
-        throw new Error("시트에서 빈 응답이 반환되었습니다.");
-      }
-
-      const lower=trimmed.slice(0,1000).toLowerCase();
-
-      if(
-        lower.includes("<!doctype html") ||
-        lower.includes("<html") ||
-        lower.includes("<title>google") ||
-        lower.includes("accounts.google.com") ||
-        lower.includes("sign in") ||
-        lower.includes("로그인")
-      ){
-        throw new Error("CSV 대신 구글 로그인 또는 권한 페이지가 반환되었습니다.");
-      }
-
-      if(
-        lower.includes("error") &&
-        (lower.includes("permission") || lower.includes("access denied"))
-      ){
-        throw new Error("스프레드시트 접근 권한이 없습니다.");
-      }
-
-      const rows=parseCSV(text);
-
-      if(!rows.length){
-        throw new Error("CSV 데이터를 읽을 수 없습니다.");
-      }
-
-      if(rows.length<2){
-        throw new Error("헤더 외에 데이터가 없습니다. 시트 내용을 확인해 주세요.");
-      }
-
-      return rows;
-
-    }catch(error){
-      errors.push((i===0?"gviz 방식":"export 방식")+": "+error.message);
-    }
-  }
-
-  throw new Error(
-    sheetName+" 시트 연결 실패\n"+
-    errors.join("\n")+
-    "\n\n스프레드시트 공유 설정에서 '링크가 있는 사용자 - 뷰어'인지 확인해 주세요."
-  );
-}
-
-function clean(value){
-  return String(value??"")
-    .replace(/^\uFEFF/,"")
-    .trim()
-    .replace(/^"|"$/g,"");
-}
-
-function parseAmount(value){
-
-  if(value===null || value===undefined) return 0;
-
-  let s=String(value).trim();
-
-  if(!s) return 0;
-
-  const isNegative=/^\(.*\)$/.test(s);
-
-  s=s
-    .replace(/[₩,\s원]/g,"")
-    .replace(/[()]/g,"");
-
-  const n=Number(s);
-
-  if(!Number.isFinite(n)) return 0;
-
-  return isNegative?-Math.abs(n):n;
-}
-
-/* =========================
-   날짜 변환
-   YYYYMMDD 형식 포함
-========================= */
-function parseDate(value){
-
-  if(value===null || value===undefined) return null;
-
-  const s=String(value).trim();
-
-  if(!s) return null;
-
-  if(/^\d{8}$/.test(s)){
-
-    const y=Number(s.substring(0,4));
-    const m=Number(s.substring(4,6));
-    const d=Number(s.substring(6,8));
-
-    const date=new Date(y,m-1,d);
-
-    if(
-      date.getFullYear()===y &&
-      date.getMonth()===m-1 &&
-      date.getDate()===d
-    ){
-      return date;
-    }
-
-    return null;
-  }
-
-  let match=s.match(/Date\(\s*(\d{4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})/i);
-
-  if(match){
-    return new Date(
-      Number(match[1]),
-      Number(match[2]),
-      Number(match[3])
-    );
-  }
-
-  match=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
-
-  if(match){
-
-    const y=Number(match[1]);
-    const m=Number(match[2]);
-    const d=Number(match[3]);
-
-    const date=new Date(y,m-1,d);
-
-    if(
-      date.getFullYear()===y &&
-      date.getMonth()===m-1 &&
-      date.getDate()===d
-    ){
-      return date;
-    }
-  }
-
-  const date=new Date(s);
-
-  return isNaN(date.getTime())?null:date;
-}
-
-function monthKey(date){
-  return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0");
-}
-
-function dateKey(date){
-  return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
-}
-
-function isDateRow(row){
-  return !!parseDate(row[1]);
-}
-
-function normalizeCustomers(rows){
-
-  return rows.slice(1).map(r=>({
-
-    name:clean(r[0]),
-    region:clean(r[1]) || "기타",
-    salesperson:clean(r[2]) || "기타"
-
-  })).filter(x=>x.name);
-}
-
-function normalizeSales(rows){
-
-  return rows.slice(1)
-    .filter(isDateRow)
-    .map(r=>{
-
-      const date=parseDate(r[1]);
-
-      return {
-        customer:clean(r[0]),
-        date,
-        dateKey:dateKey(date),
-        month:monthKey(date),
-        sales:parseAmount(r[2]),
-        collection:parseAmount(r[3]),
-        unpaid:parseAmount(r[4])
-      };
-
-    })
-    .filter(r=>r.customer && r.date);
-}
-
-function connectCustomerInfo(){
-
-  const map={};
-
-  customerInfo.forEach(c=>{
-    map[c.name]=c;
-  });
-
-  salesData=salesData.map(s=>({
-
-    ...s,
-    region:map[s.customer]?.region || "기타",
-    salesperson:map[s.customer]?.salesperson || "기타"
-
-  }));
-}
-
-/* =========================
-   데이터 불러오기
-========================= */
 async function loadData(){
-
-  const status=document.getElementById("statusMessage");
-
-  status.style.display="block";
-  status.className="loading";
-  status.textContent="구글 스프레드시트 데이터를 불러오는 중입니다.";
-
-  try{
-
-    const results=await Promise.allSettled([
-      fetchSheet("거래처",CUSTOMER_GID),
-      fetchSheet("매출데이터",SALES_GID)
-    ]);
-
-    const customerResult=results[0];
-    const salesResult=results[1];
-
-    const errors=[];
-
-    if(customerResult.status==="rejected"){
-      errors.push("■ 거래처 시트 오류\n"+customerResult.reason.message);
-    }
-
-    if(salesResult.status==="rejected"){
-      errors.push("■ 매출데이터 시트 오류\n"+salesResult.reason.message);
-    }
-
-    if(errors.length){
-      throw new Error(errors.join("\n\n"));
-    }
-
-    const newCustomerInfo=normalizeCustomers(customerResult.value);
-    const newSalesData=normalizeSales(salesResult.value);
-
-    if(!newCustomerInfo.length){
-      throw new Error("거래처 시트에서 거래처 정보를 찾지 못했습니다. A열에 거래처명이 있는지 확인해 주세요.");
-    }
-
-    if(!newSalesData.length){
-      throw new Error(
-        "매출데이터 시트에서 날짜가 있는 매출 행을 찾지 못했습니다.\n"+
-        "B열 날짜 형식과 A~E열 데이터 위치를 확인해 주세요."
-      );
-    }
-
-    customerInfo=newCustomerInfo;
-    salesData=newSalesData;
-
-    connectCustomerInfo();
-    populateCustomerOptions();
-    applyFilters();
-
-    status.style.display="none";
-
-  }catch(error){
-
-    status.style.display="block";
-    status.className="error";
-
-    status.textContent=
-      "데이터를 불러오지 못했습니다.\n\n"+
-      error.message;
-
-    console.error("매출 현황 데이터 연결 오류:",error);
-  }
-}
-
-function populateCustomerOptions(){
-
-  const names=[...new Set(customerInfo.map(c=>c.name))]
-    .sort((a,b)=>a.localeCompare(b,"ko"));
-
-  const filter=document.getElementById("customerFilter");
-  const detail=document.getElementById("detailCustomer");
-
-  const previousFilter=filter.value;
-  const previousDetail=detail.value;
-
-  filter.innerHTML='<option value="">전체 거래처</option>';
-  detail.innerHTML='<option value="">거래처 선택</option>';
-
-  names.forEach(name=>{
-    filter.add(new Option(name,name));
-    detail.add(new Option(name,name));
+ try{
+  const [salesRows,customerRows]=await Promise.all([
+   fetchSheet(SALES_GID),fetchSheet(CUSTOMER_GID)
+  ]);
+  customerMap={};
+  customerRows.forEach(r=>{
+   const name=String(r[0]??"").trim();
+   if(!name||name==="거래처")return;
+   customerMap[name]={name,region:String(r[1]??"").trim()||"미분류",salesperson:String(r[2]??"").trim()||"기타"};
   });
-
-  if(names.includes(previousFilter)){
-    filter.value=previousFilter;
+  customerList=Object.keys(customerMap).sort((a,b)=>a.localeCompare(b,"ko"));
+  salesData=[];
+  salesRows.forEach(r=>{
+   const name=String(r[0]??"").trim();
+   const date=parseDate(r[1]);
+   if(!name||!date||isNaN(date))return;
+   const info=customerMap[name]||{name,region:"미분류",salesperson:"기타"};
+   salesData.push({
+    customer:name,date,month:dateKey(date),year:date.getFullYear(),
+    sales:parseAmount(r[2]),collection:parseAmount(r[3]),
+    unpaid:parseAmount(r[4]),region:info.region,
+    salesperson:info.salesperson
+   });
+  });
+  if(!salesData.length)throw new Error("유효한 매출 데이터가 없습니다. 시트 공개 권한과 열 순서를 확인해 주세요.");
+  initializeControls();
+  document.getElementById("loading").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  applyFilters();
+ }catch(e){
+  document.getElementById("loading").textContent="데이터를 불러오지 못했습니다.";
+  const box=document.getElementById("errorBox");
+  box.style.display="block";
+  box.textContent=e.message+" (시트 공유 설정: 링크가 있는 사용자에게 보기 권한이 필요합니다.)";
+ }
+}
+function initializeControls(){
+ const now=new Date(),year=now.getFullYear();
+ ["startYear","endYear","salespersonYear","periodYear"].forEach(id=>{
+  const el=document.getElementById(id);
+  for(let y=year;y>=2013;y--){
+   const o=document.createElement("option");o.value=y;o.textContent=y+"년";el.appendChild(o);
   }
-
-  if(names.includes(previousDetail)){
-    detail.value=previousDetail;
+  el.value=year;
+ });
+ ["startMonth","endMonth"].forEach((id,i)=>{
+  const el=document.getElementById(id);
+  for(let m=1;m<=12;m++){
+   const o=document.createElement("option");o.value=m;o.textContent=m+"월";el.appendChild(o);
   }
+  el.value=i===0?1:now.getMonth()+1;
+ });
+ document.getElementById("customerSearch").addEventListener("input",customerAutocomplete);
+ document.getElementById("customerSearch").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+   const first=document.querySelector("#customerSuggestions div");
+   if(first)first.click();else applyFilters();
+  }
+ });
+ document.addEventListener("click",e=>{
+  if(!e.target.closest(".search-wrap"))document.getElementById("customerSuggestions").hidden=true;
+ });
+ document.querySelectorAll(".nav button").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b===btn));
+  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id===btn.dataset.tab));
+  if(btn.dataset.tab==="salesperson")renderSalesperson();
+  if(btn.dataset.tab==="period")renderPeriod();
+  if(btn.dataset.tab==="customer")renderCustomerTab();
+ }));
 }
-
-/* =========================
-   공통 조회 조건
-========================= */
-function getGlobalStart(){
-  const year=document.getElementById("startYear").value;
-  const month=document.getElementById("startMonth").value;
-  return year+"-"+String(month).padStart(2,"0");
+function customerAutocomplete(){
+ const input=document.getElementById("customerSearch");
+ const q=input.value.trim().toLowerCase();
+ const box=document.getElementById("customerSuggestions");
+ selectedCustomer="";
+ if(!q){box.hidden=true;return}
+ const matches=customerList.filter(n=>n.toLowerCase().includes(q)).slice(0,30);
+ box.innerHTML=matches.length?matches.map(n=>`<div data-name="${esc(n)}">${esc(n)}</div>`).join(""):"<div>검색 결과가 없습니다.</div>";
+ box.hidden=false;
+ box.querySelectorAll("[data-name]").forEach(el=>el.addEventListener("click",()=>{
+  selectedCustomer=el.dataset.name;
+  input.value=selectedCustomer;
+  box.hidden=true;
+  applyFilters();
+ }));
 }
-
-function getGlobalEnd(){
-  const year=document.getElementById("endYear").value;
-  const month=document.getElementById("endMonth").value;
-  return year+"-"+String(month).padStart(2,"0");
-}
-
 function applyFilters(){
-
-  const start=getGlobalStart();
-  const end=getGlobalEnd();
-  const customer=document.getElementById("customerFilter").value;
-
-  if(start>end){
-    alert("시작 년월이 종료 년월보다 늦을 수 없습니다.");
-    return;
-  }
-
-  filteredData=salesData.filter(s=>{
-
-    if(s.month<start) return false;
-    if(s.month>end) return false;
-    if(customer && s.customer!==customer) return false;
-
-    return true;
-  });
-
-  renderAll();
+ const sy=+document.getElementById("startYear").value;
+ const sm=+document.getElementById("startMonth").value;
+ const ey=+document.getElementById("endYear").value;
+ const em=+document.getElementById("endMonth").value;
+ const start=sy*12+sm,end=ey*12+em;
+ if(start>end){alert("시작 기간이 종료 기간보다 늦습니다.");return}
+ const q=document.getElementById("customerSearch").value.trim();
+ selectedCustomer=customerList.includes(q)?q:"";
+ filteredData=salesData.filter(d=>{
+  const k=d.year*12+(+d.month.slice(5));
+  return k>=start&&k<=end&&(!selectedCustomer||d.customer===selectedCustomer);
+ });
+ updateKpis();
+ renderOverview();
+ renderCustomerTab();
 }
-
-function renderAll(){
-
-  renderOverview();
-  renderSalesperson();
-  renderPeriod();
-  renderCustomer();
-  renderCustomerDaily();
+function updateKpis(){
+ document.getElementById("totalSales").textContent=money(sum(filteredData,"sales"));
+ document.getElementById("totalCollection").textContent=money(sum(filteredData,"collection"));
 }
-
-/* =========================
-   공통 집계
-========================= */
-function sumBy(data,key){
-  return data.reduce((sum,row)=>sum+(Number(row[key])||0),0);
+function aggregateBy(arr,key){
+ const out={};
+ arr.forEach(d=>{
+  const k=d[key];
+  if(!out[k])out[k]={key:k,sales:0,collection:0,customers:new Set(),region:d.region};
+  out[k].sales+=d.sales;out[k].collection+=d.collection;out[k].customers.add(d.customer);
+ });
+ return out;
 }
-
-function groupBy(data,keyFn){
-
-  const result={};
-
-  data.forEach(row=>{
-
-    const key=keyFn(row);
-
-    if(!result[key]) result[key]=[];
-
-    result[key].push(row);
-  });
-
-  return result;
+function latestUnpaidByCustomer(arr){
+ const map={};
+ arr.forEach(d=>{
+  if(!map[d.customer]||d.date>map[d.customer].date)map[d.customer]=d;
+ });
+ return map;
 }
-
-/* 거래처별 가장 최근 날짜의 미수금만 사용 */
-function latestUnpaidByCustomer(){
-
-  const map={};
-
-  salesData.forEach(s=>{
-
-    if(
-      !map[s.customer] ||
-      s.date>map[s.customer].date ||
-      s.date.getTime()===map[s.customer].date.getTime()
-    ){
-      map[s.customer]={
-        date:s.date,
-        unpaid:s.unpaid
-      };
-    }
-  });
-
-  return map;
+function customerSummary(arr){
+ const groups=aggregateBy(arr,"customer");
+ const latest=latestUnpaidByCustomer(arr);
+ return Object.values(groups).map(g=>({
+  customer:g.key,sales:g.sales,collection:g.collection,
+  unpaid:latest[g.key]?.unpaid||0,
+  region:customerMap[g.key]?.region||"미분류",
+  salesperson:customerMap[g.key]?.salesperson||"기타"
+ }));
 }
-
-function customerSummary(data){
-
-  const grouped=groupBy(data,s=>s.customer);
-  const latest=latestUnpaidByCustomer();
-
-  return Object.keys(grouped).map(name=>{
-
-    const rows=grouped[name];
-
-    return {
-      name,
-      sales:sumBy(rows,"sales"),
-      collection:sumBy(rows,"collection"),
-      unpaid:latest[name]?.unpaid ?? 0,
-      count:rows.length
-    };
-
-  }).sort((a,b)=>b.sales-a.sales);
+function groupRegion(arr){
+ const groups={};
+ const cust=customerSummary(arr);
+ cust.forEach(c=>{
+  const r=c.region;
+  if(!groups[r])groups[r]={region:r,sales:0,collection:0,unpaid:0,customers:new Set()};
+  groups[r].sales+=c.sales;groups[r].collection+=c.collection;
+  groups[r].unpaid+=c.unpaid;groups[r].customers.add(c.customer);
+ });
+ return Object.values(groups).sort((a,b)=>b.sales-a.sales);
 }
-
-/* =========================
-   그래프 공통 함수
-========================= */
-function drawGroupedBar(canvasId,comp){
-
-  if(charts[canvasId]) charts[canvasId].destroy();
-
-  const colors=["#94a3b8","#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899"];
-
-  charts[canvasId]=new Chart(document.getElementById(canvasId),{
-
-    type:"bar",
-
-    data:{
-      labels:comp.labels,
-
-      datasets:comp.datasets.map((ds,i)=>({
-
-        label:ds.label,
-        data:ds.data,
-        backgroundColor:colors[i%colors.length],
-        borderRadius:5,
-        maxBarThickness:48
-
-      }))
-    },
-
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      interaction:{mode:"index",intersect:false},
-
-      plugins:{
-        legend:{position:"bottom"},
-        tooltip:{
-          callbacks:{
-            label:ctx=>ctx.dataset.label+": "+money(ctx.raw)
-          }
-        }
-      },
-
-      scales:{
-        y:{
-          beginAtZero:true,
-          ticks:{callback:v=>number(v)}
-        },
-        x:{grid:{display:false}}
-      }
-    }
-  });
+function setChart(id,config){
+ if(charts[id])charts[id].destroy();
+ const canvas=document.getElementById(id);
+ const isMobile=window.innerWidth<=800;
+ const opts=config.options||{};
+ opts.responsive=true;opts.maintainAspectRatio=false;
+ opts.plugins=opts.plugins||{};
+ opts.plugins.datalabels={
+  display:ctx=>!isMobile && ctx.dataset.type!=="line",
+  formatter:v=>compact(v),
+  color:"#334155",anchor:"end",align:"top",
+  font:{weight:"bold",size:10},
+  clamp:true
+ };
+ charts[id]=new Chart(canvas,{...config,options:opts,plugins:[ChartDataLabels]});
 }
-
-function compareSummary(comp){
-
-  if(comp.datasets.length<2){
-    return "비교할 연도가 2개 이상이면 전년 대비 증감이 표시됩니다.";
-  }
-
-  const last=comp.datasets[comp.datasets.length-1];
-  const prev=comp.datasets[comp.datasets.length-2];
-
-  const currentTotal=last.data.reduce((a,b)=>a+b,0);
-  const previousTotal=prev.data.reduce((a,b)=>a+b,0);
-
-  const diff=currentTotal-previousTotal;
-  const rate=previousTotal ? diff/previousTotal*100 : 0;
-
-  return `<span>${prev.label} 매출 <strong>${money(previousTotal)}</strong></span>
-    <span>${last.label} 매출 <strong>${money(currentTotal)}</strong></span>
-    <span>증감액 <strong class="${diff>=0?"positive":"negative"}">${diff>=0?"+":""}${money(diff)}</strong></span>
-    <span>증감률 <strong class="${diff>=0?"positive":"negative"}">${diff>=0?"+":""}${rate.toFixed(1)}%</strong></span>`;
-}
-
-/* =========================
-   종합 현황 전년 대비 비교
-   기준 연도와 직전 2개 연도 표시
-========================= */
-function getOverviewComparisonData(unit){
-
-  const selectedYear=Number(document.getElementById("overviewYear").value);
-  const years=[selectedYear-2,selectedYear-1,selectedYear];
-
-  let labels=[];
-
-  if(unit==="quarter"){
-    labels=["1분기","2분기","3분기","4분기"];
-  }else if(unit==="month"){
-    labels=Array.from({length:12},(_,i)=>(i+1)+"월");
-  }else{
-    labels=["연간 매출"];
-  }
-
-  const datasets=years.map(year=>{
-
-    const values=labels.map((label,index)=>{
-
-      const rows=salesData.filter(s=>{
-
-        if(s.date.getFullYear()!==year) return false;
-
-        const customer=document.getElementById("customerFilter").value;
-        if(customer && s.customer!==customer) return false;
-
-        if(unit==="quarter"){
-          return Math.ceil((s.date.getMonth()+1)/3)===index+1;
-        }
-
-        if(unit==="month"){
-          return s.date.getMonth()===index;
-        }
-
-        return true;
-      });
-
-      return sumBy(rows,"sales");
-    });
-
-    return {
-      label:year+"년",
-      data:values
-    };
-  });
-
-  return {labels,datasets,years};
-}
-
-/* =========================
-   기간별 비교 데이터
-   공통 조회 기간 기준
-========================= */
-function getSelectedRange(){
-
-  const start=document.getElementById("startYear").value+"-"+
-    String(document.getElementById("startMonth").value).padStart(2,"0");
-
-  const end=document.getElementById("endYear").value+"-"+
-    String(document.getElementById("endMonth").value).padStart(2,"0");
-
-  return {
-    startYear:Number(start.slice(0,4)),
-    endYear:Number(end.slice(0,4)),
-    startMonth:Number(start.slice(5,7)),
-    endMonth:Number(end.slice(5,7))
-  };
-}
-
-function getComparisonData(unit){
-
-  const range=getSelectedRange();
-
-  const years=[];
-
-  for(let y=range.startYear;y<=range.endYear;y++){
-    years.push(y);
-  }
-
-  const labels=[];
-
-  if(unit==="month"){
-
-    for(let m=range.startMonth;m<=range.endMonth;m++){
-      labels.push(String(m).padStart(2,"0")+"월");
-    }
-
-  }else if(unit==="quarter"){
-
-    const firstQ=Math.ceil(range.startMonth/3);
-    const lastQ=Math.ceil(range.endMonth/3);
-
-    for(let q=firstQ;q<=lastQ;q++){
-      labels.push(q+"분기");
-    }
-
-  }else{
-
-    labels.push("연간 매출");
-  }
-
-  const datasets=years.map(year=>{
-
-    const values=labels.map(label=>{
-
-      const rows=salesData.filter(s=>{
-
-        if(s.date.getFullYear()!==year) return false;
-
-        if(unit==="month"){
-
-          const m=s.date.getMonth()+1;
-
-          return m>=range.startMonth &&
-            m<=range.endMonth &&
-            label===String(m).padStart(2,"0")+"월";
-        }
-
-        if(unit==="quarter"){
-
-          const q=Math.ceil((s.date.getMonth()+1)/3);
-
-          return q>=Math.ceil(range.startMonth/3) &&
-            q<=Math.ceil(range.endMonth/3) &&
-            label===q+"분기";
-        }
-
-        return true;
-
-      }).filter(s=>{
-
-        const customer=document.getElementById("customerFilter").value;
-
-        if(customer && s.customer!==customer) return false;
-
-        return true;
-      });
-
-      return sumBy(rows,"sales");
-    });
-
-    return {
-      label:year+"년",
-      data:values
-    };
-  });
-
-  return {labels,datasets};
-}
-
-/* =========================
-   종합 현황
-========================= */
 function renderOverview(){
-
-  document.getElementById("totalSales").textContent=money(sumBy(filteredData,"sales"));
-  document.getElementById("totalCollection").textContent=money(sumBy(filteredData,"collection"));
-
-  const unit=document.getElementById("overviewUnit").value;
-  const comp=getOverviewComparisonData(unit);
-
-  drawGroupedBar("overviewChart",comp);
-
-  document.getElementById("overviewSummary").innerHTML=compareSummary(comp);
-
-  document.getElementById("overviewCompareDescription").textContent=
-    comp.years[0]+"년부터 "+comp.years[2]+"년까지 최근 3개 연도 비교";
-
-  /* 지역별 매출 */
-  const regions=groupBy(filteredData,s=>s.region || "기타");
-
-  const regionLabels=Object.keys(regions);
-  const regionValues=regionLabels.map(k=>sumBy(regions[k],"sales"));
-
-  if(charts.regionChart) charts.regionChart.destroy();
-
-  charts.regionChart=new Chart(document.getElementById("regionChart"),{
-
-    type:"doughnut",
-
-    data:{
-      labels:regionLabels,
-      datasets:[{
-        data:regionValues,
-        backgroundColor:[
-          "#2563eb","#0f9f78","#f59e0b","#8b5cf6","#ec4899",
-          "#06b6d4","#64748b","#84cc16","#f97316"
-        ]
-      }]
-    },
-
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{
-        legend:{position:"bottom"},
-        tooltip:{
-          callbacks:{
-            label:ctx=>ctx.label+": "+money(ctx.raw)
-          }
-        }
-      }
-    }
-  });
-
-  /* 거래처 TOP 10 */
-  const top=customerSummary(filteredData).slice(0,10);
-
-  if(charts.topCustomerChart) charts.topCustomerChart.destroy();
-
-  charts.topCustomerChart=new Chart(document.getElementById("topCustomerChart"),{
-
-    type:"bar",
-
-    data:{
-      labels:top.map(x=>x.name),
-      datasets:[{
-        label:"매출액",
-        data:top.map(x=>x.sales),
-        backgroundColor:"#3b82f6",
-        borderRadius:5
-      }]
-    },
-
-    options:{
-      indexAxis:"y",
-      responsive:true,
-      maintainAspectRatio:false,
-
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          callbacks:{
-            label:ctx=>money(ctx.raw)
-          }
-        }
-      },
-
-      scales:{
-        x:{
-          beginAtZero:true,
-          ticks:{callback:v=>number(v)}
-        },
-        y:{grid:{display:false}}
-      }
-    }
-  });
-
-  /* 거래처별 요약 */
-  const rows=customerSummary(filteredData);
-
-  document.getElementById("overviewCustomerTable").innerHTML=rows.length
-
-    ? rows.map(r=>`<tr>
-      <td class="name">${escapeHTML(r.name)}</td>
-      <td class="amount">${money(r.sales)}</td>
-      <td>${money(r.collection)}</td>
-      <td class="unpaid">${money(r.unpaid)}</td>
-    </tr>`).join("")
-
-    : '<tr><td colspan="4" class="empty">조회된 데이터가 없습니다.</td></tr>';
+ const years=[...new Set(salesData.map(d=>d.year))].sort((a,b)=>b-a).slice(0,3).sort((a,b)=>a-b);
+ const unit=document.getElementById("overviewUnit").value;
+ const labels=unit==="month"?Array.from({length:12},(_,i)=>(i+1)+"월"):
+  unit==="quarter"?["1분기","2분기","3분기","4분기"]:years.map(String);
+ const datasets=years.map((y,i)=>({
+  label:y+"년",
+  data:labels.map((_,idx)=>{
+   return sum(salesData.filter(d=>d.year===y&&
+    (unit==="month"?d.date.getMonth()===idx:
+     unit==="quarter"?Math.floor(d.date.getMonth()/3)===idx:true)&&
+    (!selectedCustomer||d.customer===selectedCustomer)),"sales");
+  }),
+  backgroundColor:["#2563eb","#10b981","#f59e0b"][i]
+ }));
+ setChart("overviewChart",{type:"bar",data:{labels,datasets},options:{plugins:{legend:{position:"top"}}}});
+ const regions=groupRegion(filteredData);
+ setChart("regionChart",{type:"doughnut",data:{
+  labels:regions.map(x=>x.region),
+  datasets:[{data:regions.map(x=>x.sales),backgroundColor:["#2563eb","#10b981","#f59e0b","#8b5cf6","#ec4899","#14b8a6","#64748b","#f97316","#84cc16"]}]
+ },options:{plugins:{legend:{position:"bottom"}}}});
+ const top=customerSummary(filteredData).sort((a,b)=>b.sales-a.sales).slice(0,10);
+ setChart("topChart",{type:"bar",data:{labels:top.map(x=>x.customer),datasets:[{label:"매출액",data:top.map(x=>x.sales),backgroundColor:"#3b82f6"}]},options:{indexAxis:"y",plugins:{legend:{display:false}}}});
+ renderRegionTable(regions);
+ renderOverviewCustomerTable(customerSummary(filteredData).sort((a,b)=>b.sales-a.sales));
 }
-
-/* =========================
-   영업사원별 매출 조회 조건
-========================= */
-function updateSalespersonPeriodOptions(){
-
-  const unit=document.getElementById("salespersonUnit").value;
-
-  document.getElementById("salespersonMonthWrap").style.display=
-    unit==="month"?"flex":"none";
-
-  document.getElementById("salespersonQuarterWrap").style.display=
-    unit==="quarter"?"flex":"none";
-
-  renderSalesperson();
+function renderRegionTable(regions){
+ const row=r=>`<tr class="clickable" onclick="openRegion('${esc(r.region)}')">
+ <td class="name">${esc(r.region)}</td><td class="amount">${money(r.sales)}</td>
+ <td>${money(r.collection)}</td><td>${money(r.unpaid)}</td><td>${r.customers.size}곳</td></tr>`;
+ document.getElementById("regionTable").innerHTML=regions.map(row).join("")||'<tr><td colspan="5" class="empty">데이터가 없습니다.</td></tr>';
+ document.getElementById("regionCards").innerHTML=regions.map(r=>`
+ <div class="data-card clickable" onclick="openRegion('${esc(r.region)}')">
+ <h4>${esc(r.region)} · ${r.customers.size}곳</h4>
+ <div class="card-grid">
+ <div class="card-item"><span>매출액</span><strong class="amount">${money(r.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(r.collection)}</strong></div>
+ <div class="card-item"><span>미수금</span><strong>${money(r.unpaid)}</strong></div>
+ </div></div>`).join("");
 }
-
-/* =========================
-   영업사원별 매출
-   조재호 / 윤선환
-========================= */
-function getSalespersonData(){
-
-  const name=document.getElementById("salespersonSelect").value;
-  const year=Number(document.getElementById("salespersonYear").value);
-  const unit=document.getElementById("salespersonUnit").value;
-
-  let month=Number(document.getElementById("salespersonMonth").value);
-  let quarter=Number(document.getElementById("salespersonQuarter").value);
-
-  let list=salesData.filter(s=>
-    s.salesperson===name &&
-    s.date.getFullYear()===year
-  );
-
-  let labels=[];
-  let groupedRows=[];
-
-  if(unit==="year"){
-
-    labels=["연간 전체"];
-
-    groupedRows=[list];
-
-  }else if(unit==="month"){
-
-    list=list.filter(s=>s.date.getMonth()+1===month);
-
-    labels=[month+"월"];
-
-    groupedRows=[list];
-
-  }else{
-
-    list=list.filter(s=>
-      Math.ceil((s.date.getMonth()+1)/3)===quarter
-    );
-
-    const startMonth=(quarter-1)*3+1;
-
-    labels=[
-      startMonth+"월",
-      (startMonth+1)+"월",
-      (startMonth+2)+"월"
-    ];
-
-    groupedRows=labels.map((label,index)=>
-      list.filter(s=>s.date.getMonth()+1===startMonth+index)
-    );
-  }
-
-  return {
-    name,
-    year,
-    unit,
-    month,
-    quarter,
-    list,
-    labels,
-    groupedRows
-  };
+function openRegion(region){
+ selectedRegion=region;
+ const list=customerSummary(filteredData).filter(c=>c.region===region).sort((a,b)=>b.sales-a.sales);
+ document.getElementById("regionDetailPanel").style.display="block";
+ document.getElementById("regionDetailTitle").textContent=region+" 지역 거래처별 매출";
+ document.getElementById("regionDetailTable").innerHTML=list.map(c=>`<tr>
+ <td class="name">${esc(c.customer)}</td><td class="amount">${money(c.sales)}</td>
+ <td>${money(c.collection)}</td><td>${money(c.unpaid)}</td></tr>`).join("")||'<tr><td colspan="4" class="empty">데이터가 없습니다.</td></tr>';
+ document.getElementById("regionDetailCards").innerHTML=list.map(c=>`
+ <div class="data-card"><h4>${esc(c.customer)}</h4><div class="card-grid">
+ <div class="card-item"><span>매출액</span><strong class="amount">${money(c.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(c.collection)}</strong></div>
+ <div class="card-item"><span>미수금</span><strong>${money(c.unpaid)}</strong></div>
+ </div></div>`).join("");
+ document.getElementById("regionDetailPanel").scrollIntoView({behavior:"smooth",block:"start"});
 }
-
+function closeRegionDetail(){document.getElementById("regionDetailPanel").style.display="none"}
+function renderOverviewCustomerTable(list){
+ document.getElementById("overviewCustomerTable").innerHTML=list.map(c=>`<tr>
+ <td class="name">${esc(c.customer)}</td><td>${esc(c.region)}</td>
+ <td class="amount">${money(c.sales)}</td><td>${money(c.collection)}</td><td>${money(c.unpaid)}</td>
+ </tr>`).join("")||'<tr><td colspan="5" class="empty">데이터가 없습니다.</td></tr>';
+ document.getElementById("overviewCustomerCards").innerHTML=list.map(c=>`
+ <div class="data-card"><h4>${esc(c.customer)} · ${esc(c.region)}</h4><div class="card-grid">
+ <div class="card-item"><span>매출액</span><strong class="amount">${money(c.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(c.collection)}</strong></div>
+ <div class="card-item"><span>미수금</span><strong>${money(c.unpaid)}</strong></div>
+ </div></div>`).join("");
+}
 function renderSalesperson(){
-
-  const result=getSalespersonData();
-
-  const name=result.name;
-  const year=result.year;
-  const unit=result.unit;
-
-  let description="";
-
-  if(unit==="year"){
-    description=year+"년 전체";
-  }else if(unit==="month"){
-    description=year+"년 "+result.month+"월";
-  }else{
-    description=year+"년 "+result.quarter+"분기";
-  }
-
-  document.getElementById("salespersonChartTitle").textContent=
-    name+" 매출 및 수금";
-
-  document.getElementById("salespersonChartDescription").textContent=
-    description;
-
-  const salesValues=result.groupedRows.map(rows=>sumBy(rows,"sales"));
-  const collectionValues=result.groupedRows.map(rows=>sumBy(rows,"collection"));
-
-  if(charts.salespersonChart) charts.salespersonChart.destroy();
-
-  charts.salespersonChart=new Chart(document.getElementById("salespersonChart"),{
-
-    type:"bar",
-
-    data:{
-      labels:result.labels,
-
-      datasets:[
-        {
-          label:"매출액",
-          data:salesValues,
-          backgroundColor:"#2563eb",
-          borderRadius:5
-        },
-        {
-          label:"수금액",
-          data:collectionValues,
-          backgroundColor:"#10b981",
-          borderRadius:5
-        }
-      ]
-    },
-
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-
-      plugins:{
-        legend:{position:"bottom"},
-        tooltip:{
-          callbacks:{
-            label:ctx=>ctx.dataset.label+": "+money(ctx.raw)
-          }
-        }
-      },
-
-      scales:{
-        y:{
-          beginAtZero:true,
-          ticks:{callback:v=>number(v)}
-        },
-        x:{grid:{display:false}}
-      }
-    }
-  });
-
-  const totalSales=sumBy(result.list,"sales");
-  const totalCollection=sumBy(result.list,"collection");
-  const customers=new Set(result.list.map(s=>s.customer)).size;
-
-  document.getElementById("salespersonTable").innerHTML=`
-    <tr>
-      <td class="name">${escapeHTML(name)}</td>
-      <td class="amount">${money(totalSales)}</td>
-      <td>${money(totalCollection)}</td>
-      <td>${number(customers)}곳</td>
-      <td>${number(result.list.length)}건</td>
-    </tr>`;
+ const person=document.getElementById("salespersonSelect").value;
+ const year=+document.getElementById("salespersonYear").value;
+ const unit=document.getElementById("salespersonUnit").value;
+ const arr=salesData.filter(d=>d.year===year&&d.salesperson===person);
+ const count=unit==="month"?12:4;
+ const labels=Array.from({length:count},(_,i)=>unit==="month"?(i+1)+"월":(i+1)+"분기");
+ const sales=[],collections=[],customerCounts=[];
+ for(let i=0;i<count;i++){
+  const part=arr.filter(d=>unit==="month"?d.date.getMonth()===i:Math.floor(d.date.getMonth()/3)===i);
+  sales.push(sum(part,"sales"));collections.push(sum(part,"collection"));
+  customerCounts.push(new Set(part.map(d=>d.customer)).size);
+ }
+ setChart("salespersonChart",{type:"bar",data:{labels,datasets:[
+  {label:"매출액",data:sales,backgroundColor:"#2563eb"},
+  {label:"수금액",data:collections,backgroundColor:"#10b981"}
+ ]},options:{plugins:{legend:{position:"top"}}}});
+ const rows=labels.map((label,i)=>({label,sales:sales[i],collection:collections[i],customers:customerCounts[i]}));
+ document.getElementById("salespersonTable").innerHTML=rows.map(r=>`<tr>
+ <td class="name">${r.label}</td><td class="amount">${money(r.sales)}</td>
+ <td>${money(r.collection)}</td><td>${r.customers}곳</td></tr>`).join("");
+ document.getElementById("salespersonCards").innerHTML=rows.map(r=>`
+ <div class="data-card"><h4>${r.label}</h4><div class="card-grid">
+ <div class="card-item"><span>매출액</span><strong class="amount">${money(r.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(r.collection)}</strong></div>
+ <div class="card-item"><span>거래처 수</span><strong>${r.customers}곳</strong></div>
+ </div></div>`).join("");
 }
-
-/* =========================
-   기간별 매출
-   선택 연도의 1~12월 전체 표시
-   상세 내역은 항상 월별 집계
-========================= */
 function renderPeriod(){
-
-  const year=Number(
-    document.getElementById("periodYear").value
-  );
-
-  const unit=document.getElementById("periodUnit").value;
-
-  const customer=document.getElementById("customerFilter").value;
-
-  // 선택 연도의 데이터만 가져오기
-  const yearData=salesData.filter(s=>{
-
-    if(s.date.getFullYear()!==year) return false;
-
-    if(customer && s.customer!==customer) return false;
-
-    return true;
-  });
-
-  let labels=[];
-  let groupedRows=[];
-
-  // 월별
-  if(unit==="month"){
-
-    labels=Array.from(
-      {length:12},
-      (_,i)=>(i+1)+"월"
-    );
-
-    groupedRows=labels.map((label,index)=>
-      yearData.filter(s=>s.date.getMonth()===index)
-    );
-
-  }
-
-  // 분기별
-  else if(unit==="quarter"){
-
-    labels=["1분기","2분기","3분기","4분기"];
-
-    groupedRows=labels.map((label,index)=>
-      yearData.filter(s=>
-        Math.ceil((s.date.getMonth()+1)/3)===index+1
-      )
-    );
-
-  }
-
-  // 연도별
-  else{
-
-    labels=[year+"년"];
-
-    groupedRows=[yearData];
-  }
-
-  const salesValues=groupedRows.map(rows=>
-    sumBy(rows,"sales")
-  );
-
-  const collectionValues=groupedRows.map(rows=>
-    sumBy(rows,"collection")
-  );
-
-  // 기존 그래프 제거
-  if(charts.periodChart){
-    charts.periodChart.destroy();
-  }
-
-  // 그래프 생성
-  charts.periodChart=new Chart(
-    document.getElementById("periodChart"),
-    {
-      type:"bar",
-
-      data:{
-        labels:labels,
-
-        datasets:[
-          {
-            label:"매출액",
-            data:salesValues,
-            backgroundColor:"#2563eb",
-            borderRadius:5,
-            maxBarThickness:48
-          },
-          {
-            label:"수금액",
-            data:collectionValues,
-            backgroundColor:"#10b981",
-            borderRadius:5,
-            maxBarThickness:48
-          }
-        ]
-      },
-
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-
-        plugins:{
-          legend:{
-            position:"bottom"
-          },
-
-          datalabels:{
-            display:true,
-            anchor:"end",
-            align:"end",
-            offset:4,
-            clamp:true,
-            color:"#344054",
-            font:{
-              weight:"bold",
-              size:10
-            },
-            formatter:value=>formatCompactAmount(value)
-          },
-
-          tooltip:{
-            callbacks:{
-              label:ctx=>
-                ctx.dataset.label+": "+money(ctx.raw)
-            }
-          }
-        },
-
-        scales:{
-          y:{
-            beginAtZero:true,
-            ticks:{
-              callback:v=>number(v)
-            }
-          },
-
-          x:{
-            grid:{
-              display:false
-            }
-          }
-        }
-      }
-    }
-  );
-
-  // 요약 정보
-  const totalSales=sumBy(yearData,"sales");
-  const totalCollection=sumBy(yearData,"collection");
-
-  document.getElementById("periodSummary").innerHTML=`
-    <span>조회 연도 <strong>${year}년</strong></span>
-    <span>총 매출액 <strong>${money(totalSales)}</strong></span>
-    <span>총 수금액 <strong>${money(totalCollection)}</strong></span>
-  `;
-
-  // 상세 내역은 그래프 단위와 관계없이 항상 월별
-  const monthlyRows=[];
-
-  for(let month=1;month<=12;month++){
-
-    const list=yearData.filter(s=>
-      s.date.getMonth()+1===month
-    );
-
-    monthlyRows.push({
-      month,
-      sales:sumBy(list,"sales"),
-      collection:sumBy(list,"collection"),
-      count:list.length
-    });
-  }
-
-  document.getElementById("periodTable").innerHTML=
-    monthlyRows.map(r=>`
-      <tr>
-        <td class="name">${year}년 ${r.month}월</td>
-        <td class="amount">${money(r.sales)}</td>
-        <td>${money(r.collection)}</td>
-        <td>${number(r.count)}건</td>
-      </tr>
-    `).join("");
+ const year=+document.getElementById("periodYear").value;
+ const unit=document.getElementById("periodUnit").value;
+ const arr=salesData.filter(d=>d.year===year&&(!selectedCustomer||d.customer===selectedCustomer));
+ const labels=unit==="month"?Array.from({length:12},(_,i)=>(i+1)+"월"):
+  unit==="quarter"?["1분기","2분기","3분기","4분기"]:[String(year)];
+ const sales=labels.map((_,i)=>sum(arr.filter(d=>
+  unit==="month"?d.date.getMonth()===i:
+  unit==="quarter"?Math.floor(d.date.getMonth()/3)===i:true),"sales"));
+ const collections=labels.map((_,i)=>sum(arr.filter(d=>
+  unit==="month"?d.date.getMonth()===i:
+  unit==="quarter"?Math.floor(d.date.getMonth()/3)===i:true),"collection"));
+ setChart("periodChart",{type:"bar",data:{labels,datasets:[
+  {label:"매출액",data:sales,backgroundColor:"#2563eb"},
+  {label:"수금액",data:collections,backgroundColor:"#10b981"}
+ ]},options:{plugins:{legend:{position:"top"}}}});
+ const monthly=Array.from({length:12},(_,i)=>{
+  const part=arr.filter(d=>d.date.getMonth()===i);
+  return {month:i+1,sales:sum(part,"sales"),collection:sum(part,"collection")};
+ });
+ document.getElementById("periodTable").innerHTML=monthly.map(r=>`<tr>
+ <td class="name">${r.month}월</td><td class="amount">${money(r.sales)}</td>
+ <td>${money(r.collection)}</td></tr>`).join("");
+ document.getElementById("periodCards").innerHTML=monthly.map(r=>`
+ <div class="data-card"><h4>${r.month}월</h4><div class="card-grid">
+ <div class="card-item"><span>매출액</span><strong class="amount">${money(r.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(r.collection)}</strong></div>
+ </div></div>`).join("");
 }
-
-/* =========================
-   거래처별 매출
-========================= */
-function renderCustomer(){
-
-  const search=document.getElementById("customerSearch").value.trim().toLowerCase();
-
-  const rows=customerSummary(filteredData)
-    .filter(r=>r.name.toLowerCase().includes(search));
-
-  document.getElementById("customerTable").innerHTML=rows.length
-
-    ? rows.map(r=>`<tr>
-      <td class="name">${escapeHTML(r.name)}</td>
-      <td class="amount">${money(r.sales)}</td>
-      <td>${money(r.collection)}</td>
-      <td class="unpaid">${money(r.unpaid)}</td>
-    </tr>`).join("")
-
-    : '<tr><td colspan="4" class="empty">조회된 데이터가 없습니다.</td></tr>';
+function renderCustomerTab(){
+ const q=(document.getElementById("customerTabSearch")?.value||"").trim().toLowerCase();
+ const list=customerSummary(filteredData).filter(c=>c.customer.toLowerCase().includes(q)).sort((a,b)=>b.sales-a.sales);
+ document.getElementById("customerTable").innerHTML=list.map(c=>`<tr class="clickable" onclick="showCustomerDaily('${esc(c.customer)}')">
+ <td class="name">${esc(c.customer)}</td><td>${esc(c.region)}</td>
+ <td class="amount">${money(c.sales)}</td><td>${money(c.collection)}</td><td>${money(c.unpaid)}</td>
+ </tr>`).join("")||'<tr><td colspan="5" class="empty">검색 결과가 없습니다.</td></tr>';
+ document.getElementById("customerCards").innerHTML=list.map(c=>`
+ <div class="data-card clickable" onclick="showCustomerDaily('${esc(c.customer)}')">
+ <h4>${esc(c.customer)} · ${esc(c.region)}</h4><div class="card-grid">
+ <div class="card-item"><span>매출액</span><strong class="amount">${money(c.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(c.collection)}</strong></div>
+ <div class="card-item"><span>미수금</span><strong>${money(c.unpaid)}</strong></div>
+ </div></div>`).join("");
 }
-
-function renderCustomerDaily(){
-
-  const name=document.getElementById("detailCustomer").value;
-
-  const tbody=document.getElementById("customerDailyTable");
-
-  if(!name){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">거래처를 선택해 주세요.</td></tr>';
-    return;
-  }
-
-  const rows=filteredData
-    .filter(s=>s.customer===name)
-    .sort((a,b)=>a.date-b.date);
-
-  tbody.innerHTML=rows.length
-
-    ? rows.map(s=>`<tr>
-      <td>${s.date.getFullYear()}-${String(s.date.getMonth()+1).padStart(2,"0")}-${String(s.date.getDate()).padStart(2,"0")}</td>
-      <td class="name">${escapeHTML(s.customer)}</td>
-      <td class="amount">${money(s.sales)}</td>
-      <td>${money(s.collection)}</td>
-      <td class="unpaid">${money(s.unpaid)}</td>
-    </tr>`).join("")
-
-    : '<tr><td colspan="5" class="empty">선택한 기간에 매출 내역이 없습니다.</td></tr>';
+function showCustomerDaily(name){
+ const arr=filteredData.filter(d=>d.customer===name).sort((a,b)=>a.date-b.date);
+ document.getElementById("dailyTitle").textContent=name+" 일별 매출현황";
+ document.getElementById("dailyTable").innerHTML=arr.map(d=>`<tr>
+ <td>${d.date.getFullYear()}-${String(d.date.getMonth()+1).padStart(2,"0")}-${String(d.date.getDate()).padStart(2,"0")}</td>
+ <td class="name">${esc(d.customer)}</td><td class="amount">${money(d.sales)}</td>
+ <td>${money(d.collection)}</td><td>${money(d.unpaid)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">내역이 없습니다.</td></tr>';
+ document.getElementById("dailyCards").innerHTML=arr.map(d=>`
+ <div class="data-card"><h4>${d.date.getFullYear()}-${String(d.date.getMonth()+1).padStart(2,"0")}-${String(d.date.getDate()).padStart(2,"0")}</h4>
+ <div class="card-grid"><div class="card-item"><span>매출액</span><strong class="amount">${money(d.sales)}</strong></div>
+ <div class="card-item"><span>수금액</span><strong>${money(d.collection)}</strong></div>
+ <div class="card-item"><span>미수금</span><strong>${money(d.unpaid)}</strong></div></div></div>`).join("");
+ document.getElementById("dailyTitle").scrollIntoView({behavior:"smooth",block:"center"});
 }
-
-/* =========================
-   화면 전환 및 보조 함수
-========================= */
-function escapeHTML(value){
-
-  return String(value).replace(/[&<>"']/g,char=>({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  })[char]);
-}
-
-document.querySelectorAll(".nav button").forEach(btn=>{
-
-  btn.addEventListener("click",()=>{
-
-    document.querySelectorAll(".nav button")
-      .forEach(b=>b.classList.remove("active"));
-
-    document.querySelectorAll(".page")
-      .forEach(p=>p.classList.remove("active"));
-
-    btn.classList.add("active");
-
-    document.getElementById(btn.dataset.page).classList.add("active");
-
-    /* 탭 이동 시 그래프 크기 재계산 */
-    setTimeout(()=>{
-      Object.values(charts).forEach(chart=>{
-        if(chart) chart.resize();
-      });
-    },50);
-  });
+window.addEventListener("resize",()=>{
+ Object.keys(charts).forEach(id=>charts[id]?.resize());
 });
-
-/* 최초 실행 */
-initializeDateControls();
 loadData();
 </script>
 </body>
