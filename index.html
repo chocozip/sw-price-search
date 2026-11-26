@@ -436,31 +436,63 @@ function parseAmount(value){
   return isNegative?-Math.abs(n):n;
 }
 
+
 function parseDate(value){
-  if(!value) return null;
+  if(value===null || value===undefined) return null;
 
   const s=String(value).trim();
 
-  // 구글 시트 CSV의 Date(2025,0,1) 형식
-  let m=s.match(/Date\(\s*(\d{4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})/i);
+  if(!s) return null;
 
-  if(m){
-    const d=new Date(+m[1],+m[2],+m[3]);
-    return isNaN(d.getTime())?null:d;
+  // 1. YYYYMMDD 형식 (예: 20220816)
+  if(/^\d{8}$/.test(s)){
+    const y=Number(s.substring(0,4));
+    const m=Number(s.substring(4,6));
+    const d=Number(s.substring(6,8));
+
+    const date=new Date(y,m-1,d);
+
+    if(
+      date.getFullYear()===y &&
+      date.getMonth()===m-1 &&
+      date.getDate()===d
+    ){
+      return date;
+    }
+
+    return null;
   }
 
-  // yyyy-mm-dd, yyyy. m. d. 등
-  m=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  // 2. 구글 시트 Date(2025,0,1) 형식
+  let match=s.match(/Date\(\s*(\d{4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})/i);
 
-  if(m){
-    const d=new Date(+m[1],+m[2]-1,+m[3]);
-    if(!isNaN(d.getTime())) return d;
+  if(match){
+    return new Date(
+      Number(match[1]),
+      Number(match[2]),
+      Number(match[3])
+    );
   }
 
-  const d=new Date(s);
+  // 3. YYYY-MM-DD, YYYY. M. D. 형식
+  match=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
 
-  return isNaN(d.getTime())?null:d;
+  if(match){
+    const date=new Date(
+      Number(match[1]),
+      Number(match[2])-1,
+      Number(match[3])
+    );
+
+    if(!isNaN(date.getTime())) return date;
+  }
+
+  // 4. 일반 날짜 형식
+  const date=new Date(s);
+
+  return isNaN(date.getTime())?null:date;
 }
+
 
 function monthKey(date){
   return date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0");
