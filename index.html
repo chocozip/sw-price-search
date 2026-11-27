@@ -4,20 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>매출 현황</title>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f4f6fa;color:#202938;font-family:Arial,"Malgun Gothic",sans-serif}
 button,input,select{font:inherit}
 button{cursor:pointer}
-
 .header{background:#243b60;color:white;padding:12px 22px}
 .header h1{margin:0;font-size:21px}
 .header p{margin:3px 0 0;color:#d5deed;font-size:12px}
-
 .container{max-width:1450px;margin:auto;padding:20px}
 .filter-box,.panel,.kpi{background:white;border-radius:13px;padding:17px;box-shadow:0 2px 9px #172b4d0d}
 .filter-box{margin-bottom:18px}
@@ -27,22 +23,18 @@ button{cursor:pointer}
 .field input,.field select{width:100%;height:42px;border:1px solid #dce2eb;border-radius:8px;padding:0 10px;background:white;min-width:0}
 .btn{height:42px;border:0;border-radius:8px;background:#2563eb;color:white;padding:0 20px;font-weight:bold}
 .btn.gray{background:#64748b}
-
 .nav{display:flex;gap:8px;overflow-x:auto;margin:16px 0}
 .nav button{border:0;background:#e5eaf2;color:#42516a;padding:12px 18px;border-radius:9px;white-space:nowrap}
 .nav button.active{background:#243b60;color:white}
-
 .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
 .kpi .label{font-size:13px;color:#64748b}
 .kpi .value{font-size:25px;font-weight:800;margin-top:8px;color:#1d4ed8;overflow-wrap:anywhere}
 .kpi.green .value{color:#059669}
-
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
 .panel{margin-bottom:16px;min-width:0}
 .panel h3{margin:0 0 15px;font-size:16px}
 .chart-wrap{position:relative;height:310px;width:100%}
 .table-wrap{overflow-x:auto;width:100%}
-
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:11px 9px;border-bottom:1px solid #e8edf3;text-align:right;white-space:nowrap}
 th{background:#f7f9fc;color:#536174;font-weight:700}
@@ -52,14 +44,12 @@ td.name{text-align:left;font-weight:600}
 .clickable{cursor:pointer}
 .clickable:hover{background:#eff6ff}
 .empty{text-align:center!important;padding:25px;color:#94a3b8}
-
 .section{display:none}
 .section.active{display:block}
 .search-wrap{position:relative}
 .suggestions{position:absolute;z-index:20;top:44px;left:0;right:0;background:white;border:1px solid #dbe2ea;border-radius:8px;max-height:230px;overflow:auto;box-shadow:0 5px 15px #0002}
 .suggestions div{padding:11px;cursor:pointer;font-size:13px}
 .suggestions div:hover{background:#eff6ff}
-
 .cards{display:none}
 .data-card{border:1px solid #e5eaf0;border-radius:10px;padding:13px;margin-bottom:10px;background:white;min-width:0}
 .data-card h4{margin:0 0 10px;font-size:14px;overflow-wrap:anywhere;word-break:break-word}
@@ -67,13 +57,11 @@ td.name{text-align:left;font-weight:600}
 .card-item{min-width:0}
 .card-item span{display:block;color:#64748b;font-size:11px;margin-bottom:4px}
 .card-item strong{font-size:14px;overflow-wrap:anywhere;word-break:break-word}
-
 .sub-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .sub-title select{height:38px;border:1px solid #dce2eb;border-radius:8px;padding:0 8px;background:white;max-width:100%}
 .loading{text-align:center;padding:40px;color:#64748b}
 .error{background:#fff1f2;color:#be123c;padding:14px;border-radius:9px;margin-bottom:15px;display:none}
 .small-note{font-size:11px;color:#94a3b8;margin-top:8px}
-
 .summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
 .summary-card{background:#fff;border:1px solid #e5eaf0;border-radius:12px;padding:15px;min-width:0}
 .summary-year{font-size:12px;color:#64748b;font-weight:700}
@@ -83,7 +71,6 @@ td.name{text-align:left;font-weight:600}
 .summary-change.down{color:#dc2626}
 .summary-change.same{color:#64748b}
 .summary-caption{font-size:11px;color:#94a3b8;margin-top:4px}
-
 .compare-title{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:13px}
 .compare-title h3{margin:0}
 .customer-count{font-size:12px;color:#64748b;background:#f1f5f9;padding:5px 9px;border-radius:20px;font-weight:600}
@@ -91,7 +78,6 @@ td.name{text-align:left;font-weight:600}
 .inline-filters{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
 .inline-filters .field{min-width:125px}
 .inline-filters .field label{margin-bottom:5px}
-
 @media(max-width:800px){
  .header{padding:9px 13px}
  .header h1{font-size:17px}
@@ -134,7 +120,6 @@ td.name{text-align:left;font-weight:600}
  .inline-filters .field{min-width:calc(50% - 4px);flex:1}
  .small-note{font-size:10px;line-height:1.5}
 }
-
 @media(max-width:380px){
  .container{padding:8px}
  .filter-grid{gap:6px}
@@ -144,7 +129,6 @@ td.name{text-align:left;font-weight:600}
 }
 </style>
 </head>
-
 <body>
 
 <header class="header">
@@ -153,7 +137,6 @@ td.name{text-align:left;font-weight:600}
 </header>
 
 <div class="container">
-
  <div id="errorBox" class="error"></div>
 
  <div class="filter-box">
@@ -197,7 +180,6 @@ td.name{text-align:left;font-weight:600}
  <div id="loading" class="loading">Google Sheets 데이터를 불러오는 중입니다...</div>
 
  <div id="dashboard" style="display:none">
-
   <div class="kpis">
    <div class="kpi">
     <div class="label">총 매출액</div>
@@ -211,7 +193,6 @@ td.name{text-align:left;font-weight:600}
 
   <!-- 종합 현황 -->
   <section id="overview" class="section active">
-
    <div class="panel">
     <div class="sub-title">
      <h3>최근 3개 연도 매출 비교</h3>
@@ -232,7 +213,6 @@ td.name{text-align:left;font-weight:600}
       </div>
      </div>
     </div>
-
     <div id="overviewSummaryCards" class="summary-grid"></div>
     <div class="chart-wrap">
      <canvas id="overviewChart"></canvas>
@@ -240,19 +220,10 @@ td.name{text-align:left;font-weight:600}
     <div class="small-note">최근 3개 연도의 매출을 비교합니다. 지역을 선택하면 해당 지역의 매출만 표시됩니다.</div>
    </div>
 
-   <div class="grid2">
-    <div class="panel">
-     <h3>지역별 매출 비중</h3>
-     <div class="chart-wrap">
-      <canvas id="regionChart"></canvas>
-     </div>
-    </div>
-
-    <div class="panel">
-     <h3>거래처 매출 TOP 10</h3>
-     <div class="chart-wrap">
-      <canvas id="topChart"></canvas>
-     </div>
+   <div class="panel">
+    <h3>지역별 매출 비중</h3>
+    <div class="chart-wrap">
+     <canvas id="regionChart"></canvas>
     </div>
    </div>
 
@@ -296,15 +267,12 @@ td.name{text-align:left;font-weight:600}
     </div>
     <div class="cards" id="regionDetailCards"></div>
    </div>
-
   </section>
 
   <!-- 영업사원별 매출 -->
   <section id="salesperson" class="section">
-
    <div class="panel">
     <div class="filter-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-
      <div class="field">
       <label>영업사원</label>
       <select id="salespersonSelect" onchange="renderSalesperson()">
@@ -312,19 +280,16 @@ td.name{text-align:left;font-weight:600}
        <option value="윤선환">윤선환</option>
       </select>
      </div>
-
      <div class="field">
       <label>지역</label>
       <select id="salespersonRegion" onchange="renderSalesperson()">
        <option value="">전체</option>
       </select>
      </div>
-
      <div class="field">
       <label>기준 연도</label>
       <select id="salespersonYear" onchange="renderSalesperson()"></select>
      </div>
-
      <div class="field">
       <label>조회 단위</label>
       <select id="salespersonUnit" onchange="renderSalesperson()">
@@ -332,7 +297,6 @@ td.name{text-align:left;font-weight:600}
        <option value="quarter">분기별</option>
       </select>
      </div>
-
     </div>
    </div>
 
@@ -381,18 +345,38 @@ td.name{text-align:left;font-weight:600}
     <div class="cards" id="salespersonCards"></div>
    </div>
 
+   <!-- 새로 추가: 영업사원 담당 거래처별 매출 -->
+   <div class="panel">
+    <div class="compare-title">
+     <h3>담당 거래처별 매출</h3>
+     <span class="customer-count" id="salespersonCustomerTotals">매출 0원 · 수금 0원</span>
+    </div>
+    <div class="table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>거래처</th>
+        <th>매출액</th>
+        <th>수금액</th>
+        <th>미수금</th>
+       </tr>
+      </thead>
+      <tbody id="salespersonCustomerTable"></tbody>
+     </table>
+    </div>
+    <div class="cards" id="salespersonCustomerCards"></div>
+    <div class="small-note">매출액과 수금액은 선택한 기준 연도 기준이며, 미수금은 해당 거래처의 가장 최근 날짜 잔액을 표시합니다.</div>
+   </div>
   </section>
 
   <!-- 기간별 매출 -->
   <section id="period" class="section">
-
    <div class="panel">
     <div class="inline-filters">
      <div class="field">
       <label>기준 연도</label>
       <select id="periodYear" onchange="renderPeriod()"></select>
      </div>
-
      <div class="field">
       <label>조회 단위</label>
       <select id="periodUnit" onchange="renderPeriod()">
@@ -401,7 +385,6 @@ td.name{text-align:left;font-weight:600}
        <option value="year">연도별</option>
       </select>
      </div>
-
      <div class="field">
       <label>지역</label>
       <select id="periodRegion" onchange="renderPeriod()">
@@ -409,7 +392,6 @@ td.name{text-align:left;font-weight:600}
       </select>
      </div>
     </div>
-
     <div class="chart-wrap" style="margin-top:15px">
      <canvas id="periodChart"></canvas>
     </div>
@@ -433,15 +415,12 @@ td.name{text-align:left;font-weight:600}
     </div>
     <div class="cards" id="periodCompareCards"></div>
    </div>
-
   </section>
 
   <!-- 거래처별 매출 -->
   <section id="customer" class="section">
-
    <div class="panel">
     <h3>거래처별 매출 현황</h3>
-
     <div class="inline-filters" style="margin-bottom:15px">
      <div class="field" style="min-width:150px;flex:1;max-width:220px">
       <label>지역</label>
@@ -449,13 +428,11 @@ td.name{text-align:left;font-weight:600}
        <option value="">전체</option>
       </select>
      </div>
-
      <div class="field" style="min-width:180px;flex:2;max-width:420px">
       <label>거래처 검색</label>
       <input id="customerTabSearch" placeholder="거래처명 검색" oninput="renderCustomerTab()">
      </div>
     </div>
-
     <div class="table-wrap">
      <table>
       <thead>
@@ -470,7 +447,6 @@ td.name{text-align:left;font-weight:600}
       <tbody id="customerTable"></tbody>
      </table>
     </div>
-
     <div class="cards" id="customerCards"></div>
    </div>
 
@@ -492,9 +468,7 @@ td.name{text-align:left;font-weight:600}
     </div>
     <div class="cards" id="dailyCards"></div>
    </div>
-
   </section>
-
  </div>
 </div>
 
@@ -890,7 +864,7 @@ function groupRegion(arr){
  return Object.values(groups).sort((a,b)=>b.sales-a.sales);
 }
 
-/* 그래프 공통 설정: 숫자 라벨은 PC/모바일 모두 숨김 */
+/* 그래프 공통 설정 */
 function setChart(id,config){
  if(charts[id])charts[id].destroy();
 
@@ -901,9 +875,7 @@ function setChart(id,config){
  opts.maintainAspectRatio=false;
  opts.plugins=opts.plugins||{};
 
- opts.plugins.datalabels={
-  display:false
- };
+ opts.plugins.datalabels={display:false};
 
  opts.plugins.tooltip={
   enabled:true,
@@ -985,9 +957,6 @@ function renderOverview(){
 
  const unit=document.getElementById("overviewUnit").value;
  const region=document.getElementById("overviewRegion").value;
-
- const now=new Date();
- const currentMonth=now.getMonth()+1;
 
  const startMonth=+document.getElementById("startMonth").value;
  const endMonth=+document.getElementById("endMonth").value;
@@ -1081,26 +1050,6 @@ function renderOverview(){
    }]
   },
   options:{plugins:{legend:{position:"bottom"}}}
- });
-
- const top=customerSummary(filteredData.filter(d=>!region||d.region===region))
-  .sort((a,b)=>b.sales-a.sales)
-  .slice(0,10);
-
- setChart("topChart",{
-  type:"bar",
-  data:{
-   labels:top.map(x=>x.customer),
-   datasets:[{
-    label:"매출액",
-    data:top.map(x=>x.sales),
-    backgroundColor:"#3b82f6"
-   }]
-  },
-  options:{
-   indexAxis:"y",
-   plugins:{legend:{display:false}}
-  }
  });
 
  renderRegionTable(regions);
@@ -1337,6 +1286,69 @@ function renderSalesperson(){
    </div>
   </div>
  `).join("");
+
+ /* 담당 거래처별 매출/수금/최신 미수금 */
+ const customerGroups={};
+
+ selectedYearData.forEach(d=>{
+  if(!customerGroups[d.customer]){
+   customerGroups[d.customer]={
+    customer:d.customer,
+    sales:0,
+    collection:0
+   };
+  }
+
+  customerGroups[d.customer].sales+=d.sales;
+  customerGroups[d.customer].collection+=d.collection;
+ });
+
+ /* 미수금은 선택 연도 합계가 아닌 거래처별 최신 날짜 잔액 */
+ const latestBalances=latestUnpaidByCustomer(base);
+
+ const customerRows=Object.values(customerGroups).map(c=>({
+  ...c,
+  unpaid:latestBalances[c.customer]?.unpaid||0
+ })).sort((a,b)=>b.sales-a.sales);
+
+ const customerSalesTotal=sum(customerRows,"sales");
+ const customerCollectionTotal=sum(customerRows,"collection");
+
+ document.getElementById("salespersonCustomerTotals").textContent=
+  "매출 "+money(customerSalesTotal)+" · 수금 "+money(customerCollectionTotal);
+
+ document.getElementById("salespersonCustomerTable").innerHTML=
+  customerRows.map(c=>`
+   <tr>
+    <td class="name">${esc(c.customer)}</td>
+    <td class="amount">${money(c.sales)}</td>
+    <td>${money(c.collection)}</td>
+    <td>${money(c.unpaid)}</td>
+   </tr>
+  `).join("")||
+  '<tr><td colspan="4" class="empty">담당 거래처 매출 내역이 없습니다.</td></tr>';
+
+ document.getElementById("salespersonCustomerCards").innerHTML=
+  customerRows.map(c=>`
+   <div class="data-card">
+    <h4>${esc(c.customer)}</h4>
+    <div class="card-grid">
+     <div class="card-item">
+      <span>매출액</span>
+      <strong class="amount">${money(c.sales)}</strong>
+     </div>
+     <div class="card-item">
+      <span>수금액</span>
+      <strong>${money(c.collection)}</strong>
+     </div>
+     <div class="card-item">
+      <span>미수금</span>
+      <strong>${money(c.unpaid)}</strong>
+     </div>
+    </div>
+   </div>
+  `).join("")||
+  '<div class="data-card">담당 거래처 매출 내역이 없습니다.</div>';
 }
 
 /* 기간별 매출 */
@@ -1395,7 +1407,9 @@ function renderPeriod(){
   labels=years.map(y=>y+"년");
 
   const yearlySales=years.map(y=>
-   sum(base.filter(d=>d.year===y&&d.date.getMonth()+1<=getYearMonthLimit(year)),"sales")
+   sum(base.filter(d=>
+    d.year===y&&d.date.getMonth()+1<=getYearMonthLimit(year)
+   ),"sales")
   );
 
   chartDatasets=[{
@@ -1603,6 +1617,5 @@ window.addEventListener("resize",()=>{
 /* 시작 */
 loadData();
 </script>
-
 </body>
 </html>
